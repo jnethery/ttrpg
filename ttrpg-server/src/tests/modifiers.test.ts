@@ -1,7 +1,7 @@
 import {
   getAbilityRacialModifier,
   getAbilityScoreModifier,
-} from '../../src/utils/modifiers'
+} from 'utils/modifiers'
 
 describe('getAbilityRacialModifier', () => {
   const testCases = [

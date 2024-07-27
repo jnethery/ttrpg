@@ -5,6 +5,10 @@ import { z } from 'zod'
 const PORT = 3009
 const HOST = 'http://localhost'
 
+const terrains = ['rock', 'forest'] as const
+const TerrainSchema = z.enum(terrains)
+type Terrain = z.infer<typeof TerrainSchema>
+
 // TODO: Put all this in types directory
 const MapDataMetaSchema = z.object({
   globalMaxHeight: z.number(),
@@ -22,6 +26,8 @@ const MapDataSegmentSchema = z.object({
     y: z.number(),
     z: z.number(),
   }),
+  waterDepth: z.number(),
+  terrain: TerrainSchema,
 })
 
 const MapDataSchema = z.object({
@@ -46,6 +52,8 @@ interface MapData {
 
 interface MapSegment {
   coordinates: { x: number; y: number; z: number }
+  waterDepth: number
+  terrain: Terrain
 }
 
 function Map() {
@@ -86,15 +94,34 @@ const segmentStyleDimensions = {
   border: 1,
 }
 
-const interpolateColor = (normalizedValue: number): string => {
+const calculateTerrainColor = (
+  grayScaleColor: [number, number, number],
+  segment: MapSegment,
+): [number, number, number] => {
+  if (segment.terrain === 'rock' && segment.waterDepth === 0) {
+    return grayScaleColor
+  } else if (segment.terrain === 'forest') {
+    return [grayScaleColor[0], 255, grayScaleColor[2]]
+  } else if (segment.waterDepth > 0) {
+    return [grayScaleColor[0], grayScaleColor[1], 255]
+  }
+  return grayScaleColor
+}
+
+const calculateHeightColor = (
+  normalizedValue: number,
+): [number, number, number] => {
   const grayValue = Math.round(normalizedValue * 255)
-  return `rgba(${grayValue}, ${grayValue}, ${grayValue}, 1)`
+  return [grayValue, grayValue, grayValue]
 }
 
 function MapSegment({ segment, meta }: { segment: MapSegment; meta: MapMeta }) {
   const z = segment.coordinates.z
   const heightRange = meta.globalMaxHeight - meta.globalMinHeight
   const normalizedHeight = (z - meta.globalMinHeight) / heightRange
+  const grayScaleColor = calculateHeightColor(normalizedHeight)
+  const terrainColor = calculateTerrainColor(grayScaleColor, segment)
+  const backgroundColor = `rgba(${terrainColor[0]}, ${terrainColor[1]}, ${terrainColor[2]}, 1)`
   const style: CSSProperties = {
     width: segmentStyleDimensions.width,
     height: segmentStyleDimensions.height,
@@ -103,10 +130,15 @@ function MapSegment({ segment, meta }: { segment: MapSegment; meta: MapMeta }) {
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-    backgroundColor: interpolateColor(normalizedHeight),
+    backgroundColor,
     color: z > heightRange / 2 ? 'black' : 'white',
   }
-  return <div style={style}></div>
+  return (
+    <div
+      style={style}
+      onClick={() => alert(JSON.stringify({ meta, segment }))}
+    ></div>
+  )
 }
 
 function MapContent({ mapData }: { mapData: MapData }) {
