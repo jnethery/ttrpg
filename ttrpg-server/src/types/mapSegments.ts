@@ -13,8 +13,9 @@ export type MapSegment = {
   terrain: Terrain
 }
 
-export const isMapSegment = (value: any): value is MapSegment =>
-  value && value.coordinates.z !== null
+export const isMapSegment = (
+  value: GeneratingMapSegment,
+): value is MapSegment => value && value.coordinates.z !== null
 
 export type GeneratingMapSegment = MapSegment | UninitializedMapSegment
 

@@ -1,20 +1,25 @@
-import { z } from 'zod'
+import { Terrain } from 'types/terrains'
+import { Coordinates } from 'types/coordinates'
 
-import { Terrain, TerrainSchema } from './terrains'
+export type UninitializedMapSegment = {
+  coordinates: { x: null; y: null; z: null }
+  waterDepth: 0
+  terrain: 'rock'
+}
 
-export const MapMetaSchema = z.object({
-  localMinHeight: z.number(),
-  localMaxHeight: z.number(),
-  globalMaxHeight: z.number(),
-  globalMinHeight: z.number(),
-  width: z.number(),
-  length: z.number(),
-  gridIncrements: z.number(),
-  lateralUnits: z.string(),
-  verticalUnits: z.string(),
-})
+export type MapSegment = {
+  coordinates: Coordinates
+  waterDepth: number
+  terrain: Terrain
+}
 
-export interface MapMeta {
+export const isMapSegment = (
+  value: GeneratingMapSegment,
+): value is MapSegment => value && value.coordinates.z !== null
+
+export type GeneratingMapSegment = MapSegment | UninitializedMapSegment
+
+export type MapMeta = {
   localMinHeight: number
   localMaxHeight: number
   globalMaxHeight: number
@@ -26,28 +31,7 @@ export interface MapMeta {
   verticalUnits: string
 }
 
-export const MapSegmentSchema = z.object({
-  coordinates: z.object({
-    x: z.number(),
-    y: z.number(),
-    z: z.number(),
-  }),
-  waterDepth: z.number(),
-  terrain: TerrainSchema,
-})
-
-export interface MapSegment {
-  coordinates: { x: number; y: number; z: number }
-  waterDepth: number
-  terrain: Terrain
-}
-
-export const MapDataSchema = z.object({
-  meta: MapMetaSchema,
-  segments: z.array(MapSegmentSchema),
-})
-
-export interface MapData {
+export type MapSegmentsResult = {
   meta: MapMeta
   segments: MapSegment[]
 }

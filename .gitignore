@@ -2,5 +2,7 @@ ttrpg-client/node_modules
 ttrpg-server/node_modules
 ttrpg-server/.env
 ttrpg-client/.env
+ttrpg-server/dist
+ttrpg-client/dist
 ttrpg-server/src/system/*firebase-adminsdk*
 .vscode
