@@ -1,63 +1,15 @@
 import React, { useEffect, useState, CSSProperties } from 'react'
-import { z } from 'zod'
 
-// TODO: configure absolute imports
-import { TerrainSchema, Terrain } from '../types/terrains'
+import {
+  MapSegment,
+  MapMeta,
+  MapData,
+  MapDataSchema,
+} from '../types/mapSegments'
 
 // TODO: put port, etc in .env
 const PORT = 3009
 const HOST = 'http://localhost'
-
-// TODO: Put all this in types directory
-const MapDataMetaSchema = z.object({
-  localMinHeight: z.number(),
-  localMaxHeight: z.number(),
-  globalMaxHeight: z.number(),
-  globalMinHeight: z.number(),
-  width: z.number(),
-  length: z.number(),
-  gridIncrements: z.number(),
-  lateralUnits: z.string(),
-  verticalUnits: z.string(),
-})
-
-const MapDataSegmentSchema = z.object({
-  coordinates: z.object({
-    x: z.number(),
-    y: z.number(),
-    z: z.number(),
-  }),
-  waterDepth: z.number(),
-  terrain: TerrainSchema,
-})
-
-const MapDataSchema = z.object({
-  meta: MapDataMetaSchema,
-  segments: z.array(MapDataSegmentSchema),
-})
-
-interface MapMeta {
-  localMinHeight: number
-  localMaxHeight: number
-  globalMaxHeight: number
-  globalMinHeight: number
-  width: number
-  length: number
-  gridIncrements: number
-  lateralUnits: string
-  verticalUnits: string
-}
-
-interface MapData {
-  meta: MapMeta
-  segments: MapSegment[]
-}
-
-interface MapSegment {
-  coordinates: { x: number; y: number; z: number }
-  waterDepth: number
-  terrain: Terrain
-}
 
 function Map() {
   return <MapContainer />
@@ -136,14 +88,14 @@ const calculateHeightColor = (
   return [grayValue, grayValue, grayValue]
 }
 
-interface MapSegmentProps {
+interface MapSegmentTileProps {
   selected: boolean
   segment: MapSegment
   meta: MapMeta
   onClick: (event: React.MouseEvent, segment: MapSegment) => void
 }
 
-const MapSegment: React.FC<MapSegmentProps> = ({
+const MapSegmentTile: React.FC<MapSegmentTileProps> = ({
   selected,
   segment,
   meta,
@@ -203,7 +155,7 @@ const MapSegmentsContainer: React.FC<MapSegmentsContainerProps> = ({
       {segments.map((segment) => {
         const key = `${segment.coordinates.x}-${segment.coordinates.y}`
         return (
-          <MapSegment
+          <MapSegmentTile
             selected={
               !!selectedSegments.find(
                 (selectedSegment) =>
