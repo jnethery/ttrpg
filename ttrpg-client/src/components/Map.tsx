@@ -1,11 +1,6 @@
 import React, { useEffect, useState, CSSProperties } from 'react'
 
-import {
-  MapSegment,
-  MapMeta,
-  MapData,
-  MapDataSchema,
-} from '../types/mapSegments'
+import { MapSegment, MapMeta, MapData, MapDataSchema } from 'types/mapSegments'
 
 // TODO: put port, etc in .env
 const PORT = 3009

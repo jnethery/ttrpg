@@ -1,4 +1,6 @@
-import { Terrain } from 'types/terrains'
+import { z } from 'zod'
+
+import { Terrain, TerrainSchema } from 'types/terrains'
 import { Coordinates } from 'types/coordinates'
 
 export type UninitializedMapSegment = {
@@ -6,6 +8,16 @@ export type UninitializedMapSegment = {
   waterDepth: 0
   terrain: 'rock'
 }
+
+export const MapSegmentSchema = z.object({
+  coordinates: z.object({
+    x: z.number(),
+    y: z.number(),
+    z: z.number(),
+  }),
+  waterDepth: z.number(),
+  terrain: TerrainSchema,
+})
 
 export type MapSegment = {
   coordinates: Coordinates
@@ -19,6 +31,18 @@ export const isMapSegment = (
 
 export type GeneratingMapSegment = MapSegment | UninitializedMapSegment
 
+export const MapMetaSchema = z.object({
+  localMinHeight: z.number(),
+  localMaxHeight: z.number(),
+  globalMaxHeight: z.number(),
+  globalMinHeight: z.number(),
+  width: z.number(),
+  length: z.number(),
+  gridIncrements: z.number(),
+  lateralUnits: z.string(),
+  verticalUnits: z.string(),
+})
+
 export type MapMeta = {
   localMinHeight: number
   localMaxHeight: number
@@ -31,7 +55,12 @@ export type MapMeta = {
   verticalUnits: string
 }
 
-export type MapSegmentsResult = {
+export const MapDataSchema = z.object({
+  meta: MapMetaSchema,
+  segments: z.array(MapSegmentSchema),
+})
+
+export type MapData = {
   meta: MapMeta
   segments: MapSegment[]
 }

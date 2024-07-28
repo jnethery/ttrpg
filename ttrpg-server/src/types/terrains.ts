@@ -1,5 +1,8 @@
+import { z } from 'zod'
+
 const terrains = ['rock', 'sand', 'grass', 'forest'] as const
-export type Terrain = (typeof terrains)[number]
+export const TerrainSchema = z.enum(terrains)
+export type Terrain = z.infer<typeof TerrainSchema>
 
 export interface TerrainOptions {
   minElevation: number // The minimum elevation this terrain can be found at
