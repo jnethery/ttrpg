@@ -1,12 +1,5 @@
-// TODO: Put this in its own file
-export type Coordinates = {
-  x: number
-  y: number
-  z: number
-}
-
-// TODO: Put this in its own file
-export type Terrain = 'rock' | 'forest'
+import { Terrain } from 'types/terrains'
+import { Coordinates } from 'types/coordinates'
 
 export type UninitializedMapSegment = {
   coordinates: { x: null; y: null; z: null }
@@ -26,6 +19,8 @@ export const isMapSegment = (value: any): value is MapSegment =>
 export type GeneratingMapSegment = MapSegment | UninitializedMapSegment
 
 export type MapMeta = {
+  localMinHeight: number
+  localMaxHeight: number
   globalMaxHeight: number
   globalMinHeight: number
   width: number

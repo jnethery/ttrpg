@@ -1,16 +1,17 @@
-import { useEffect, useState, CSSProperties } from 'react'
+import React, { useEffect, useState, CSSProperties } from 'react'
 import { z } from 'zod'
+
+// TODO: configure absolute imports
+import { TerrainSchema, Terrain } from '../types/terrains'
 
 // TODO: put port, etc in .env
 const PORT = 3009
 const HOST = 'http://localhost'
 
-const terrains = ['rock', 'forest'] as const
-const TerrainSchema = z.enum(terrains)
-type Terrain = z.infer<typeof TerrainSchema>
-
 // TODO: Put all this in types directory
 const MapDataMetaSchema = z.object({
+  localMinHeight: z.number(),
+  localMaxHeight: z.number(),
   globalMaxHeight: z.number(),
   globalMinHeight: z.number(),
   width: z.number(),
@@ -36,6 +37,8 @@ const MapDataSchema = z.object({
 })
 
 interface MapMeta {
+  localMinHeight: number
+  localMaxHeight: number
   globalMaxHeight: number
   globalMinHeight: number
   width: number
@@ -95,32 +98,64 @@ const segmentStyleDimensions = {
 }
 
 const calculateTerrainColor = (
-  grayScaleColor: [number, number, number],
+  grayScaleColor: number,
   segment: MapSegment,
 ): [number, number, number] => {
-  if (segment.terrain === 'rock' && segment.waterDepth === 0) {
-    return grayScaleColor
+  if (segment.waterDepth > 0) {
+    const baseColor = [28, 54, 133]
+    return shiftColorLightness(baseColor, grayScaleColor)
+  } else if (segment.terrain === 'rock') {
+    const baseColor = [143, 141, 123]
+    return shiftColorLightness(baseColor, grayScaleColor)
+  } else if (segment.terrain === 'grass') {
+    const baseColor = [78, 143, 61]
+    return shiftColorLightness(baseColor, grayScaleColor)
   } else if (segment.terrain === 'forest') {
-    return [grayScaleColor[0], 255, grayScaleColor[2]]
-  } else if (segment.waterDepth > 0) {
-    return [grayScaleColor[0], grayScaleColor[1], 255]
+    const baseColor = [51, 84, 35]
+    return shiftColorLightness(baseColor, grayScaleColor)
   }
-  return grayScaleColor
+  return [grayScaleColor, grayScaleColor, grayScaleColor]
+}
+
+const shiftColorLightness = (
+  color: number[],
+  lightness: number,
+): [number, number, number] => {
+  // Blend the grayValue with the base color
+  const red = Math.round(color[0] * (lightness / 255))
+  const green = Math.round(color[1] * (lightness / 255))
+  const blue = Math.round(color[2] * (lightness / 255))
+  return [red, green, blue]
 }
 
 const calculateHeightColor = (
   normalizedValue: number,
 ): [number, number, number] => {
   const grayValue = Math.round(normalizedValue * 255)
+
   return [grayValue, grayValue, grayValue]
 }
 
-function MapSegment({ segment, meta }: { segment: MapSegment; meta: MapMeta }) {
+interface MapSegmentProps {
+  selected: boolean
+  segment: MapSegment
+  meta: MapMeta
+  onClick: (event: React.MouseEvent, segment: MapSegment) => void
+}
+
+const MapSegment: React.FC<MapSegmentProps> = ({
+  selected,
+  segment,
+  meta,
+  onClick,
+}) => {
   const z = segment.coordinates.z
-  const heightRange = meta.globalMaxHeight - meta.globalMinHeight
-  const normalizedHeight = (z - meta.globalMinHeight) / heightRange
+  const heightRange = meta.localMaxHeight - meta.localMinHeight
+  const normalizedHeight = (z - meta.localMinHeight) / heightRange
   const grayScaleColor = calculateHeightColor(normalizedHeight)
-  const terrainColor = calculateTerrainColor(grayScaleColor, segment)
+  const terrainColor = selected
+    ? [255, 242, 0]
+    : calculateTerrainColor(grayScaleColor[0], segment)
   const backgroundColor = `rgba(${terrainColor[0]}, ${terrainColor[1]}, ${terrainColor[2]}, 1)`
   const style: CSSProperties = {
     width: segmentStyleDimensions.width,
@@ -133,20 +168,27 @@ function MapSegment({ segment, meta }: { segment: MapSegment; meta: MapMeta }) {
     backgroundColor,
     color: z > heightRange / 2 ? 'black' : 'white',
   }
-  return (
-    <div
-      style={style}
-      onClick={() => alert(JSON.stringify({ meta, segment }))}
-    ></div>
-  )
+  return <div onClick={(event) => onClick(event, segment)} style={style}></div>
 }
 
-function MapContent({ mapData }: { mapData: MapData }) {
-  console.log(mapData)
-  const { length, width, gridIncrements } = mapData.meta
+interface MapSegmentsContainerProps {
+  selectedSegments: MapSegment[]
+  segments: MapSegment[]
+  meta: MapMeta
+  onClick: (event: React.MouseEvent, segment: MapSegment) => void
+}
+
+const MapSegmentsContainer: React.FC<MapSegmentsContainerProps> = ({
+  selectedSegments,
+  segments,
+  meta,
+  onClick,
+}) => {
+  const { width, length, gridIncrements } = meta
   const style: CSSProperties = {
     display: 'flex',
     flexWrap: 'wrap',
+    flex: '0 0 auto',
     width:
       (segmentStyleDimensions.width + segmentStyleDimensions.border * 2) *
       width *
@@ -156,13 +198,275 @@ function MapContent({ mapData }: { mapData: MapData }) {
       length *
       gridIncrements,
   }
-  const { segments } = mapData
   return (
     <div style={style}>
       {segments.map((segment) => {
         const key = `${segment.coordinates.x}-${segment.coordinates.y}`
-        return <MapSegment key={key} meta={mapData.meta} segment={segment} />
+        return (
+          <MapSegment
+            selected={
+              !!selectedSegments.find(
+                (selectedSegment) =>
+                  selectedSegment.coordinates.x === segment.coordinates.x &&
+                  selectedSegment.coordinates.y === segment.coordinates.y,
+              )
+            }
+            key={key}
+            onClick={onClick}
+            meta={meta}
+            segment={segment}
+          />
+        )
       })}
+    </div>
+  )
+}
+
+const SelectedSegmentInfo: React.FC<{
+  title: string
+  segment: MapSegment | null
+}> = ({ title, segment }) => {
+  const style: CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+  }
+  const coordinatesString = segment
+    ? `location: {${segment.coordinates.x}, ${
+        segment.coordinates.y
+      }}, height: ${segment.coordinates.z.toFixed(2)}`
+    : 'location: N/A, height: N/A'
+  return (
+    <div style={style}>
+      <div>{title}</div>
+      <div>{coordinatesString}</div>
+      <div>Water Depth: {segment?.waterDepth?.toFixed(2) ?? 'N/A'}</div>
+      <div>Terrain: {segment?.terrain ?? 'N/A'}</div>
+    </div>
+  )
+}
+
+interface SelectedTraversalInfoProps {
+  origin: MapSegment
+  destination: MapSegment
+  interim: MapSegment[]
+  meta: MapMeta
+}
+
+const SelectedTraversalInfo: React.FC<SelectedTraversalInfoProps> = ({
+  origin,
+  destination,
+  interim,
+  meta,
+}) => {
+  const style: CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+  }
+
+  // TODO: Track this with a state variable
+  // TODO: Move this to a utils file
+  const calculateLinearDistance = (
+    origin: { x: number; y: number },
+    destination: { x: number; y: number },
+  ) => {
+    return Math.sqrt(
+      Math.pow(destination.x - origin.x, 2) +
+        Math.pow(destination.y - origin.y, 2),
+    )
+  }
+
+  // TODO: Track this with a state variable
+  // TODO: Move this to a utils file
+  const calculateTerrainChange = (
+    origin: MapSegment,
+    destination: MapSegment,
+    interim: MapSegment[],
+  ) => {
+    let minElevation = origin.coordinates.z
+    let maxElevation = origin.coordinates.z
+    let previousElevation = null
+    let minElevationChange = 0
+    let maxElevationChange = 0
+    for (const segment of [origin, ...interim, destination]) {
+      if (segment.coordinates.z < minElevation) {
+        minElevation = segment.coordinates.z
+      }
+      if (segment.coordinates.z > maxElevation) {
+        maxElevation = segment.coordinates.z
+      }
+      if (previousElevation) {
+        const elevationChange = segment.coordinates.z - previousElevation
+        if (elevationChange < minElevationChange) {
+          minElevationChange = elevationChange
+        }
+        if (elevationChange > maxElevationChange) {
+          maxElevationChange = elevationChange
+        }
+      }
+      previousElevation = segment.coordinates.z
+    }
+    return {
+      minElevation,
+      maxElevation,
+      minElevationChange,
+      maxElevationChange,
+    }
+  }
+
+  const { minElevation, maxElevation, minElevationChange, maxElevationChange } =
+    calculateTerrainChange(origin, destination, interim)
+
+  return (
+    <div style={style}>
+      <div>Traversal Info:</div>
+      <div>
+        Distance:{' '}
+        {calculateLinearDistance(
+          origin.coordinates,
+          destination.coordinates,
+        ).toFixed(2)}{' '}
+        {meta.lateralUnits}
+      </div>
+      <div>
+        Elevation Change: {minElevationChange.toFixed(2)} to{' '}
+        {maxElevationChange.toFixed(2)} {meta.verticalUnits}
+      </div>
+      <div>
+        Elevation Range: {minElevation.toFixed(2)} to {maxElevation.toFixed(2)}{' '}
+        {meta.verticalUnits}
+      </div>
+    </div>
+  )
+}
+
+interface SelectedSegmentContainerProps {
+  meta: MapMeta
+  selectedSegment: MapSegment | null
+  destinationSelectedSegment: MapSegment | null
+  interimSegments: MapSegment[]
+}
+
+const SelectedSegmentContainer: React.FC<SelectedSegmentContainerProps> = ({
+  meta,
+  selectedSegment,
+  destinationSelectedSegment,
+  interimSegments,
+}) => {
+  const style: CSSProperties = {
+    display: 'flex',
+    gap: 20,
+    flexDirection: 'column',
+    width: 300,
+    flex: '0 0 auto',
+  }
+  return (
+    <div style={style}>
+      <SelectedSegmentInfo title={'Origin'} segment={selectedSegment} />
+      {destinationSelectedSegment && (
+        <SelectedSegmentInfo
+          title={'Destination'}
+          segment={destinationSelectedSegment}
+        />
+      )}
+      {selectedSegment && destinationSelectedSegment && (
+        <SelectedTraversalInfo
+          meta={meta}
+          origin={selectedSegment}
+          destination={destinationSelectedSegment}
+          interim={interimSegments}
+        />
+      )}
+    </div>
+  )
+}
+
+function MapContent({ mapData }: { mapData: MapData }) {
+  const [selectedSegment, setSelectedSegment] = useState<MapSegment | null>(
+    null,
+  )
+  const [destinationSelectedSegment, setDestinationSelectedSegment] =
+    useState<MapSegment | null>(null)
+  const [interimSegments, setInterimSegments] = useState<MapSegment[]>([])
+
+  const handleClick = (event: React.MouseEvent, segment: MapSegment) => {
+    if (event.shiftKey) {
+      if (
+        selectedSegment &&
+        !(
+          segment.coordinates.x === selectedSegment.coordinates.x &&
+          segment.coordinates.y === selectedSegment.coordinates.y
+        )
+      ) {
+        setDestinationSelectedSegment(segment)
+      }
+    } else {
+      setSelectedSegment(segment)
+      setDestinationSelectedSegment(null)
+    }
+  }
+
+  useEffect(() => {
+    // TODO: Move this line drawing to a utils file
+    // Calculate the
+    if (selectedSegment && destinationSelectedSegment) {
+      // Calculate the segments between the two coordinates
+      const dx =
+        destinationSelectedSegment.coordinates.x - selectedSegment.coordinates.x
+      const dy =
+        destinationSelectedSegment.coordinates.y - selectedSegment.coordinates.y
+      const slope = dy / dx
+      const intercept =
+        selectedSegment.coordinates.y - slope * selectedSegment.coordinates.x
+      const segments = []
+      const continuationCondition =
+        dx > 0
+          ? (i: number) => i <= destinationSelectedSegment.coordinates.x
+          : (i: number) => i >= destinationSelectedSegment.coordinates.x
+      for (
+        let i = selectedSegment.coordinates.x;
+        continuationCondition(i);
+        dx > 0 ? i++ : i--
+      ) {
+        const j = Math.round(slope * i + intercept)
+        console.log(i, j)
+        segments.push(
+          mapData.segments.find(
+            (segment) =>
+              segment.coordinates.x === i && segment.coordinates.y === j,
+          ),
+        )
+      }
+      console.log(segments)
+      setInterimSegments(segments.filter((segment) => segment !== undefined))
+      // Handle cases for 0 dx or dy
+    } else {
+      setInterimSegments([])
+    }
+  }, [selectedSegment, destinationSelectedSegment, mapData.segments])
+
+  const style: CSSProperties = {
+    display: 'flex',
+    gap: 10,
+  }
+
+  return (
+    <div style={style}>
+      <MapSegmentsContainer
+        selectedSegments={[
+          selectedSegment,
+          destinationSelectedSegment,
+          ...interimSegments,
+        ].filter((segment) => segment !== null)}
+        segments={mapData.segments}
+        meta={mapData.meta}
+        onClick={handleClick}
+      />
+      <SelectedSegmentContainer
+        meta={mapData.meta}
+        interimSegments={interimSegments}
+        destinationSelectedSegment={destinationSelectedSegment}
+        selectedSegment={selectedSegment}
+      />
     </div>
   )
 }
