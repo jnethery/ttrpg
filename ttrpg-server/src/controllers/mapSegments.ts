@@ -57,12 +57,12 @@ export const getMapSegments = async (): Promise<MapSegmentsResult> => {
     segments: segments as MapSegment[][],
   })
 
-  // calculateForestSegments({
-  //   width,
-  //   length,
-  //   gridIncrements,
-  //   segments: segments as MapSegment[][],
-  // })
+  calculateForestSegments({
+    width,
+    length,
+    gridIncrements,
+    segments: segments as MapSegment[][],
+  })
 
   return {
     meta,

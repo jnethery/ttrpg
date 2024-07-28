@@ -86,19 +86,9 @@ export function calculateForestSegments({
   gridIncrements: number
   segments: MapSegment[][]
 }): void {
-  // Place random forest tiles and let them run downhill until they find water
-  const numBlocks = 20000
-  const numSpawnPoints = 10
-  const spawnPoints = Array.from({ length: numSpawnPoints }, () => ({
-    i: Math.floor(Math.random() * width * gridIncrements),
-    j: Math.floor(Math.random() * length * gridIncrements),
-  }))
-  // Pick a random starting point
-  for (let blockNumber = 0; blockNumber < numBlocks; blockNumber++) {
-    const { i, j } = spawnPoints[blockNumber % numSpawnPoints]
-    const endLocation = cascadeForest(i, j, segments)
-    segments[endLocation.y][endLocation.x].terrain = 'forest'
-  }
+  // TODO: This is not working.
+  // Forest need to grow outward from where they are seeded, and need to be seeded in rational locations.
+  // Work on the seeding first, then the growth.
 }
 
 export function cascade(
@@ -184,9 +174,9 @@ export function cascadeForest(
     }
   }
   const seekCriteria = (
-    destinationSegment: MapSegment,
+    _destinationSegment: MapSegment,
     currentSegment: MapSegment,
-  ) => destinationSegment.coordinates.z <= currentSegment.coordinates.z
+  ) => currentSegment.terrain === 'forest'
   return cascade(i, j, segments, 0, 100, neighborSortFunction, seekCriteria)
 }
 
