@@ -1,19 +1,15 @@
-import { db } from 'system/db'
-import { Character, CHARACTER_TEMPLATE, DBCharacter } from 'types/characters'
+import { Character, DBCharacter } from 'types/characters'
 import { deepMerge } from 'utils/deepMerge'
 import { get, set, invalidate } from 'system/cache'
+import { db } from 'system/db'
 
-const COLLECTION = 'characters'
-const BASE_CACHE_KEY = COLLECTION
+const TABLE = 'characters'
+const BASE_CACHE_KEY = TABLE
 
 export const createCharacter = async (
   character: Character,
 ): Promise<DBCharacter> => {
-  const docRef = await db.collection(COLLECTION).add({ character })
-  const newCharacter = {
-    id: docRef.id,
-    ...character,
-  }
+  const [newCharacter] = await db(TABLE).insert(character).returning('*')
   invalidate(BASE_CACHE_KEY)
   return newCharacter
 }
@@ -22,20 +18,16 @@ export const updateCharacter = async (
   id: string,
   character: Partial<Character>,
 ): Promise<DBCharacter | null> => {
-  const docRef = db.collection(COLLECTION).doc(id)
-  const doc = await docRef.get()
-  if (!doc.exists) {
+  const existingCharacter = await getCharacter(id)
+  if (!existingCharacter) {
     return null
   }
-  await docRef.set(character, { merge: true })
-  const data = doc.data() as Character
-  const updatedCharacter = {
-    ...CHARACTER_TEMPLATE,
-    id,
-    ...deepMerge<Partial<Character>>(data, character),
-  }
+  const [updatedCharacter] = await db(TABLE)
+    .where({ id })
+    .update(deepMerge(existingCharacter, character))
+    .returning('*')
   invalidate(BASE_CACHE_KEY)
-  invalidate(`${BASE_CACHE_KEY}:${id}`)
+  set(`${BASE_CACHE_KEY}:${id}`, updatedCharacter)
   return updatedCharacter
 }
 
@@ -45,15 +37,7 @@ export const getCharacter = async (id: string): Promise<DBCharacter | null> => {
     return cachedCharacter
   }
 
-  const doc = await db.collection(COLLECTION).doc(id).get()
-  if (!doc.exists) {
-    return null
-  }
-  const character = {
-    ...CHARACTER_TEMPLATE,
-    id: doc.id,
-    ...doc.data(),
-  }
+  const character = await db(TABLE).where({ id }).first()
   set(`${BASE_CACHE_KEY}:${id}`, character)
   return character
 }
@@ -65,18 +49,7 @@ export const getCharacters = async (): Promise<DBCharacter[]> => {
     return cachedCharacters
   }
 
-  const snapshot = await db.collection(COLLECTION).get()
-  const characters: DBCharacter[] = []
-  if (snapshot.empty) {
-    return characters
-  }
-  snapshot.forEach((doc) => {
-    characters.push({
-      ...CHARACTER_TEMPLATE,
-      id: doc.id,
-      ...doc.data(),
-    })
-  })
+  const characters = await db(TABLE)
 
   set(BASE_CACHE_KEY, characters)
   return characters

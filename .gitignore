@@ -6,3 +6,4 @@ ttrpg-server/dist
 ttrpg-client/dist
 ttrpg-server/src/system/*firebase-adminsdk*
 .vscode
+.migrate
