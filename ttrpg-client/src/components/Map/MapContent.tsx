@@ -4,65 +4,7 @@ import { MapMeta, MapSegment } from 'types/mapSegments'
 import { MapData } from 'schemas/mapData'
 import { getLineCoordinates } from 'utils/math'
 
-import { MapTile } from './MapTile'
-
-interface MapTilesContainerProps {
-  selectedSegments: MapSegment[]
-  segments: MapSegment[]
-  meta: MapMeta
-  onClick: (event: React.MouseEvent, segment: MapSegment) => void
-}
-
-// TODO: Make this parameterized, and merge with the one in MapTiles
-const segmentStyleDimensions = {
-  width: 5,
-  height: 5,
-  border: 1,
-}
-
-const MapTilesContainer: React.FC<MapTilesContainerProps> = ({
-  selectedSegments,
-  segments,
-  meta,
-  onClick,
-}) => {
-  const { width, length, gridIncrements } = meta
-  const style: CSSProperties = {
-    display: 'flex',
-    flexWrap: 'wrap',
-    flex: '0 0 auto',
-    width:
-      (segmentStyleDimensions.width + segmentStyleDimensions.border * 2) *
-      width *
-      gridIncrements,
-    height:
-      (segmentStyleDimensions.height + segmentStyleDimensions.border * 2) *
-      length *
-      gridIncrements,
-  }
-  return (
-    <div style={style}>
-      {segments.map((segment) => {
-        const key = `${segment.coordinates.x}-${segment.coordinates.y}`
-        return (
-          <MapTile
-            selected={
-              !!selectedSegments.find(
-                (selectedSegment) =>
-                  selectedSegment.coordinates.x === segment.coordinates.x &&
-                  selectedSegment.coordinates.y === segment.coordinates.y,
-              )
-            }
-            key={key}
-            onClick={onClick}
-            meta={meta}
-            segment={segment}
-          />
-        )
-      })}
-    </div>
-  )
-}
+import { MapTilesContainer } from './MapTilesContainer'
 
 const SelectedSegmentInfo: React.FC<{
   title: string
@@ -81,7 +23,14 @@ const SelectedSegmentInfo: React.FC<{
     <div style={style}>
       <div>{title}</div>
       <div>{coordinatesString}</div>
-      <div>Water Depth: {segment?.waterDepth?.toFixed(2) ?? 'N/A'}</div>
+      <div>
+        Water Depth:{' '}
+        <input
+          type="text"
+          placeholder="0.00"
+          value={segment?.waterDepth?.toFixed(2) ?? 'N/A'}
+        />
+      </div>
       <div>Terrain: {segment?.terrain ?? 'N/A'}</div>
     </div>
   )
@@ -222,7 +171,13 @@ const SelectedSegmentContainer: React.FC<SelectedSegmentContainerProps> = ({
   )
 }
 
-export function MapContent({ mapData }: { mapData: MapData }) {
+export function MapContent({
+  mapData,
+  refetch,
+}: {
+  mapData: MapData
+  refetch: () => void
+}) {
   const [selectedSegment, setSelectedSegment] = useState<MapSegment | null>(
     null,
   )
@@ -285,12 +240,31 @@ export function MapContent({ mapData }: { mapData: MapData }) {
         meta={mapData.meta}
         onClick={handleClick}
       />
-      <SelectedSegmentContainer
-        meta={mapData.meta}
-        interimSegments={interimSegments}
-        destinationSelectedSegment={destinationSelectedSegment}
-        selectedSegment={selectedSegment}
-      />
+      {/* TODO: Convert the bottom into a collapsible Toolbar component */}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 10,
+        }}
+      >
+        <button onClick={refetch}>Refetch</button>
+        <div
+          style={{
+            display: 'flex',
+            gap: 10,
+          }}
+        >
+          <button style={{ flex: 1 }}>Save</button>
+          <button style={{ flex: 1 }}>Load</button>
+        </div>
+        <SelectedSegmentContainer
+          meta={mapData.meta}
+          interimSegments={interimSegments}
+          destinationSelectedSegment={destinationSelectedSegment}
+          selectedSegment={selectedSegment}
+        />
+      </div>
     </div>
   )
 }

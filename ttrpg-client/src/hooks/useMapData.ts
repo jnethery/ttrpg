@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { MapData, MapDataSchema } from 'schemas/mapData'
+
 import { MapContext } from 'types/mapContexts'
 import { config } from 'config'
 
@@ -11,7 +12,7 @@ export const useMapData = ({ context }: UseMapDataProps) => {
   const [mapData, setMapData] = useState<MapData | null>(null)
   const [error, setError] = useState(false)
 
-  useEffect(() => {
+  const fetchData = useCallback(() => {
     const params = new URLSearchParams()
     params.append('context', context)
 
@@ -27,5 +28,9 @@ export const useMapData = ({ context }: UseMapDataProps) => {
       })
   }, [context])
 
-  return { mapData, error }
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
+
+  return { mapData, error, refetch: fetchData }
 }

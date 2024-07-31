@@ -1,16 +1,10 @@
 import { CSSProperties } from 'react'
 
 import { SelectionOptions } from 'types/selection'
+import { Dimensions } from 'types/dimensions'
 
-interface TileDimensionProps {
-  dimensions: {
-    width: number
-    height: number
-    border: number
-  }
-}
-
-interface TileProps extends TileDimensionProps {
+interface TileProps {
+  dimensions: Dimensions
   style: CSSProperties
   selectionOptions: SelectionOptions
   onClick: (event: React.MouseEvent) => void
@@ -36,6 +30,7 @@ export const Tile: React.FC<TileProps> = ({
   const tileStyle = getTileStyle({
     width: dimensions.width,
     height: dimensions.height,
+    boxSizing: 'border-box',
     border: `${dimensions.border}px solid black`,
     ...style,
     ...selectionStyle,

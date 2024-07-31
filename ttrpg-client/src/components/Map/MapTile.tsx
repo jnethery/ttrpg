@@ -2,17 +2,12 @@ import { CSSProperties } from 'react'
 
 import { Tile } from 'components/Tile'
 import { MapSegment, MapMeta } from 'types/mapSegments'
+import { Dimensions } from 'types/dimensions'
 import { calculateGrayscaleColor, calculateTerrainColor } from 'utils/colors'
 import { normalizeValue } from 'utils/math'
 
-// TODO: Make this parameterized, and merge with the one in MapTilesContainer
-const dimensions = {
-  width: 5,
-  height: 5,
-  border: 1,
-}
-
 interface MapTileProps {
+  dimensions: Dimensions
   selected: boolean
   segment: MapSegment
   meta: MapMeta
@@ -26,6 +21,7 @@ const getMapTileStyle = ({
 })
 
 export const MapTile: React.FC<MapTileProps> = ({
+  dimensions,
   selected,
   segment,
   meta,
