@@ -5,7 +5,7 @@ import {
 } from 'types/mapSegments'
 import { Biome } from 'types/biomes'
 import { Terrain } from 'types/terrains'
-import { Coordinates } from 'types/coordinates'
+import { ThreeDimensionalCoordinates } from 'types/coordinates'
 
 export function calculateBaseMapSegments({
   width,
@@ -185,7 +185,7 @@ export function cascadeWater(
   i: number,
   j: number,
   segments: MapSegment[][],
-): Coordinates {
+): ThreeDimensionalCoordinates {
   const neighborSortFunction = (a: MapSegment, b: MapSegment) => {
     const aZ = a.coordinates.z + a.waterDepth
     const bZ = b.coordinates.z + b.waterDepth

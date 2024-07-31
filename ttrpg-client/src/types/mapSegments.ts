@@ -1,7 +1,10 @@
 import { z } from 'zod'
 
 import { Terrain, TerrainSchema } from 'types/terrains'
-import { Coordinates } from 'types/coordinates'
+import {
+  ThreeDimensionalCoordinates,
+  ThreeDimensionalCoordinatesSchema,
+} from 'types/coordinates'
 
 export type UninitializedMapSegment = {
   coordinates: { x: null; y: null; z: null }
@@ -10,17 +13,13 @@ export type UninitializedMapSegment = {
 }
 
 export const MapSegmentSchema = z.object({
-  coordinates: z.object({
-    x: z.number(),
-    y: z.number(),
-    z: z.number(),
-  }),
+  coordinates: ThreeDimensionalCoordinatesSchema,
   waterDepth: z.number(),
   terrain: TerrainSchema,
 })
 
 export type MapSegment = {
-  coordinates: Coordinates
+  coordinates: ThreeDimensionalCoordinates
   waterDepth: number
   terrain: Terrain
 }

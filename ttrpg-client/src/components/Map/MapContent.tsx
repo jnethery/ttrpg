@@ -1,131 +1,26 @@
-import React, { useEffect, useState, CSSProperties } from 'react'
+import { CSSProperties, useEffect, useState } from 'react'
 
-import { MapSegment, MapMeta, MapData, MapDataSchema } from 'types/mapSegments'
+import { MapMeta, MapSegment } from 'types/mapSegments'
+import { MapData } from 'schemas/mapData'
+import { getLineCoordinates } from 'utils/math'
 
-// TODO: put port, etc in .env
-const PORT = 3009
-const HOST = 'http://localhost'
+import { MapTile } from './MapTile'
 
-function Map() {
-  return <MapContainer />
-}
-
-function MapContainer() {
-  const [mapData, setMapData] = useState<MapData | null>(null)
-  const [error, setError] = useState(false)
-
-  useEffect(() => {
-    fetch(`${HOST}:${PORT}/mapSegments`)
-      .then((response) => response.json())
-      .then((data) => {
-        const parsedData = MapDataSchema.parse(data)
-        setMapData(parsedData)
-      })
-      .catch((error) => {
-        console.error('Error fetching map data:', error)
-        setError(true)
-      })
-  }, [])
-
-  if (error) {
-    return <div>Error fetching map data</div>
-  }
-
-  if (!mapData) {
-    return <div>Loading...</div>
-  }
-
-  return <MapContent mapData={mapData} />
-}
-
-const segmentStyleDimensions = {
-  width: 5,
-  height: 5,
-  border: 1,
-}
-
-const calculateTerrainColor = (
-  grayScaleColor: number,
-  segment: MapSegment,
-): [number, number, number] => {
-  if (segment.waterDepth > 0) {
-    const baseColor = [28, 54, 133]
-    return shiftColorLightness(baseColor, grayScaleColor)
-  } else if (segment.terrain === 'rock') {
-    const baseColor = [143, 141, 123]
-    return shiftColorLightness(baseColor, grayScaleColor)
-  } else if (segment.terrain === 'grass') {
-    const baseColor = [78, 143, 61]
-    return shiftColorLightness(baseColor, grayScaleColor)
-  } else if (segment.terrain === 'forest') {
-    const baseColor = [51, 84, 35]
-    return shiftColorLightness(baseColor, grayScaleColor)
-  }
-  return [grayScaleColor, grayScaleColor, grayScaleColor]
-}
-
-const shiftColorLightness = (
-  color: number[],
-  lightness: number,
-): [number, number, number] => {
-  // Blend the grayValue with the base color
-  const red = Math.round(color[0] * (lightness / 255))
-  const green = Math.round(color[1] * (lightness / 255))
-  const blue = Math.round(color[2] * (lightness / 255))
-  return [red, green, blue]
-}
-
-const calculateHeightColor = (
-  normalizedValue: number,
-): [number, number, number] => {
-  const grayValue = Math.round(normalizedValue * 255)
-
-  return [grayValue, grayValue, grayValue]
-}
-
-interface MapSegmentTileProps {
-  selected: boolean
-  segment: MapSegment
-  meta: MapMeta
-  onClick: (event: React.MouseEvent, segment: MapSegment) => void
-}
-
-const MapSegmentTile: React.FC<MapSegmentTileProps> = ({
-  selected,
-  segment,
-  meta,
-  onClick,
-}) => {
-  const z = segment.coordinates.z
-  const heightRange = meta.localMaxHeight - meta.localMinHeight
-  const normalizedHeight = (z - meta.localMinHeight) / heightRange
-  const grayScaleColor = calculateHeightColor(normalizedHeight)
-  const terrainColor = selected
-    ? [255, 242, 0]
-    : calculateTerrainColor(grayScaleColor[0], segment)
-  const backgroundColor = `rgba(${terrainColor[0]}, ${terrainColor[1]}, ${terrainColor[2]}, 1)`
-  const style: CSSProperties = {
-    width: segmentStyleDimensions.width,
-    height: segmentStyleDimensions.height,
-    border: `${segmentStyleDimensions.border}px solid black`,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    backgroundColor,
-    color: z > heightRange / 2 ? 'black' : 'white',
-  }
-  return <div onClick={(event) => onClick(event, segment)} style={style}></div>
-}
-
-interface MapSegmentsContainerProps {
+interface MapTilesContainerProps {
   selectedSegments: MapSegment[]
   segments: MapSegment[]
   meta: MapMeta
   onClick: (event: React.MouseEvent, segment: MapSegment) => void
 }
 
-const MapSegmentsContainer: React.FC<MapSegmentsContainerProps> = ({
+// TODO: Make this parameterized, and merge with the one in MapTiles
+const segmentStyleDimensions = {
+  width: 5,
+  height: 5,
+  border: 1,
+}
+
+const MapTilesContainer: React.FC<MapTilesContainerProps> = ({
   selectedSegments,
   segments,
   meta,
@@ -150,7 +45,7 @@ const MapSegmentsContainer: React.FC<MapSegmentsContainerProps> = ({
       {segments.map((segment) => {
         const key = `${segment.coordinates.x}-${segment.coordinates.y}`
         return (
-          <MapSegmentTile
+          <MapTile
             selected={
               !!selectedSegments.find(
                 (selectedSegment) =>
@@ -327,7 +222,7 @@ const SelectedSegmentContainer: React.FC<SelectedSegmentContainerProps> = ({
   )
 }
 
-function MapContent({ mapData }: { mapData: MapData }) {
+export function MapContent({ mapData }: { mapData: MapData }) {
   const [selectedSegment, setSelectedSegment] = useState<MapSegment | null>(
     null,
   )
@@ -353,38 +248,20 @@ function MapContent({ mapData }: { mapData: MapData }) {
   }
 
   useEffect(() => {
-    // TODO: Move this line drawing to a utils file
-    // Calculate the
     if (selectedSegment && destinationSelectedSegment) {
-      // Calculate the segments between the two coordinates
-      const dx =
-        destinationSelectedSegment.coordinates.x - selectedSegment.coordinates.x
-      const dy =
-        destinationSelectedSegment.coordinates.y - selectedSegment.coordinates.y
-      const slope = dy / dx
-      const intercept =
-        selectedSegment.coordinates.y - slope * selectedSegment.coordinates.x
-      const segments = []
-      const continuationCondition =
-        dx > 0
-          ? (i: number) => i <= destinationSelectedSegment.coordinates.x
-          : (i: number) => i >= destinationSelectedSegment.coordinates.x
-      for (
-        let i = selectedSegment.coordinates.x;
-        continuationCondition(i);
-        dx > 0 ? i++ : i--
-      ) {
-        const j = Math.round(slope * i + intercept)
-        console.log(i, j)
-        segments.push(
+      const coordinates = getLineCoordinates({
+        origin: selectedSegment.coordinates,
+        destination: destinationSelectedSegment.coordinates,
+      })
+      const segments = coordinates
+        .map(({ x, y }) =>
           mapData.segments.find(
             (segment) =>
-              segment.coordinates.x === i && segment.coordinates.y === j,
+              segment.coordinates.x === x && segment.coordinates.y === y,
           ),
         )
-      }
-      console.log(segments)
-      setInterimSegments(segments.filter((segment) => segment !== undefined))
+        .filter((segment) => segment !== undefined)
+      setInterimSegments(segments)
       // Handle cases for 0 dx or dy
     } else {
       setInterimSegments([])
@@ -398,7 +275,7 @@ function MapContent({ mapData }: { mapData: MapData }) {
 
   return (
     <div style={style}>
-      <MapSegmentsContainer
+      <MapTilesContainer
         selectedSegments={[
           selectedSegment,
           destinationSelectedSegment,
@@ -417,5 +294,3 @@ function MapContent({ mapData }: { mapData: MapData }) {
     </div>
   )
 }
-
-export default Map
