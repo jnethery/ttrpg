@@ -78,6 +78,52 @@ const getTerrainRGBString = ({
       )
 }
 
+// TODO: Generalize handleClick and handleMouseMove in a Canvas component which can be reused
+const handleClick = (
+  event: React.MouseEvent<HTMLCanvasElement>,
+  canvasRef: React.RefObject<HTMLCanvasElement>,
+  segments: MapSegment[],
+  onClick?: (event: React.MouseEvent, segment: MapSegment) => void,
+) => {
+  if (onClick) {
+    const coordinate = getCanvasCoordinate(event, canvasRef, dimensions)
+    if (coordinate) {
+      const segment = segments.find(
+        (segment) =>
+          segment.coordinates.x === coordinate.x &&
+          segment.coordinates.y === coordinate.y,
+      )
+      if (segment) {
+        onClick(event, segment)
+      }
+    }
+  }
+}
+
+// TODO: Do the logic here instead of in the parent component, to prevent sending unnecessary events
+const handleMouseMove = (
+  event: React.MouseEvent<HTMLCanvasElement>,
+  canvasRef: React.RefObject<HTMLCanvasElement>,
+  segments: MapSegment[],
+  onMouseOver?: (event: React.MouseEvent, segment: MapSegment) => void,
+) => {
+  if (onMouseOver) {
+    if (canvasRef.current) {
+      const coordinate = getCanvasCoordinate(event, canvasRef, dimensions)
+      if (coordinate) {
+        const segment = segments.find(
+          (segment) =>
+            segment.coordinates.x === coordinate.x &&
+            segment.coordinates.y === coordinate.y,
+        )
+        if (segment) {
+          onMouseOver(event, segment)
+        }
+      }
+    }
+  }
+}
+
 export const MapCanvas: React.FC<MapCanvasProps> = ({
   meta,
   segments,
@@ -89,42 +135,6 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
   const canvasWidth = dimensions.width * width * gridIncrements
   const canvasHeight = dimensions.height * length * gridIncrements
   const canvasRef = useRef<HTMLCanvasElement>(null)
-
-  const handleClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    if (onClick) {
-      if (canvasRef.current) {
-        const canvas = canvasRef.current
-        const coordinate = getCanvasCoordinate(event, canvas, dimensions)
-        const segment = segments.find(
-          (segment) =>
-            segment.coordinates.x === coordinate.x &&
-            segment.coordinates.y === coordinate.y,
-        )
-        if (segment) {
-          onClick(event, segment)
-        }
-      }
-    }
-  }
-
-  // TODO: Do the logic here instead of in the parent component, to prevent sending unnecessary events
-  const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    if (onMouseOver) {
-      if (canvasRef.current) {
-        const canvas = canvasRef.current
-        const coordinate = getCanvasCoordinate(event, canvas, dimensions)
-        const segment = segments.find(
-          (segment) =>
-            segment.coordinates.x === coordinate.x &&
-            segment.coordinates.y === coordinate.y,
-        )
-        console.log({ segment, coordinate })
-        if (segment) {
-          onMouseOver(event, segment)
-        }
-      }
-    }
-  }
 
   // TODO: Use state to track segments that need to be updated rather than redrawing the entire canvas
 
@@ -157,8 +167,10 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
       width={canvasWidth}
       height={canvasHeight}
       ref={canvasRef}
-      onClick={handleClick}
-      onMouseMove={handleMouseMove}
+      onClick={(event) => handleClick(event, canvasRef, segments, onClick)}
+      onMouseMove={(event) =>
+        handleMouseMove(event, canvasRef, segments, onMouseOver)
+      }
     />
   )
 }

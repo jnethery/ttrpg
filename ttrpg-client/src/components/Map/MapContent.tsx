@@ -148,6 +148,9 @@ export function MapContent({
           setSelectedSegment(null)
           setDestinationSelectedSegment(null)
         }
+        // TODO: Do this interpolation logic in the Canvas element
+        // Make it more sophisticated by drawing a theoretical curve between the last 2 points and the current one,
+        // and then finding the segments that lie closest to the intersection with that curve between the last point and the current one
         let interpolatedSegments: MapSegment[] = []
         if (lastPaintedSegment) {
           // Check that the last painted segment is over 1 tile away from the current segment
