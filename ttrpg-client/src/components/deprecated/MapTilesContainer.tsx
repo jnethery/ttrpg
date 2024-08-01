@@ -19,6 +19,7 @@ const dimensions = {
 }
 
 // TODO: If performance becomes an issue, consider painting the entire map as a single canvas
+// @deprecated Use MapCanvas instead
 export const MapTilesContainer: React.FC<MapTilesContainerProps> = ({
   selectedSegments,
   segments,

@@ -8,6 +8,7 @@ interface UseMapDataProps {
   context: MapContext
 }
 
+// TODO: Put segments into an indexable array or object with coordinate keys for ease of access and updating
 export const useMapData = ({ context }: UseMapDataProps) => {
   const [mapData, setMapData] = useState<MapData | null>(null)
   const [error, setError] = useState(false)

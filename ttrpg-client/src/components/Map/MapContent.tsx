@@ -15,7 +15,7 @@ import { getLineCoordinates } from 'utils/math'
 import { Panel } from 'components/Layout'
 import { Inspector } from 'components/Toolbar'
 import { SelectedSegmentInspector } from 'components/Toolbar/InspectorViews/SelectedSegmentInspector'
-import { MapTilesContainer } from './MapTilesContainer'
+import { MapCanvas } from './MapCanvas'
 import { ToolTile } from './ToolTile'
 
 type SelectedSegmentContainerProps = {
@@ -223,14 +223,14 @@ export function MapContent({
 
   return (
     <div style={style}>
-      <MapTilesContainer
+      <MapCanvas
+        meta={mapData.meta}
+        segments={mapData.segments}
         selectedSegments={[
           selectedSegment,
           destinationSelectedSegment,
           ...interimSegments,
         ].filter((segment) => segment !== null)}
-        segments={mapData.segments}
-        meta={mapData.meta}
         onClick={handleClick}
         onMouseOver={handleMouseOver}
       />

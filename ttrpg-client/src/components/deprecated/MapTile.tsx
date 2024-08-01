@@ -23,6 +23,7 @@ const getMapTileStyle = ({
   backgroundColor,
 })
 
+// @deprecated Use MapCanvas instead
 export const MapTile: React.FC<MapTileProps> = ({
   dimensions,
   selected,
