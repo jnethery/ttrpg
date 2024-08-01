@@ -1,5 +1,15 @@
 import { Terrain } from 'types/terrains'
-import { Color } from 'types/colors'
+import { Color, colorConfig } from 'types/colors'
+
+export const rgbStringToColor = (rgb: string): Color => {
+  const [r, g, b] = rgb
+    .replace('rgb(', '')
+    .replace(')', '')
+    .split(',')
+    .map((value) => parseInt(value))
+
+  return [r, g, b]
+}
 
 export const calculateGrayscaleColor = (normalizedValue: number): Color => {
   const grayValue = Math.round(normalizedValue * 255)
@@ -31,16 +41,16 @@ export const calculateTerrainColor = (
     typeof segmentOptions.waterDepth === 'number' &&
     segmentOptions.waterDepth > 0
   ) {
-    const baseColor: Color = [28, 54, 133]
+    const baseColor: Color = rgbStringToColor(colorConfig.water.rgbString)
     return shiftColorLightness(baseColor, grayScaleColor)
   } else if (terrain === 'rock') {
-    const baseColor: Color = [143, 141, 123]
+    const baseColor: Color = rgbStringToColor(colorConfig.rock.rgbString)
     return shiftColorLightness(baseColor, grayScaleColor)
   } else if (terrain === 'grass') {
-    const baseColor: Color = [78, 143, 61]
+    const baseColor: Color = rgbStringToColor(colorConfig.grass.rgbString)
     return shiftColorLightness(baseColor, grayScaleColor)
   } else if (terrain === 'forest') {
-    const baseColor: Color = [51, 84, 35]
+    const baseColor: Color = rgbStringToColor(colorConfig.forest.rgbString)
     return shiftColorLightness(baseColor, grayScaleColor)
   }
   return [grayScaleColor, grayScaleColor, grayScaleColor]

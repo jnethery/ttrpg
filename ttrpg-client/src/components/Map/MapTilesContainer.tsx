@@ -7,7 +7,8 @@ interface MapTilesContainerProps {
   selectedSegments: MapSegment[]
   segments: MapSegment[]
   meta: MapMeta
-  onClick: (event: React.MouseEvent, segment: MapSegment) => void
+  onClick?: (event: React.MouseEvent, segment: MapSegment) => void
+  onMouseOver?: (event: React.MouseEvent, segment: MapSegment) => void
 }
 
 // TODO: Make this parameterized, and merge with the one in MapTiles
@@ -17,11 +18,13 @@ const dimensions = {
   border: 1,
 }
 
+// TODO: If performance becomes an issue, consider painting the entire map as a single canvas
 export const MapTilesContainer: React.FC<MapTilesContainerProps> = ({
   selectedSegments,
   segments,
   meta,
   onClick,
+  onMouseOver,
 }) => {
   const { width, length, gridIncrements } = meta
   const style: CSSProperties = {
@@ -48,6 +51,7 @@ export const MapTilesContainer: React.FC<MapTilesContainerProps> = ({
             }
             key={key}
             onClick={onClick}
+            onMouseOver={onMouseOver}
             meta={meta}
             segment={segment}
           />

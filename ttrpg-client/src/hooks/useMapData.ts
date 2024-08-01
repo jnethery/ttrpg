@@ -32,5 +32,5 @@ export const useMapData = ({ context }: UseMapDataProps) => {
     fetchData()
   }, [fetchData])
 
-  return { mapData, error, refetch: fetchData }
+  return { mapData, setMapData, error, refetch: fetchData }
 }

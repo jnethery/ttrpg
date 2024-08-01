@@ -1,17 +1,20 @@
 import { CSSProperties } from 'react'
 
-import { Tile } from 'components/Tile'
 import { MapSegment, MapMeta } from 'types/mapSegments'
 import { Dimensions } from 'types/dimensions'
+import { colorConfig } from 'types/colors'
 import { calculateGrayscaleColor, calculateTerrainColor } from 'utils/colors'
 import { normalizeValue } from 'utils/math'
+
+import { Tile } from 'components/Layout'
 
 interface MapTileProps {
   dimensions: Dimensions
   selected: boolean
   segment: MapSegment
   meta: MapMeta
-  onClick: (event: React.MouseEvent, segment: MapSegment) => void
+  onClick?: (event: React.MouseEvent, segment: MapSegment) => void
+  onMouseOver?: (event: React.MouseEvent, segment: MapSegment) => void
 }
 
 const getMapTileStyle = ({
@@ -26,11 +29,12 @@ export const MapTile: React.FC<MapTileProps> = ({
   segment,
   meta,
   onClick,
+  onMouseOver,
 }) => {
   const z = segment.coordinates.z
   // Optimization: Don't need to calculate the color if the tile is selected, since it will be overridden
   const terrainColor = selected
-    ? 'black'
+    ? colorConfig.dark.rgbString
     : calculateTerrainColor(
         calculateGrayscaleColor(
           normalizeValue(z, meta.localMinHeight, meta.localMaxHeight),
@@ -42,7 +46,7 @@ export const MapTile: React.FC<MapTileProps> = ({
   const selectionOptions = {
     selected,
     selectionStyle: {
-      backgroundColor: 'rgba(255, 242, 0, 1)',
+      backgroundColor: colorConfig.primary.rgbString,
     },
   }
   const style = getMapTileStyle({
@@ -54,7 +58,8 @@ export const MapTile: React.FC<MapTileProps> = ({
       dimensions={dimensions}
       selectionOptions={selectionOptions}
       style={style}
-      onClick={(event) => onClick(event, segment)}
+      onClick={(event) => onClick?.(event, segment)}
+      onMouseOver={(event) => onMouseOver?.(event, segment)}
     />
   )
 }

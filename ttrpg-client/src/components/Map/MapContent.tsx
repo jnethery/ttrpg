@@ -1,204 +1,184 @@
 import { CSSProperties, useEffect, useState } from 'react'
+import {
+  faArrowPointer,
+  faPaintBrush,
+  faMountain,
+  faEyeDropper,
+  IconDefinition,
+} from '@fortawesome/free-solid-svg-icons'
 
-import { MapMeta, MapSegment } from 'types/mapSegments'
+import { MapSegment, MapMeta } from 'types/mapSegments'
+import { Tool } from 'types/tools'
 import { MapData } from 'schemas/mapData'
 import { getLineCoordinates } from 'utils/math'
 
+import { Panel } from 'components/Layout'
+import { Inspector } from 'components/Toolbar'
+import { SelectedSegmentInspector } from 'components/Toolbar/InspectorViews/SelectedSegmentInspector'
 import { MapTilesContainer } from './MapTilesContainer'
+import { ToolTile } from './ToolTile'
 
-const SelectedSegmentInfo: React.FC<{
-  title: string
-  segment: MapSegment | null
-}> = ({ title, segment }) => {
-  const style: CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-  }
-  const coordinatesString = segment
-    ? `location: {${segment.coordinates.x}, ${
-        segment.coordinates.y
-      }}, height: ${segment.coordinates.z.toFixed(2)}`
-    : 'location: N/A, height: N/A'
-  return (
-    <div style={style}>
-      <div>{title}</div>
-      <div>{coordinatesString}</div>
-      <div>
-        Water Depth:{' '}
-        <input
-          type="text"
-          placeholder="0.00"
-          value={segment?.waterDepth?.toFixed(2) ?? 'N/A'}
-        />
-      </div>
-      <div>Terrain: {segment?.terrain ?? 'N/A'}</div>
-    </div>
-  )
-}
-
-interface SelectedTraversalInfoProps {
-  origin: MapSegment
-  destination: MapSegment
-  interim: MapSegment[]
-  meta: MapMeta
-}
-
-const SelectedTraversalInfo: React.FC<SelectedTraversalInfoProps> = ({
-  origin,
-  destination,
-  interim,
-  meta,
-}) => {
-  const style: CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-  }
-
-  // TODO: Track this with a state variable
-  // TODO: Move this to a utils file
-  const calculateLinearDistance = (
-    origin: { x: number; y: number },
-    destination: { x: number; y: number },
-  ) => {
-    return Math.sqrt(
-      Math.pow(destination.x - origin.x, 2) +
-        Math.pow(destination.y - origin.y, 2),
-    )
-  }
-
-  // TODO: Track this with a state variable
-  // TODO: Move this to a utils file
-  const calculateTerrainChange = (
-    origin: MapSegment,
-    destination: MapSegment,
-    interim: MapSegment[],
-  ) => {
-    let minElevation = origin.coordinates.z
-    let maxElevation = origin.coordinates.z
-    let previousElevation = null
-    let minElevationChange = 0
-    let maxElevationChange = 0
-    for (const segment of [origin, ...interim, destination]) {
-      if (segment.coordinates.z < minElevation) {
-        minElevation = segment.coordinates.z
-      }
-      if (segment.coordinates.z > maxElevation) {
-        maxElevation = segment.coordinates.z
-      }
-      if (previousElevation) {
-        const elevationChange = segment.coordinates.z - previousElevation
-        if (elevationChange < minElevationChange) {
-          minElevationChange = elevationChange
-        }
-        if (elevationChange > maxElevationChange) {
-          maxElevationChange = elevationChange
-        }
-      }
-      previousElevation = segment.coordinates.z
-    }
-    return {
-      minElevation,
-      maxElevation,
-      minElevationChange,
-      maxElevationChange,
-    }
-  }
-
-  const { minElevation, maxElevation, minElevationChange, maxElevationChange } =
-    calculateTerrainChange(origin, destination, interim)
-
-  return (
-    <div style={style}>
-      <div>Traversal Info:</div>
-      <div>
-        Distance:{' '}
-        {calculateLinearDistance(
-          origin.coordinates,
-          destination.coordinates,
-        ).toFixed(2)}{' '}
-        {meta.lateralUnits}
-      </div>
-      <div>
-        Elevation Change: {minElevationChange.toFixed(2)} to{' '}
-        {maxElevationChange.toFixed(2)} {meta.verticalUnits}
-      </div>
-      <div>
-        Elevation Range: {minElevation.toFixed(2)} to {maxElevation.toFixed(2)}{' '}
-        {meta.verticalUnits}
-      </div>
-    </div>
-  )
-}
-
-interface SelectedSegmentContainerProps {
+type SelectedSegmentContainerProps = {
   meta: MapMeta
   selectedSegment: MapSegment | null
   destinationSelectedSegment: MapSegment | null
   interimSegments: MapSegment[]
+  updateSegment: (segment: MapSegment) => void
 }
 
-const SelectedSegmentContainer: React.FC<SelectedSegmentContainerProps> = ({
-  meta,
-  selectedSegment,
-  destinationSelectedSegment,
-  interimSegments,
+const isSegmentContainerProps = (
+  props: unknown,
+): props is SelectedSegmentContainerProps => {
+  return (
+    (props as SelectedSegmentContainerProps).meta !== undefined &&
+    (props as SelectedSegmentContainerProps).selectedSegment !== undefined &&
+    (props as SelectedSegmentContainerProps).destinationSelectedSegment !==
+      undefined &&
+    (props as SelectedSegmentContainerProps).interimSegments !== undefined &&
+    (props as SelectedSegmentContainerProps).updateSegment !== undefined
+  )
+}
+
+type SomeOtherViewProps = {
+  test: string
+}
+
+interface InspectorViewProps {
+  tool: Tool
+  props: SelectedSegmentContainerProps | SomeOtherViewProps
+}
+
+// TODO: Need to refactor this
+export const InspectorView: React.FC<InspectorViewProps> = ({
+  tool,
+  props,
 }) => {
-  const style: CSSProperties = {
-    display: 'flex',
-    gap: 20,
-    flexDirection: 'column',
-    width: 300,
-    flex: '0 0 auto',
+  if (tool === 'pointer') {
+    if (isSegmentContainerProps(props)) {
+      const {
+        meta,
+        selectedSegment,
+        destinationSelectedSegment,
+        interimSegments,
+        updateSegment,
+      } = props
+      return (
+        <SelectedSegmentInspector
+          meta={meta}
+          selectedSegment={selectedSegment}
+          destinationSelectedSegment={destinationSelectedSegment}
+          interimSegments={interimSegments}
+          updateSegment={updateSegment}
+        />
+      )
+    }
   }
   return (
-    <div style={style}>
-      <SelectedSegmentInfo title={'Origin'} segment={selectedSegment} />
-      {destinationSelectedSegment && (
-        <SelectedSegmentInfo
-          title={'Destination'}
-          segment={destinationSelectedSegment}
-        />
-      )}
-      {selectedSegment && destinationSelectedSegment && (
-        <SelectedTraversalInfo
-          meta={meta}
-          origin={selectedSegment}
-          destination={destinationSelectedSegment}
-          interim={interimSegments}
-        />
-      )}
+    <div>
+      {tool.charAt(0).toUpperCase() + tool.slice(1)} inspector not implemented
     </div>
   )
 }
 
+const toolConfig: Array<{ tool: Tool; icon: IconDefinition }> = [
+  {
+    tool: 'pointer',
+    icon: faArrowPointer,
+  },
+  {
+    tool: 'brush',
+    icon: faPaintBrush,
+  },
+  {
+    tool: 'terraform',
+    icon: faMountain,
+  },
+  {
+    tool: 'eyedropper',
+    icon: faEyeDropper,
+  },
+]
+
 export function MapContent({
   mapData,
+  setMapData,
   refetch,
 }: {
   mapData: MapData
+  setMapData: (mapData: MapData) => void
   refetch: () => void
 }) {
+  const [selectedTool, setSelectedTool] = useState<Tool>('pointer')
   const [selectedSegment, setSelectedSegment] = useState<MapSegment | null>(
     null,
   )
   const [destinationSelectedSegment, setDestinationSelectedSegment] =
     useState<MapSegment | null>(null)
+  // TODO: Refactor this to store coordinates instead of entire segments
   const [interimSegments, setInterimSegments] = useState<MapSegment[]>([])
 
   const handleClick = (event: React.MouseEvent, segment: MapSegment) => {
-    if (event.shiftKey) {
-      if (
-        selectedSegment &&
-        !(
-          segment.coordinates.x === selectedSegment.coordinates.x &&
-          segment.coordinates.y === selectedSegment.coordinates.y
-        )
-      ) {
-        setDestinationSelectedSegment(segment)
+    if (selectedTool == 'pointer') {
+      if (event.shiftKey) {
+        if (
+          selectedSegment &&
+          !(
+            segment.coordinates.x === selectedSegment.coordinates.x &&
+            segment.coordinates.y === selectedSegment.coordinates.y
+          )
+        ) {
+          setDestinationSelectedSegment(segment)
+        }
+      } else {
+        setSelectedSegment(segment)
+        setDestinationSelectedSegment(null)
       }
-    } else {
-      setSelectedSegment(segment)
-      setDestinationSelectedSegment(null)
+    }
+  }
+
+  const [lastPaintedSegment, setLastPaintedSegment] =
+    useState<MapSegment | null>(null)
+
+  const handleMouseOver = (event: React.MouseEvent, segment: MapSegment) => {
+    if (selectedTool == 'brush') {
+      if (event.buttons === 0) {
+        setLastPaintedSegment(null)
+      } else if (event.buttons === 1) {
+        if (selectedSegment || destinationSelectedSegment) {
+          setSelectedSegment(null)
+          setDestinationSelectedSegment(null)
+        }
+        let interpolatedSegments: MapSegment[] = []
+        if (lastPaintedSegment) {
+          // Check that the last painted segment is over 1 tile away from the current segment
+          if (
+            Math.abs(lastPaintedSegment.coordinates.x - segment.coordinates.x) +
+              Math.abs(
+                lastPaintedSegment.coordinates.y - segment.coordinates.y,
+              ) >
+            1
+          ) {
+            const coordinates = getLineCoordinates({
+              origin: lastPaintedSegment.coordinates,
+              destination: segment.coordinates,
+            })
+            interpolatedSegments = coordinates
+              .map(({ x, y }) =>
+                mapData.segments.find(
+                  (segment) =>
+                    segment.coordinates.x === x && segment.coordinates.y === y,
+                ),
+              )
+              .filter((segment) => segment !== undefined)
+          }
+        }
+        setLastPaintedSegment(segment)
+        setInterimSegments([
+          ...interimSegments,
+          ...interpolatedSegments,
+          segment,
+        ])
+      }
     }
   }
 
@@ -228,6 +208,19 @@ export function MapContent({
     gap: 10,
   }
 
+  const updateSegment = (segment: MapSegment) => {
+    const updatedSegments = mapData.segments.map((mapSegment) =>
+      mapSegment.coordinates.x === segment.coordinates.x &&
+      mapSegment.coordinates.y === segment.coordinates.y
+        ? segment
+        : mapSegment,
+    )
+    setMapData({
+      ...mapData,
+      segments: updatedSegments,
+    })
+  }
+
   return (
     <div style={style}>
       <MapTilesContainer
@@ -239,32 +232,50 @@ export function MapContent({
         segments={mapData.segments}
         meta={mapData.meta}
         onClick={handleClick}
+        onMouseOver={handleMouseOver}
       />
       {/* TODO: Convert the bottom into a collapsible Toolbar component */}
-      <div
+      <Panel
         style={{
           display: 'flex',
-          flexDirection: 'column',
-          gap: 10,
+          flexDirection: 'row',
+          gap: 5,
         }}
       >
-        <button onClick={refetch}>Refetch</button>
-        <div
-          style={{
-            display: 'flex',
-            gap: 10,
-          }}
-        >
-          <button style={{ flex: 1 }}>Save</button>
-          <button style={{ flex: 1 }}>Load</button>
-        </div>
-        <SelectedSegmentContainer
-          meta={mapData.meta}
-          interimSegments={interimSegments}
-          destinationSelectedSegment={destinationSelectedSegment}
-          selectedSegment={selectedSegment}
+        <Inspector
+          refetch={refetch}
+          inspectorView={
+            <InspectorView
+              tool={selectedTool}
+              props={{
+                meta: mapData.meta,
+                selectedSegment,
+                destinationSelectedSegment,
+                interimSegments,
+                updateSegment,
+              }}
+            />
+          }
         />
-      </div>
+        <Panel>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10,
+            }}
+          >
+            {toolConfig.map(({ tool, icon }) => (
+              <ToolTile
+                tool={tool}
+                icon={icon}
+                selectedTool={selectedTool}
+                setSelectedTool={setSelectedTool}
+              />
+            ))}
+          </div>
+        </Panel>
+      </Panel>
     </div>
   )
 }
