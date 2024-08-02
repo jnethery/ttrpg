@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { MapData, MapDataSchema } from 'schemas/mapData'
 
+import { MapData, MapDataSchema } from 'types/mapSegments'
 import { MapContext } from 'types/mapContexts'
 import { config } from 'config'
 
@@ -8,7 +8,6 @@ interface UseMapDataProps {
   context: MapContext
 }
 
-// TODO: Put segments into an indexable array or object with coordinate keys for ease of access and updating
 export const useMapData = ({ context }: UseMapDataProps) => {
   const [mapData, setMapData] = useState<MapData | null>(null)
   const [error, setError] = useState(false)

@@ -4,6 +4,7 @@ import { Terrain, TerrainSchema } from 'types/terrains'
 import {
   ThreeDimensionalCoordinates,
   ThreeDimensionalCoordinatesSchema,
+  TwoDimensionalCoordinatesString,
 } from 'types/coordinates'
 
 export type UninitializedMapSegment = {
@@ -56,10 +57,10 @@ export type MapMeta = {
 
 export const MapDataSchema = z.object({
   meta: MapMetaSchema,
-  segments: z.array(MapSegmentSchema),
+  segments: z.record(z.string(), MapSegmentSchema),
 })
 
 export type MapData = {
   meta: MapMeta
-  segments: MapSegment[]
+  segments: Record<TwoDimensionalCoordinatesString, MapSegment>
 }

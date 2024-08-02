@@ -7,9 +7,8 @@ import {
   IconDefinition,
 } from '@fortawesome/free-solid-svg-icons'
 
-import { MapSegment, MapMeta } from 'types/mapSegments'
+import { MapSegment, MapMeta, MapData } from 'types/mapSegments'
 import { Tool } from 'types/tools'
-import { MapData } from 'schemas/mapData'
 import { getLineCoordinates } from 'utils/math'
 
 import { Panel } from 'components/Layout'
@@ -166,12 +165,7 @@ export function MapContent({
               destination: segment.coordinates,
             })
             interpolatedSegments = coordinates
-              .map(({ x, y }) =>
-                mapData.segments.find(
-                  (segment) =>
-                    segment.coordinates.x === x && segment.coordinates.y === y,
-                ),
-              )
+              .map(({ x, y }) => mapData.segments[`${x},${y}`])
               .filter((segment) => segment !== undefined)
           }
         }
@@ -192,12 +186,7 @@ export function MapContent({
         destination: destinationSelectedSegment.coordinates,
       })
       const segments = coordinates
-        .map(({ x, y }) =>
-          mapData.segments.find(
-            (segment) =>
-              segment.coordinates.x === x && segment.coordinates.y === y,
-          ),
-        )
+        .map(({ x, y }) => mapData.segments[`${x},${y}`])
         .filter((segment) => segment !== undefined)
       setInterimSegments(segments)
       // Handle cases for 0 dx or dy
@@ -212,12 +201,10 @@ export function MapContent({
   }
 
   const updateSegment = (segment: MapSegment) => {
-    const updatedSegments = mapData.segments.map((mapSegment) =>
-      mapSegment.coordinates.x === segment.coordinates.x &&
-      mapSegment.coordinates.y === segment.coordinates.y
-        ? segment
-        : mapSegment,
-    )
+    const updatedSegments = {
+      ...mapData.segments,
+      [`${segment.coordinates.x},${segment.coordinates.y}`]: segment,
+    }
     setMapData({
       ...mapData,
       segments: updatedSegments,
@@ -228,7 +215,7 @@ export function MapContent({
     <div style={style}>
       <MapCanvas
         meta={mapData.meta}
-        segments={mapData.segments}
+        segments={Object.values(mapData.segments)}
         selectedSegments={[
           selectedSegment,
           destinationSelectedSegment,

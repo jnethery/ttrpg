@@ -1,6 +1,6 @@
 import {
   MapSegment,
-  MapSegmentsResult,
+  MapData,
   MapMeta,
   GeneratingMapSegment,
 } from 'types/mapSegments'
@@ -10,11 +10,10 @@ import {
   calculateWaterSegments,
   calculateForestSegments,
 } from 'lib/mapSegments'
+import { twoDimensionalSegmentArrayToDictionary } from 'utils/mapSegments'
 
 // TODO: Return type should be `Promise<HydratedMapSegment[]>`
-export const getMapSegments = async (
-  biome: Biome,
-): Promise<MapSegmentsResult> => {
+export const getMapSegments = async (biome: Biome): Promise<MapData> => {
   // TODO: Move all this to a config file
   const length = 20
   const width = 20
@@ -64,6 +63,8 @@ export const getMapSegments = async (
 
   return {
     meta,
-    segments: (segments as MapSegment[][]).flat(),
+    segments: twoDimensionalSegmentArrayToDictionary(
+      segments as MapSegment[][],
+    ),
   }
 }

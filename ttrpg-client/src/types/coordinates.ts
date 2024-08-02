@@ -10,6 +10,8 @@ export const ThreeDimensionalCoordinatesSchema =
     z: z.number(),
   })
 
+export type TwoDimensionalCoordinatesString = `${number},${number}`
+
 export type TwoDimensionalCoordinates = z.infer<
   typeof TwoDimensionalCoordinatesSchema
 >
