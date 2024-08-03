@@ -30,6 +30,7 @@ export function MapContent({
   // TODO: Refactor this to store coordinates instead of entire segments
   const [interimSegments, setInterimSegments] = useState<MapSegment[]>([])
 
+  // TODO: Remove this once it's handled in the canvas
   const handleClick = (event: React.MouseEvent, segment: MapSegment) => {
     if (selectedTool == 'pointer') {
       if (event.shiftKey) {
@@ -40,11 +41,11 @@ export function MapContent({
             segment.coordinates.y === selectedSegment.coordinates.y
           )
         ) {
-          setDestinationSelectedSegment(segment)
+          // setDestinationSelectedSegment(segment)
         }
       } else {
-        setSelectedSegment(segment)
-        setDestinationSelectedSegment(null)
+        // setSelectedSegment(segment)
+        // setDestinationSelectedSegment(null)
       }
     }
   }
@@ -52,14 +53,15 @@ export function MapContent({
   const [lastPaintedSegment, setLastPaintedSegment] =
     useState<MapSegment | null>(null)
 
+  // TODO: Remove this once it's handled in the canvas
   const handleMouseOver = (event: React.MouseEvent, segment: MapSegment) => {
     if (selectedTool == 'brush') {
       if (event.buttons === 0) {
         setLastPaintedSegment(null)
       } else if (event.buttons === 1) {
         if (selectedSegment || destinationSelectedSegment) {
-          setSelectedSegment(null)
-          setDestinationSelectedSegment(null)
+          // setSelectedSegment(null)
+          // setDestinationSelectedSegment(null)
         }
         // TODO: Do this interpolation logic in the Canvas element
         // Make it more sophisticated by drawing a theoretical curve between the last 2 points and the current one,
@@ -93,6 +95,7 @@ export function MapContent({
     }
   }
 
+  // TODO: Move this into the canvas util
   useEffect(() => {
     if (selectedSegment && destinationSelectedSegment) {
       const coordinates = getLineCoordinates({
@@ -124,13 +127,11 @@ export function MapContent({
   return (
     <div style={style}>
       <MapCanvas
+        tool={selectedTool}
         meta={meta}
         segments={segments}
-        selectedSegments={[
-          selectedSegment,
-          destinationSelectedSegment,
-          ...interimSegments,
-        ].filter((segment) => segment !== null)}
+        setDestinationSegment={setDestinationSelectedSegment}
+        setSelectedSegment={setSelectedSegment}
         onClick={handleClick}
         onMouseOver={handleMouseOver}
       />

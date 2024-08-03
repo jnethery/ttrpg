@@ -2,100 +2,19 @@ import { useRef, useState, useEffect } from 'react'
 
 import { MapMeta, MapSegment, MapSegmentDictionary } from 'types/mapSegments'
 import { DrawableMapSegmentDictionary } from 'types/drawableMapSegments'
+import { Tool } from 'types/tools'
 import { TwoDimensionalCoordinatesString } from 'types/coordinates'
-import { Terrain } from 'types/terrains'
-import { colorConfig } from 'types/colors'
 import {
-  calculateGrayscaleColor,
-  calculateTerrainColor,
-  colorToRGBString,
-} from 'utils/colors'
-import { normalizeValue } from 'utils/math'
-import { getCanvasCoordinate } from 'utils/canvas'
+  getCanvasCoordinate,
+  getRectRGBString,
+  handleClick,
+} from 'utils/canvas'
 
-interface MapCanvasProps {
-  meta: MapMeta
-  segments: MapSegmentDictionary
-  selectedSegments: MapSegment[]
-  onClick?: (event: React.MouseEvent, segment: MapSegment) => void
-  onMouseOver?: (event: React.MouseEvent, segment: MapSegment) => void
-}
-
+// TODO: Make this configurable in the UI
 const dimensions = {
   width: 10,
   height: 10,
   border: 1,
-}
-
-const getRectRGBString = ({
-  meta,
-  segment,
-  selectedSegments,
-}: {
-  meta: MapMeta
-  segment: MapSegment
-  selectedSegments: MapSegment[]
-}): string => {
-  const selected = !!selectedSegments.find(
-    (selectedSegment) =>
-      selectedSegment.coordinates.x === segment.coordinates.x &&
-      selectedSegment.coordinates.y === segment.coordinates.y,
-  )
-  const z = segment.coordinates.z
-  return getTerrainRGBString({
-    selected,
-    height: z,
-    minHeight: meta.localMinHeight,
-    maxHeight: meta.localMaxHeight,
-    terrain: segment.terrain,
-    waterDepth: segment.waterDepth,
-  })
-}
-
-const getTerrainRGBString = ({
-  selected,
-  height,
-  minHeight,
-  maxHeight,
-  terrain,
-  waterDepth,
-}: {
-  selected: boolean
-  height: number
-  minHeight: number
-  maxHeight: number
-  terrain: Terrain
-  waterDepth: number
-}): string => {
-  return selected
-    ? colorConfig.primary.rgbString
-    : colorToRGBString(
-        calculateTerrainColor(
-          calculateGrayscaleColor(
-            normalizeValue(height, minHeight, maxHeight),
-          )[0],
-          terrain,
-          { waterDepth },
-        ),
-      )
-}
-
-// TODO: Generalize handleClick and handleMouseMove in a Canvas component which can be reused
-const handleClick = (
-  event: React.MouseEvent<HTMLCanvasElement>,
-  canvasRef: React.RefObject<HTMLCanvasElement>,
-  segments: MapSegmentDictionary,
-  onClick?: (event: React.MouseEvent, segment: MapSegment) => void,
-) => {
-  if (onClick) {
-    const coordinate = getCanvasCoordinate(event, canvasRef, dimensions)
-    if (coordinate) {
-      const segment = segments[`${coordinate.x},${coordinate.y}`]
-      if (segment) {
-        onClick(event, segment)
-      }
-    }
-  }
 }
 
 // TODO: Do the logic here instead of in the parent component, to prevent sending unnecessary events
@@ -103,6 +22,7 @@ const handleMouseMove = (
   event: React.MouseEvent<HTMLCanvasElement>,
   canvasRef: React.RefObject<HTMLCanvasElement>,
   segments: MapSegmentDictionary,
+  tool: Tool,
   onMouseOver?: (event: React.MouseEvent, segment: MapSegment) => void,
 ) => {
   if (onMouseOver) {
@@ -118,10 +38,22 @@ const handleMouseMove = (
   }
 }
 
+interface MapCanvasProps {
+  tool: Tool
+  meta: MapMeta
+  segments: MapSegmentDictionary
+  setSelectedSegment: React.Dispatch<React.SetStateAction<MapSegment | null>>
+  setDestinationSegment: React.Dispatch<React.SetStateAction<MapSegment | null>>
+  onClick?: (event: React.MouseEvent, segment: MapSegment) => void
+  onMouseOver?: (event: React.MouseEvent, segment: MapSegment) => void
+}
+
 export const MapCanvas: React.FC<MapCanvasProps> = ({
+  tool,
   meta,
   segments,
-  selectedSegments,
+  setSelectedSegment,
+  setDestinationSegment,
   onClick,
   onMouseOver,
 }) => {
@@ -154,13 +86,12 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
       const ctx = canvas.getContext('2d')
       if (ctx) {
         if (drawableSegments) {
-          Object.values(drawableSegments)
+          const updatedSegments = Object.values(drawableSegments)
             .filter((segment) => segment.dirty)
             .map((segment) => {
               ctx.fillStyle = getRectRGBString({
                 meta,
                 segment,
-                selectedSegments,
               })
               // Draw terrain color
               ctx.fillRect(
@@ -170,21 +101,49 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
                 dimensions.height,
               )
               // Draw segment border
+
+              return segment
             })
-          // TODO: Set dirty to false after drawing
+            .reduce((acc, segment) => {
+              acc[`${segment.coordinates.x},${segment.coordinates.y}`] = {
+                ...segment,
+                dirty: false,
+              }
+              return acc
+            }, {} as DrawableMapSegmentDictionary)
+          if (Object.keys(updatedSegments).length > 0) {
+            setDrawableSegments((prev) => {
+              return {
+                ...prev,
+                ...updatedSegments,
+              }
+            })
+          }
         }
       }
     }
-  }, [drawableSegments, selectedSegments])
+  }, [meta, drawableSegments])
 
   return (
     <canvas
       width={canvasWidth}
       height={canvasHeight}
       ref={canvasRef}
-      onClick={(event) => handleClick(event, canvasRef, segments, onClick)}
+      onClick={(event) =>
+        handleClick({
+          event,
+          canvasRef,
+          segments,
+          setDrawableSegments,
+          setDestinationSegment,
+          setSelectedSegment,
+          tool,
+          dimensions,
+          onClick,
+        })
+      }
       onMouseMove={(event) =>
-        handleMouseMove(event, canvasRef, segments, onMouseOver)
+        handleMouseMove(event, canvasRef, segments, tool, onMouseOver)
       }
     />
   )
