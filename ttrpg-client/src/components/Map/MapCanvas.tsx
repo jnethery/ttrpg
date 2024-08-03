@@ -42,21 +42,28 @@ interface MapCanvasProps {
   tool: Tool
   meta: MapMeta
   segments: MapSegmentDictionary
+  selectedSegmentCoordinateString: TwoDimensionalCoordinatesString | null
   setSelectedSegmentCoordinateString: React.Dispatch<
     React.SetStateAction<TwoDimensionalCoordinatesString | null>
   >
   setDestinationSegmentCoordinateString: React.Dispatch<
     React.SetStateAction<TwoDimensionalCoordinatesString | null>
   >
+  setInterimCoordinateStrings: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString[]>
+  >
   onMouseOver?: (event: React.MouseEvent, segment: MapSegment) => void
 }
 
+// TODO: Add some of these props to a context to avoid prop drilling
 export const MapCanvas: React.FC<MapCanvasProps> = ({
   tool,
   meta,
   segments,
+  selectedSegmentCoordinateString,
   setSelectedSegmentCoordinateString,
   setDestinationSegmentCoordinateString,
+  setInterimCoordinateStrings,
   onMouseOver,
 }) => {
   const { width, length, gridIncrements } = meta
@@ -115,6 +122,7 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
               return acc
             }, {} as DrawableMapSegmentDictionary)
           if (Object.keys(updatedSegments).length > 0) {
+            console.log(Object.keys(updatedSegments).length)
             setDrawableSegments((prev) => {
               return {
                 ...prev,
@@ -139,7 +147,9 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
           segments,
           setDrawableSegments,
           setDestinationSegmentCoordinateString,
+          selectedSegmentCoordinateString,
           setSelectedSegmentCoordinateString,
+          setInterimCoordinateStrings,
           tool,
           dimensions,
         })

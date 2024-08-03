@@ -1,4 +1,4 @@
-import { CSSProperties, useEffect, useState } from 'react'
+import { CSSProperties, useState } from 'react'
 
 import { MapSegment, MapMeta, MapSegmentDictionary } from 'types/mapSegments'
 import { Tool, toolConfig } from 'types/tools'
@@ -87,33 +87,6 @@ export function MapContent({
     }
   }
 
-  // TODO: Move this into the canvas util
-  useEffect(() => {
-    if (
-      selectedSegmentCoordinateString &&
-      destinationSelectedSegmentCoordinateString
-    ) {
-      const coordinates = getLineCoordinates({
-        origin: selectedSegmentCoordinateString,
-        destination: destinationSelectedSegmentCoordinateString,
-      })
-      const newSegments = coordinates
-        .map(({ x, y }) => segments[`${x},${y}`])
-        .filter((segment) => segment !== undefined)
-        .map(
-          (segment) =>
-            `${segment.coordinates.x},${segment.coordinates.y}` as TwoDimensionalCoordinatesString,
-        )
-      setInterimSegmentCoordinateStrings(newSegments)
-    } else {
-      setInterimSegmentCoordinateStrings([])
-    }
-  }, [
-    selectedSegmentCoordinateString,
-    destinationSelectedSegmentCoordinateString,
-    segments,
-  ])
-
   const style: CSSProperties = {
     display: 'flex',
     gap: 10,
@@ -136,7 +109,9 @@ export function MapContent({
         setDestinationSegmentCoordinateString={
           setDestinationSelectedSegmentCoordinateString
         }
+        selectedSegmentCoordinateString={selectedSegmentCoordinateString}
         setSelectedSegmentCoordinateString={setSelectedSegmentCoordinateString}
+        setInterimCoordinateStrings={setInterimSegmentCoordinateStrings}
         onMouseOver={handleMouseOver}
       />
       {/* TODO: Convert the bottom into a collapsible Toolbar component */}
