@@ -123,7 +123,6 @@ const handlePointerTool = ({
   setSelectedSegment,
   setDestinationSegment,
   setDrawableSegments,
-  onClick,
 }: {
   event: React.MouseEvent<HTMLCanvasElement>
   canvasRef: React.RefObject<HTMLCanvasElement>
@@ -134,25 +133,21 @@ const handlePointerTool = ({
   setDrawableSegments: React.Dispatch<
     React.SetStateAction<DrawableMapSegmentDictionary | null>
   >
-  onClick?: (event: React.MouseEvent, segment: MapSegment) => void
 }) => {
   const coordinate = getCanvasCoordinate(event, canvasRef, dimensions)
   if (coordinate) {
     const segment = segments[`${coordinate.x},${coordinate.y}`]
     if (segment) {
-      if (onClick) {
-        if (event.shiftKey) {
-          setDestinationSegment((prev) => {
-            replaceDrawableSegment(segment, prev, setDrawableSegments)
-            return segment
-          })
-        } else {
-          setSelectedSegment((prev) => {
-            replaceDrawableSegment(segment, prev, setDrawableSegments)
-            return segment
-          })
-        }
-        onClick(event, segment)
+      if (event.shiftKey) {
+        setDestinationSegment((prev) => {
+          replaceDrawableSegment(segment, prev, setDrawableSegments)
+          return segment
+        })
+      } else {
+        setSelectedSegment((prev) => {
+          replaceDrawableSegment(segment, prev, setDrawableSegments)
+          return segment
+        })
       }
     }
   }
@@ -167,7 +162,6 @@ export const handleClick = ({
   setDestinationSegment,
   setDrawableSegments,
   tool,
-  onClick,
 }: {
   event: React.MouseEvent<HTMLCanvasElement>
   canvasRef: React.RefObject<HTMLCanvasElement>
@@ -179,7 +173,6 @@ export const handleClick = ({
     React.SetStateAction<DrawableMapSegmentDictionary | null>
   >
   tool: Tool
-  onClick?: (event: React.MouseEvent, segment: MapSegment) => void
 }) => {
   if (tool === 'pointer') {
     handlePointerTool({
@@ -190,7 +183,6 @@ export const handleClick = ({
       setDestinationSegment,
       setSelectedSegment,
       setDrawableSegments,
-      onClick,
     })
   }
 }

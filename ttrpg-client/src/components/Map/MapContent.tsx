@@ -30,26 +30,6 @@ export function MapContent({
   // TODO: Refactor this to store coordinates instead of entire segments
   const [interimSegments, setInterimSegments] = useState<MapSegment[]>([])
 
-  // TODO: Remove this once it's handled in the canvas
-  const handleClick = (event: React.MouseEvent, segment: MapSegment) => {
-    if (selectedTool == 'pointer') {
-      if (event.shiftKey) {
-        if (
-          selectedSegment &&
-          !(
-            segment.coordinates.x === selectedSegment.coordinates.x &&
-            segment.coordinates.y === selectedSegment.coordinates.y
-          )
-        ) {
-          // setDestinationSelectedSegment(segment)
-        }
-      } else {
-        // setSelectedSegment(segment)
-        // setDestinationSelectedSegment(null)
-      }
-    }
-  }
-
   const [lastPaintedSegment, setLastPaintedSegment] =
     useState<MapSegment | null>(null)
 
@@ -132,7 +112,6 @@ export function MapContent({
         segments={segments}
         setDestinationSegment={setDestinationSelectedSegment}
         setSelectedSegment={setSelectedSegment}
-        onClick={handleClick}
         onMouseOver={handleMouseOver}
       />
       {/* TODO: Convert the bottom into a collapsible Toolbar component */}

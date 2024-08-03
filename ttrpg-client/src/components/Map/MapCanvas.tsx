@@ -44,7 +44,6 @@ interface MapCanvasProps {
   segments: MapSegmentDictionary
   setSelectedSegment: React.Dispatch<React.SetStateAction<MapSegment | null>>
   setDestinationSegment: React.Dispatch<React.SetStateAction<MapSegment | null>>
-  onClick?: (event: React.MouseEvent, segment: MapSegment) => void
   onMouseOver?: (event: React.MouseEvent, segment: MapSegment) => void
 }
 
@@ -54,7 +53,6 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
   segments,
   setSelectedSegment,
   setDestinationSegment,
-  onClick,
   onMouseOver,
 }) => {
   const { width, length, gridIncrements } = meta
@@ -139,7 +137,6 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
           setSelectedSegment,
           tool,
           dimensions,
-          onClick,
         })
       }
       onMouseMove={(event) =>
