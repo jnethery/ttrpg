@@ -1,14 +1,7 @@
-import { CSSProperties, useEffect, useState } from 'react'
-import {
-  faArrowPointer,
-  faPaintBrush,
-  faMountain,
-  faEyeDropper,
-  IconDefinition,
-} from '@fortawesome/free-solid-svg-icons'
+import { CSSProperties, useEffect, useState, useRef } from 'react'
 
-import { MapSegment, MapData } from 'types/mapSegments'
-import { Tool } from 'types/tools'
+import { MapSegment, MapData, MapSegmentDictionary } from 'types/mapSegments'
+import { Tool, toolConfig } from 'types/tools'
 import { getLineCoordinates } from 'utils/math'
 
 import { Panel } from 'components/Layout'
@@ -16,25 +9,6 @@ import { Inspector } from 'components/Toolbar'
 import { InspectorView } from 'components/Toolbar/InspectorViews/InspectorView'
 import { MapCanvas } from './MapCanvas'
 import { ToolTile } from './ToolTile'
-
-const toolConfig: Array<{ tool: Tool; icon: IconDefinition }> = [
-  {
-    tool: 'pointer',
-    icon: faArrowPointer,
-  },
-  {
-    tool: 'brush',
-    icon: faPaintBrush,
-  },
-  {
-    tool: 'terraform',
-    icon: faMountain,
-  },
-  {
-    tool: 'eyedropper',
-    icon: faEyeDropper,
-  },
-]
 
 export function MapContent({
   mapData,
@@ -45,6 +19,9 @@ export function MapContent({
   setMapData: (mapData: MapData) => void
   refetch: () => void
 }) {
+  const drawableSegmentsRef = useRef<MapSegmentDictionary | null>(null)
+  useEffect(() => {}, [mapData])
+
   const [selectedTool, setSelectedTool] = useState<Tool>('pointer')
   const [selectedSegment, setSelectedSegment] = useState<MapSegment | null>(
     null,

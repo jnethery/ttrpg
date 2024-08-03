@@ -60,7 +60,12 @@ export const MapDataSchema = z.object({
   segments: z.record(z.string(), MapSegmentSchema),
 })
 
+export type MapSegmentDictionary = Record<
+  TwoDimensionalCoordinatesString,
+  MapSegment
+>
+
 export type MapData = {
   meta: MapMeta
-  segments: Record<TwoDimensionalCoordinatesString, MapSegment>
+  segments: MapSegmentDictionary
 }
