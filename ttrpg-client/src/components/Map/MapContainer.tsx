@@ -8,17 +8,24 @@ interface MapContainerProps {
 }
 
 export const MapContainer: React.FC<MapContainerProps> = ({ context }) => {
-  const { mapData, setMapData, refetch, error } = useMapData({ context })
+  const { segments, setSegments, meta, refetch, error } = useMapData({
+    context,
+  })
 
   if (error) {
     return <div>Error fetching map data</div>
   }
 
-  if (!mapData) {
+  if (!meta || !segments) {
     return <div>Loading...</div>
   }
 
   return (
-    <MapContent mapData={mapData} setMapData={setMapData} refetch={refetch} />
+    <MapContent
+      meta={meta}
+      segments={segments}
+      setSegments={setSegments}
+      refetch={refetch}
+    />
   )
 }

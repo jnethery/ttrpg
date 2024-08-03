@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 
-import { MapData, MapDataSchema } from 'types/mapSegments'
+import { MapMeta, MapSegmentDictionary, MapDataSchema } from 'types/mapSegments'
 import { MapContext } from 'types/mapContexts'
 import { config } from 'config'
 
@@ -9,7 +9,8 @@ interface UseMapDataProps {
 }
 
 export const useMapData = ({ context }: UseMapDataProps) => {
-  const [mapData, setMapData] = useState<MapData | null>(null)
+  const [meta, setMeta] = useState<MapMeta | null>(null)
+  const [segments, setSegments] = useState<MapSegmentDictionary | null>(null)
   const [error, setError] = useState(false)
 
   const fetchData = useCallback(() => {
@@ -20,7 +21,8 @@ export const useMapData = ({ context }: UseMapDataProps) => {
       .then((response) => response.json())
       .then((data) => {
         const parsedData = MapDataSchema.parse(data)
-        setMapData(parsedData)
+        setMeta(parsedData.meta)
+        setSegments(parsedData.segments)
       })
       .catch((error) => {
         console.error('Error fetching map data:', error)
@@ -32,5 +34,12 @@ export const useMapData = ({ context }: UseMapDataProps) => {
     fetchData()
   }, [fetchData])
 
-  return { mapData, setMapData, error, refetch: fetchData }
+  return {
+    meta,
+    setMeta,
+    segments,
+    setSegments,
+    error,
+    refetch: fetchData,
+  }
 }

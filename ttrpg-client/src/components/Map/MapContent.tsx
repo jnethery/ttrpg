@@ -1,6 +1,6 @@
 import { CSSProperties, useEffect, useState, useRef } from 'react'
 
-import { MapSegment, MapData, MapSegmentDictionary } from 'types/mapSegments'
+import { MapSegment, MapMeta, MapSegmentDictionary } from 'types/mapSegments'
 import { Tool, toolConfig } from 'types/tools'
 import { getLineCoordinates } from 'utils/math'
 
@@ -11,16 +11,20 @@ import { MapCanvas } from './MapCanvas'
 import { ToolTile } from './ToolTile'
 
 export function MapContent({
-  mapData,
-  setMapData,
+  meta,
+  segments,
+  setSegments,
   refetch,
 }: {
-  mapData: MapData
-  setMapData: (mapData: MapData) => void
+  meta: MapMeta
+  segments: MapSegmentDictionary
+  setSegments: (segments: MapSegmentDictionary) => void
   refetch: () => void
 }) {
   const drawableSegmentsRef = useRef<MapSegmentDictionary | null>(null)
-  useEffect(() => {}, [mapData])
+  useEffect(() => {
+    drawableSegmentsRef.current = segments
+  }, [segments])
 
   const [selectedTool, setSelectedTool] = useState<Tool>('pointer')
   const [selectedSegment, setSelectedSegment] = useState<MapSegment | null>(
@@ -80,7 +84,7 @@ export function MapContent({
               destination: segment.coordinates,
             })
             interpolatedSegments = coordinates
-              .map(({ x, y }) => mapData.segments[`${x},${y}`])
+              .map(({ x, y }) => segments[`${x},${y}`])
               .filter((segment) => segment !== undefined)
           }
         }
@@ -100,15 +104,15 @@ export function MapContent({
         origin: selectedSegment.coordinates,
         destination: destinationSelectedSegment.coordinates,
       })
-      const segments = coordinates
-        .map(({ x, y }) => mapData.segments[`${x},${y}`])
+      const newSegments = coordinates
+        .map(({ x, y }) => segments[`${x},${y}`])
         .filter((segment) => segment !== undefined)
-      setInterimSegments(segments)
+      setInterimSegments(newSegments)
       // Handle cases for 0 dx or dy
     } else {
       setInterimSegments([])
     }
-  }, [selectedSegment, destinationSelectedSegment, mapData.segments])
+  }, [selectedSegment, destinationSelectedSegment, segments])
 
   const style: CSSProperties = {
     display: 'flex',
@@ -117,20 +121,17 @@ export function MapContent({
 
   const updateSegment = (segment: MapSegment) => {
     const updatedSegments = {
-      ...mapData.segments,
+      ...segments,
       [`${segment.coordinates.x},${segment.coordinates.y}`]: segment,
     }
-    setMapData({
-      ...mapData,
-      segments: updatedSegments,
-    })
+    setSegments(updatedSegments)
   }
 
   return (
     <div style={style}>
       <MapCanvas
-        meta={mapData.meta}
-        segments={Object.values(mapData.segments)}
+        meta={meta}
+        segments={Object.values(segments)}
         selectedSegments={[
           selectedSegment,
           destinationSelectedSegment,
@@ -153,7 +154,7 @@ export function MapContent({
             <InspectorView
               tool={selectedTool}
               props={{
-                meta: mapData.meta,
+                meta,
                 selectedSegment,
                 destinationSelectedSegment,
                 interimSegments,
