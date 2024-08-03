@@ -8,13 +8,11 @@ import { Biome } from 'types/biomes'
 import {
   calculateBaseMapSegments,
   calculateWaterSegments,
-  calculateForestSegments,
 } from 'lib/mapSegments'
 import { twoDimensionalSegmentArrayToDictionary } from 'utils/mapSegments'
 
-// TODO: Return type should be `Promise<HydratedMapSegment[]>`
 export const getMapSegments = async (biome: Biome): Promise<MapData> => {
-  // TODO: Move all this to a config file
+  // TODO: Move all this to a config file, and allow as REST params in the API
   const length = 20
   const width = 20
   const globalMaxHeight = 2000 // Going off of average mountain height

@@ -43,7 +43,6 @@ export const getCharacter = async (id: string): Promise<DBCharacter | null> => {
 }
 
 export const getCharacters = async (): Promise<DBCharacter[]> => {
-  // TODO: Add filtering to this
   const cachedCharacters = get<DBCharacter[]>(BASE_CACHE_KEY)
   if (cachedCharacters) {
     return cachedCharacters

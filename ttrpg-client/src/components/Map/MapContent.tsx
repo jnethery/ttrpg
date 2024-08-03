@@ -7,77 +7,15 @@ import {
   IconDefinition,
 } from '@fortawesome/free-solid-svg-icons'
 
-import { MapSegment, MapMeta, MapData } from 'types/mapSegments'
+import { MapSegment, MapData } from 'types/mapSegments'
 import { Tool } from 'types/tools'
 import { getLineCoordinates } from 'utils/math'
 
 import { Panel } from 'components/Layout'
 import { Inspector } from 'components/Toolbar'
-import { SelectedSegmentInspector } from 'components/Toolbar/InspectorViews/SelectedSegmentInspector'
+import { InspectorView } from 'components/Toolbar/InspectorViews/InspectorView'
 import { MapCanvas } from './MapCanvas'
 import { ToolTile } from './ToolTile'
-
-type SelectedSegmentContainerProps = {
-  meta: MapMeta
-  selectedSegment: MapSegment | null
-  destinationSelectedSegment: MapSegment | null
-  interimSegments: MapSegment[]
-  updateSegment: (segment: MapSegment) => void
-}
-
-const isSegmentContainerProps = (
-  props: unknown,
-): props is SelectedSegmentContainerProps => {
-  return (
-    (props as SelectedSegmentContainerProps).meta !== undefined &&
-    (props as SelectedSegmentContainerProps).selectedSegment !== undefined &&
-    (props as SelectedSegmentContainerProps).destinationSelectedSegment !==
-      undefined &&
-    (props as SelectedSegmentContainerProps).interimSegments !== undefined &&
-    (props as SelectedSegmentContainerProps).updateSegment !== undefined
-  )
-}
-
-type SomeOtherViewProps = {
-  test: string
-}
-
-interface InspectorViewProps {
-  tool: Tool
-  props: SelectedSegmentContainerProps | SomeOtherViewProps
-}
-
-// TODO: Need to refactor this
-export const InspectorView: React.FC<InspectorViewProps> = ({
-  tool,
-  props,
-}) => {
-  if (tool === 'pointer') {
-    if (isSegmentContainerProps(props)) {
-      const {
-        meta,
-        selectedSegment,
-        destinationSelectedSegment,
-        interimSegments,
-        updateSegment,
-      } = props
-      return (
-        <SelectedSegmentInspector
-          meta={meta}
-          selectedSegment={selectedSegment}
-          destinationSelectedSegment={destinationSelectedSegment}
-          interimSegments={interimSegments}
-          updateSegment={updateSegment}
-        />
-      )
-    }
-  }
-  return (
-    <div>
-      {tool.charAt(0).toUpperCase() + tool.slice(1)} inspector not implemented
-    </div>
-  )
-}
 
 const toolConfig: Array<{ tool: Tool; icon: IconDefinition }> = [
   {

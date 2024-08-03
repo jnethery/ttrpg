@@ -11,14 +11,12 @@ interface MapTilesContainerProps {
   onMouseOver?: (event: React.MouseEvent, segment: MapSegment) => void
 }
 
-// TODO: Make this parameterized, and merge with the one in MapTiles
 const dimensions = {
   width: 10,
   height: 10,
   border: 1,
 }
 
-// TODO: If performance becomes an issue, consider painting the entire map as a single canvas
 // @deprecated Use MapCanvas instead
 export const MapTilesContainer: React.FC<MapTilesContainerProps> = ({
   selectedSegments,

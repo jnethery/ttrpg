@@ -126,22 +126,6 @@ export function calculateWaterSegments({
   }
 }
 
-export function calculateForestSegments({
-  width,
-  length,
-  gridIncrements,
-  segments,
-}: {
-  width: number
-  length: number
-  gridIncrements: number
-  segments: MapSegment[][]
-}): void {
-  // TODO: This is not working.
-  // Forest need to grow outward from where they are seeded, and need to be seeded in rational locations.
-  // Work on the seeding first, then the growth.
-}
-
 export function cascade(
   i: number,
   j: number,
@@ -219,7 +203,6 @@ export function calculateZ(
   if (i == 0 && j == 0) {
     return Math.random() * maxHeight
   }
-  const heightRange = maxHeight - minHeight
   // Most likely keep the height within 10 feet of the neighbor
   const random = Math.random() * 100
   let newHeight = 0

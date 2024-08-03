@@ -1,3 +1,4 @@
+// TODO: Clean this up
 import React, { CSSProperties, useEffect } from 'react'
 import { useFormik } from 'formik'
 
@@ -27,7 +28,6 @@ export const SelectedSegmentInfo: React.FC<{
     },
   })
 
-  // For some reason, this causes everything to break
   useEffect(() => {
     const newValues = getValues(segment)
 
@@ -42,7 +42,7 @@ export const SelectedSegmentInfo: React.FC<{
     flexDirection: 'column',
   }
 
-  const coordinatesString = segment
+  const coordinateInfoString = segment
     ? `location: {${segment.coordinates.x}, ${
         segment.coordinates.y
       }}, height: ${segment.coordinates.z.toFixed(2)}`
@@ -51,7 +51,7 @@ export const SelectedSegmentInfo: React.FC<{
   return (
     <form style={style} onSubmit={formik.handleSubmit}>
       <div>{title}</div>
-      <div>{coordinatesString}</div>
+      <div>{coordinateInfoString}</div>
       <div>
         Water Depth:{' '}
         <input

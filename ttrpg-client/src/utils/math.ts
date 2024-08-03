@@ -8,6 +8,16 @@ export const normalizeValue = (
   return (value - min) / (max - min)
 }
 
+export const calculateLinearDistance = (
+  origin: { x: number; y: number },
+  destination: { x: number; y: number },
+) => {
+  return Math.sqrt(
+    Math.pow(destination.x - origin.x, 2) +
+      Math.pow(destination.y - origin.y, 2),
+  )
+}
+
 export const getLineCoordinates = ({
   origin,
   destination,

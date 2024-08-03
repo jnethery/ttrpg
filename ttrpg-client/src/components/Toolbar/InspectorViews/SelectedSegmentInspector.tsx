@@ -6,7 +6,7 @@ import { Panel } from 'components/Layout'
 import { SelectedTraversalInfo } from './SelectedTraversalInfo'
 import { SelectedSegmentInfo } from './SelectedSegmentInfo'
 
-interface SelectedSegmentInspectorProps {
+export interface SelectedSegmentInspectorProps {
   meta: MapMeta
   selectedSegment: MapSegment | null
   destinationSelectedSegment: MapSegment | null
