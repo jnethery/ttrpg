@@ -42,8 +42,12 @@ interface MapCanvasProps {
   tool: Tool
   meta: MapMeta
   segments: MapSegmentDictionary
-  setSelectedSegment: React.Dispatch<React.SetStateAction<MapSegment | null>>
-  setDestinationSegment: React.Dispatch<React.SetStateAction<MapSegment | null>>
+  setSelectedSegmentCoordinateString: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString | null>
+  >
+  setDestinationSegmentCoordinateString: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString | null>
+  >
   onMouseOver?: (event: React.MouseEvent, segment: MapSegment) => void
 }
 
@@ -51,8 +55,8 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
   tool,
   meta,
   segments,
-  setSelectedSegment,
-  setDestinationSegment,
+  setSelectedSegmentCoordinateString,
+  setDestinationSegmentCoordinateString,
   onMouseOver,
 }) => {
   const { width, length, gridIncrements } = meta
@@ -64,6 +68,7 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
     useState<DrawableMapSegmentDictionary | null>(null)
 
   useEffect(() => {
+    // TODO: Maintain selected and dirty props when making this assignment
     const drawableSegments = Object.entries(segments).reduce(
       (acc, [key, segment]) => {
         acc[key as TwoDimensionalCoordinatesString] = {
@@ -133,8 +138,8 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
           canvasRef,
           segments,
           setDrawableSegments,
-          setDestinationSegment,
-          setSelectedSegment,
+          setDestinationSegmentCoordinateString,
+          setSelectedSegmentCoordinateString,
           tool,
           dimensions,
         })

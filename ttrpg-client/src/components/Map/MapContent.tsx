@@ -2,13 +2,14 @@ import { CSSProperties, useEffect, useState } from 'react'
 
 import { MapSegment, MapMeta, MapSegmentDictionary } from 'types/mapSegments'
 import { Tool, toolConfig } from 'types/tools'
-import { getLineCoordinates } from 'utils/math'
+import { getLineCoordinates, calculateLinearDistance } from 'utils/math'
 
 import { Panel } from 'components/Layout'
 import { Inspector } from 'components/Toolbar'
 import { InspectorView } from 'components/Toolbar/InspectorViews/InspectorView'
 import { MapCanvas } from './MapCanvas'
 import { ToolTile } from './ToolTile'
+import { TwoDimensionalCoordinatesString } from 'types/coordinates'
 
 export function MapContent({
   meta,
@@ -22,54 +23,65 @@ export function MapContent({
   refetch: () => void
 }) {
   const [selectedTool, setSelectedTool] = useState<Tool>('pointer')
-  const [selectedSegment, setSelectedSegment] = useState<MapSegment | null>(
-    null,
-  )
-  const [destinationSelectedSegment, setDestinationSelectedSegment] =
-    useState<MapSegment | null>(null)
-  // TODO: Refactor this to store coordinates instead of entire segments
-  const [interimSegments, setInterimSegments] = useState<MapSegment[]>([])
+  const [selectedSegmentCoordinateString, setSelectedSegmentCoordinateString] =
+    useState<TwoDimensionalCoordinatesString | null>(null)
+  const [
+    destinationSelectedSegmentCoordinateString,
+    setDestinationSelectedSegmentCoordinateString,
+  ] = useState<TwoDimensionalCoordinatesString | null>(null)
+  const [interimSegmentCoordinateStrings, setInterimSegmentCoordinateStrings] =
+    useState<TwoDimensionalCoordinatesString[]>([])
 
-  const [lastPaintedSegment, setLastPaintedSegment] =
-    useState<MapSegment | null>(null)
+  const [
+    lastPaintedSegmentCoordinateString,
+    setLastPaintedSegmentCoordinateString,
+  ] = useState<TwoDimensionalCoordinatesString | null>(null)
 
   // TODO: Remove this once it's handled in the canvas
   const handleMouseOver = (event: React.MouseEvent, segment: MapSegment) => {
     if (selectedTool == 'brush') {
       if (event.buttons === 0) {
-        setLastPaintedSegment(null)
+        setLastPaintedSegmentCoordinateString(null)
       } else if (event.buttons === 1) {
-        if (selectedSegment || destinationSelectedSegment) {
+        if (
+          selectedSegmentCoordinateString ||
+          destinationSelectedSegmentCoordinateString
+        ) {
           // setSelectedSegment(null)
           // setDestinationSelectedSegment(null)
         }
         // TODO: Do this interpolation logic in the Canvas element
         // Make it more sophisticated by drawing a theoretical curve between the last 2 points and the current one,
         // and then finding the segments that lie closest to the intersection with that curve between the last point and the current one
-        let interpolatedSegments: MapSegment[] = []
-        if (lastPaintedSegment) {
+        let interpolatedSegments: TwoDimensionalCoordinatesString[] = []
+        if (lastPaintedSegmentCoordinateString) {
           // Check that the last painted segment is over 1 tile away from the current segment
           if (
-            Math.abs(lastPaintedSegment.coordinates.x - segment.coordinates.x) +
-              Math.abs(
-                lastPaintedSegment.coordinates.y - segment.coordinates.y,
-              ) >
-            1
+            calculateLinearDistance(
+              lastPaintedSegmentCoordinateString,
+              segment.coordinates,
+            ) > 1
           ) {
             const coordinates = getLineCoordinates({
-              origin: lastPaintedSegment.coordinates,
+              origin: lastPaintedSegmentCoordinateString,
               destination: segment.coordinates,
             })
             interpolatedSegments = coordinates
               .map(({ x, y }) => segments[`${x},${y}`])
               .filter((segment) => segment !== undefined)
+              .map(
+                (segment) =>
+                  `${segment.coordinates.x},${segment.coordinates.y}` as TwoDimensionalCoordinatesString,
+              )
           }
         }
-        setLastPaintedSegment(segment)
-        setInterimSegments([
-          ...interimSegments,
+        setLastPaintedSegmentCoordinateString(
+          `${segment.coordinates.x},${segment.coordinates.y}`,
+        )
+        setInterimSegmentCoordinateStrings([
+          ...interimSegmentCoordinateStrings,
           ...interpolatedSegments,
-          segment,
+          `${segment.coordinates.x},${segment.coordinates.y}`,
         ])
       }
     }
@@ -77,19 +89,30 @@ export function MapContent({
 
   // TODO: Move this into the canvas util
   useEffect(() => {
-    if (selectedSegment && destinationSelectedSegment) {
+    if (
+      selectedSegmentCoordinateString &&
+      destinationSelectedSegmentCoordinateString
+    ) {
       const coordinates = getLineCoordinates({
-        origin: selectedSegment.coordinates,
-        destination: destinationSelectedSegment.coordinates,
+        origin: selectedSegmentCoordinateString,
+        destination: destinationSelectedSegmentCoordinateString,
       })
       const newSegments = coordinates
         .map(({ x, y }) => segments[`${x},${y}`])
         .filter((segment) => segment !== undefined)
-      setInterimSegments(newSegments)
+        .map(
+          (segment) =>
+            `${segment.coordinates.x},${segment.coordinates.y}` as TwoDimensionalCoordinatesString,
+        )
+      setInterimSegmentCoordinateStrings(newSegments)
     } else {
-      setInterimSegments([])
+      setInterimSegmentCoordinateStrings([])
     }
-  }, [selectedSegment, destinationSelectedSegment, segments])
+  }, [
+    selectedSegmentCoordinateString,
+    destinationSelectedSegmentCoordinateString,
+    segments,
+  ])
 
   const style: CSSProperties = {
     display: 'flex',
@@ -110,8 +133,10 @@ export function MapContent({
         tool={selectedTool}
         meta={meta}
         segments={segments}
-        setDestinationSegment={setDestinationSelectedSegment}
-        setSelectedSegment={setSelectedSegment}
+        setDestinationSegmentCoordinateString={
+          setDestinationSelectedSegmentCoordinateString
+        }
+        setSelectedSegmentCoordinateString={setSelectedSegmentCoordinateString}
         onMouseOver={handleMouseOver}
       />
       {/* TODO: Convert the bottom into a collapsible Toolbar component */}
@@ -129,9 +154,16 @@ export function MapContent({
               tool={selectedTool}
               props={{
                 meta,
-                selectedSegment,
-                destinationSelectedSegment,
-                interimSegments,
+                selectedSegment: selectedSegmentCoordinateString
+                  ? segments[selectedSegmentCoordinateString]
+                  : null,
+                destinationSelectedSegment:
+                  destinationSelectedSegmentCoordinateString
+                    ? segments[destinationSelectedSegmentCoordinateString]
+                    : null,
+                interimSegments: interimSegmentCoordinateStrings.map(
+                  (coordinateString) => segments[coordinateString],
+                ),
                 updateSegment,
               }}
             />

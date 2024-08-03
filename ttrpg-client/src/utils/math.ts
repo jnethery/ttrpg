@@ -1,4 +1,7 @@
-import { TwoDimensionalCoordinates } from 'types/coordinates'
+import {
+  TwoDimensionalCoordinates,
+  TwoDimensionalCoordinatesString,
+} from 'types/coordinates'
 
 export const normalizeValue = (
   value: number,
@@ -8,13 +11,27 @@ export const normalizeValue = (
   return (value - min) / (max - min)
 }
 
+export const coordinateStringToCoordinates = (
+  coordinateString: TwoDimensionalCoordinatesString,
+): TwoDimensionalCoordinates => {
+  const [x, y] = coordinateString.split(',').map((value) => parseInt(value))
+  return { x, y }
+}
+
 export const calculateLinearDistance = (
-  origin: { x: number; y: number },
-  destination: { x: number; y: number },
+  origin: TwoDimensionalCoordinates | TwoDimensionalCoordinatesString,
+  destination: TwoDimensionalCoordinates | TwoDimensionalCoordinatesString,
 ) => {
+  const originCoordinates =
+    typeof origin === 'string' ? coordinateStringToCoordinates(origin) : origin
+  const destinationCoordinates =
+    typeof destination === 'string'
+      ? coordinateStringToCoordinates(destination)
+      : destination
+
   return Math.sqrt(
-    Math.pow(destination.x - origin.x, 2) +
-      Math.pow(destination.y - origin.y, 2),
+    Math.pow(destinationCoordinates.x - originCoordinates.x, 2) +
+      Math.pow(destinationCoordinates.y - originCoordinates.y, 2),
   )
 }
 
@@ -23,32 +40,43 @@ export const getLineCoordinates = ({
   destination,
   transpose = false,
 }: {
-  origin: TwoDimensionalCoordinates
-  destination: TwoDimensionalCoordinates
+  origin: TwoDimensionalCoordinates | TwoDimensionalCoordinatesString
+  destination: TwoDimensionalCoordinates | TwoDimensionalCoordinatesString
   transpose?: boolean
 }): TwoDimensionalCoordinates[] => {
   const coordinates: TwoDimensionalCoordinates[] = []
 
-  const dx = destination.x - origin.x
-  const dy = destination.y - origin.y
+  const originCoordinates =
+    typeof origin === 'string' ? coordinateStringToCoordinates(origin) : origin
+  const destinationCoordinates =
+    typeof destination === 'string'
+      ? coordinateStringToCoordinates(destination)
+      : destination
+
+  const dx = destinationCoordinates.x - originCoordinates.x
+  const dy = destinationCoordinates.y - originCoordinates.y
   if (Math.abs(dy) > Math.abs(dx)) {
     // Try again, but swap the coordinates and transpose the result.
     return getLineCoordinates({
-      origin: { x: origin.y, y: origin.x },
-      destination: { x: destination.y, y: destination.x },
+      origin: { x: originCoordinates.y, y: originCoordinates.x },
+      destination: { x: destinationCoordinates.y, y: destinationCoordinates.x },
       transpose: true,
     })
   }
   // Slope formula.
   const slope = dy / dx
-  const intercept = origin.y - slope * origin.x
+  const intercept = originCoordinates.y - slope * originCoordinates.x
 
   const continuationCondition =
     dx > 0
-      ? (i: number) => i <= destination.x
-      : (i: number) => i >= destination.x
+      ? (i: number) => i <= destinationCoordinates.x
+      : (i: number) => i >= destinationCoordinates.x
 
-  for (let i = origin.x; continuationCondition(i); dx > 0 ? i++ : i--) {
+  for (
+    let i = originCoordinates.x;
+    continuationCondition(i);
+    dx > 0 ? i++ : i--
+  ) {
     const j = Math.round(slope * i + intercept)
     coordinates.push(transpose ? { x: j, y: i } : { x: i, y: j })
   }

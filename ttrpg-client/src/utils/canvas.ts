@@ -3,6 +3,7 @@ import {
   DrawableMapSegment,
   DrawableMapSegmentDictionary,
 } from 'types/drawableMapSegments'
+import { TwoDimensionalCoordinatesString } from 'types/coordinates'
 import { Terrain } from 'types/terrains'
 import { Tool } from 'types/tools'
 import { colorConfig } from 'types/colors'
@@ -120,16 +121,20 @@ const handlePointerTool = ({
   canvasRef,
   dimensions,
   segments,
-  setSelectedSegment,
-  setDestinationSegment,
+  setSelectedSegmentCoordinateString,
+  setDestinationSegmentCoordinateString,
   setDrawableSegments,
 }: {
   event: React.MouseEvent<HTMLCanvasElement>
   canvasRef: React.RefObject<HTMLCanvasElement>
   dimensions: { width: number; height: number }
   segments: MapSegmentDictionary
-  setDestinationSegment: React.Dispatch<React.SetStateAction<MapSegment | null>>
-  setSelectedSegment: React.Dispatch<React.SetStateAction<MapSegment | null>>
+  setDestinationSegmentCoordinateString: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString | null>
+  >
+  setSelectedSegmentCoordinateString: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString | null>
+  >
   setDrawableSegments: React.Dispatch<
     React.SetStateAction<DrawableMapSegmentDictionary | null>
   >
@@ -139,14 +144,22 @@ const handlePointerTool = ({
     const segment = segments[`${coordinate.x},${coordinate.y}`]
     if (segment) {
       if (event.shiftKey) {
-        setDestinationSegment((prev) => {
-          replaceDrawableSegment(segment, prev, setDrawableSegments)
-          return segment
+        setDestinationSegmentCoordinateString((prev) => {
+          replaceDrawableSegment(
+            segment,
+            prev ? segments[prev] : null,
+            setDrawableSegments,
+          )
+          return `${segment.coordinates.x},${segment.coordinates.y}`
         })
       } else {
-        setSelectedSegment((prev) => {
-          replaceDrawableSegment(segment, prev, setDrawableSegments)
-          return segment
+        setSelectedSegmentCoordinateString((prev) => {
+          replaceDrawableSegment(
+            segment,
+            prev ? segments[prev] : null,
+            setDrawableSegments,
+          )
+          return `${segment.coordinates.x},${segment.coordinates.y}`
         })
       }
     }
@@ -158,8 +171,8 @@ export const handleClick = ({
   canvasRef,
   dimensions,
   segments,
-  setSelectedSegment,
-  setDestinationSegment,
+  setSelectedSegmentCoordinateString,
+  setDestinationSegmentCoordinateString,
   setDrawableSegments,
   tool,
 }: {
@@ -167,8 +180,12 @@ export const handleClick = ({
   canvasRef: React.RefObject<HTMLCanvasElement>
   dimensions: { width: number; height: number }
   segments: MapSegmentDictionary
-  setDestinationSegment: React.Dispatch<React.SetStateAction<MapSegment | null>>
-  setSelectedSegment: React.Dispatch<React.SetStateAction<MapSegment | null>>
+  setDestinationSegmentCoordinateString: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString | null>
+  >
+  setSelectedSegmentCoordinateString: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString | null>
+  >
   setDrawableSegments: React.Dispatch<
     React.SetStateAction<DrawableMapSegmentDictionary | null>
   >
@@ -180,8 +197,8 @@ export const handleClick = ({
       canvasRef,
       dimensions,
       segments,
-      setDestinationSegment,
-      setSelectedSegment,
+      setDestinationSegmentCoordinateString,
+      setSelectedSegmentCoordinateString,
       setDrawableSegments,
     })
   }
