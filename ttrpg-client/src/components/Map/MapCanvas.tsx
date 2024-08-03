@@ -1,7 +1,8 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useState, useEffect } from 'react'
 
-import { MapMeta, MapSegment } from 'types/mapSegments'
-import { DrawableMapSegment } from 'types/drawableMapSegments'
+import { MapMeta, MapSegment, MapSegmentDictionary } from 'types/mapSegments'
+import { DrawableMapSegmentDictionary } from 'types/drawableMapSegments'
+import { TwoDimensionalCoordinatesString } from 'types/coordinates'
 import { Terrain } from 'types/terrains'
 import { colorConfig } from 'types/colors'
 import {
@@ -14,7 +15,7 @@ import { getCanvasCoordinate } from 'utils/canvas'
 
 interface MapCanvasProps {
   meta: MapMeta
-  segments: DrawableMapSegment[]
+  segments: MapSegmentDictionary
   selectedSegments: MapSegment[]
   onClick?: (event: React.MouseEvent, segment: MapSegment) => void
   onMouseOver?: (event: React.MouseEvent, segment: MapSegment) => void
@@ -83,17 +84,13 @@ const getTerrainRGBString = ({
 const handleClick = (
   event: React.MouseEvent<HTMLCanvasElement>,
   canvasRef: React.RefObject<HTMLCanvasElement>,
-  segments: MapSegment[],
+  segments: MapSegmentDictionary,
   onClick?: (event: React.MouseEvent, segment: MapSegment) => void,
 ) => {
   if (onClick) {
     const coordinate = getCanvasCoordinate(event, canvasRef, dimensions)
     if (coordinate) {
-      const segment = segments.find(
-        (segment) =>
-          segment.coordinates.x === coordinate.x &&
-          segment.coordinates.y === coordinate.y,
-      )
+      const segment = segments[`${coordinate.x},${coordinate.y}`]
       if (segment) {
         onClick(event, segment)
       }
@@ -105,18 +102,14 @@ const handleClick = (
 const handleMouseMove = (
   event: React.MouseEvent<HTMLCanvasElement>,
   canvasRef: React.RefObject<HTMLCanvasElement>,
-  segments: MapSegment[],
+  segments: MapSegmentDictionary,
   onMouseOver?: (event: React.MouseEvent, segment: MapSegment) => void,
 ) => {
   if (onMouseOver) {
     if (canvasRef.current) {
       const coordinate = getCanvasCoordinate(event, canvasRef, dimensions)
       if (coordinate) {
-        const segment = segments.find(
-          (segment) =>
-            segment.coordinates.x === coordinate.x &&
-            segment.coordinates.y === coordinate.y,
-        )
+        const segment = segments[`${coordinate.x},${coordinate.y}`]
         if (segment) {
           onMouseOver(event, segment)
         }
@@ -137,33 +130,52 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
   const canvasHeight = dimensions.height * length * gridIncrements
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  // TODO: Use state to track segments that need to be updated rather than redrawing the entire canvas
+  const [drawableSegments, setDrawableSegments] =
+    useState<DrawableMapSegmentDictionary | null>(null)
+
+  useEffect(() => {
+    const drawableSegments = Object.entries(segments).reduce(
+      (acc, [key, segment]) => {
+        acc[key as TwoDimensionalCoordinatesString] = {
+          ...segment,
+          dirty: true,
+          selected: false,
+        }
+        return acc
+      },
+      {} as DrawableMapSegmentDictionary,
+    )
+    setDrawableSegments(drawableSegments)
+  }, [segments])
 
   useEffect(() => {
     if (canvasRef.current) {
       const canvas = canvasRef.current
       const ctx = canvas.getContext('2d')
       if (ctx) {
-        segments
-          .filter((segment) => segment.dirty)
-          .map((segment) => {
-            ctx.fillStyle = getRectRGBString({
-              meta,
-              segment,
-              selectedSegments,
+        if (drawableSegments) {
+          Object.values(drawableSegments)
+            .filter((segment) => segment.dirty)
+            .map((segment) => {
+              ctx.fillStyle = getRectRGBString({
+                meta,
+                segment,
+                selectedSegments,
+              })
+              // Draw terrain color
+              ctx.fillRect(
+                segment.coordinates.x * dimensions.width,
+                segment.coordinates.y * dimensions.height,
+                dimensions.width,
+                dimensions.height,
+              )
+              // Draw segment border
             })
-            // Draw terrain color
-            ctx.fillRect(
-              segment.coordinates.x * dimensions.width,
-              segment.coordinates.y * dimensions.height,
-              dimensions.width,
-              dimensions.height,
-            )
-            // Draw segment border
-          })
+          // TODO: Set dirty to false after drawing
+        }
       }
     }
-  }, [segments, selectedSegments])
+  }, [drawableSegments, selectedSegments])
 
   return (
     <canvas

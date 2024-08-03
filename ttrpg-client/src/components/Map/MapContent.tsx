@@ -1,8 +1,6 @@
-import { CSSProperties, useEffect, useState, useRef } from 'react'
+import { CSSProperties, useEffect, useState } from 'react'
 
 import { MapSegment, MapMeta, MapSegmentDictionary } from 'types/mapSegments'
-import { DrawableMapSegmentDictionary } from 'types/drawableMapSegments'
-import { TwoDimensionalCoordinatesString } from 'types/coordinates'
 import { Tool, toolConfig } from 'types/tools'
 import { getLineCoordinates } from 'utils/math'
 
@@ -23,22 +21,6 @@ export function MapContent({
   setSegments: (segments: MapSegmentDictionary) => void
   refetch: () => void
 }) {
-  const drawableSegmentsRef = useRef<DrawableMapSegmentDictionary | null>(null)
-  useEffect(() => {
-    const drawableSegments = Object.entries(segments).reduce(
-      (acc, [key, segment]) => {
-        acc[key as TwoDimensionalCoordinatesString] = {
-          ...segment,
-          dirty: true,
-          selected: false,
-        }
-        return acc
-      },
-      {} as DrawableMapSegmentDictionary,
-    )
-    drawableSegmentsRef.current = drawableSegments
-  }, [segments])
-
   const [selectedTool, setSelectedTool] = useState<Tool>('pointer')
   const [selectedSegment, setSelectedSegment] = useState<MapSegment | null>(
     null,
@@ -143,7 +125,7 @@ export function MapContent({
     <div style={style}>
       <MapCanvas
         meta={meta}
-        segments={Object.values(drawableSegmentsRef.current ?? {})}
+        segments={segments}
         selectedSegments={[
           selectedSegment,
           destinationSelectedSegment,
