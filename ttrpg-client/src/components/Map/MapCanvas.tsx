@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react'
 
 import { MapMeta, MapSegment } from 'types/mapSegments'
+import { DrawableMapSegment } from 'types/drawableMapSegments'
 import { Terrain } from 'types/terrains'
 import { colorConfig } from 'types/colors'
 import {
@@ -13,7 +14,7 @@ import { getCanvasCoordinate } from 'utils/canvas'
 
 interface MapCanvasProps {
   meta: MapMeta
-  segments: MapSegment[]
+  segments: DrawableMapSegment[]
   selectedSegments: MapSegment[]
   onClick?: (event: React.MouseEvent, segment: MapSegment) => void
   onMouseOver?: (event: React.MouseEvent, segment: MapSegment) => void
@@ -143,21 +144,23 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
       const canvas = canvasRef.current
       const ctx = canvas.getContext('2d')
       if (ctx) {
-        segments.map((segment) => {
-          ctx.fillStyle = getRectRGBString({
-            meta,
-            segment,
-            selectedSegments,
+        segments
+          .filter((segment) => segment.dirty)
+          .map((segment) => {
+            ctx.fillStyle = getRectRGBString({
+              meta,
+              segment,
+              selectedSegments,
+            })
+            // Draw terrain color
+            ctx.fillRect(
+              segment.coordinates.x * dimensions.width,
+              segment.coordinates.y * dimensions.height,
+              dimensions.width,
+              dimensions.height,
+            )
+            // Draw segment border
           })
-          // Draw terrain color
-          ctx.fillRect(
-            segment.coordinates.x * dimensions.width,
-            segment.coordinates.y * dimensions.height,
-            dimensions.width,
-            dimensions.height,
-          )
-          // Draw segment border
-        })
       }
     }
   }, [segments, selectedSegments])

@@ -1,6 +1,8 @@
 import { CSSProperties, useEffect, useState, useRef } from 'react'
 
 import { MapSegment, MapMeta, MapSegmentDictionary } from 'types/mapSegments'
+import { DrawableMapSegmentDictionary } from 'types/drawableMapSegments'
+import { TwoDimensionalCoordinatesString } from 'types/coordinates'
 import { Tool, toolConfig } from 'types/tools'
 import { getLineCoordinates } from 'utils/math'
 
@@ -21,9 +23,20 @@ export function MapContent({
   setSegments: (segments: MapSegmentDictionary) => void
   refetch: () => void
 }) {
-  const drawableSegmentsRef = useRef<MapSegmentDictionary | null>(null)
+  const drawableSegmentsRef = useRef<DrawableMapSegmentDictionary | null>(null)
   useEffect(() => {
-    drawableSegmentsRef.current = segments
+    const drawableSegments = Object.entries(segments).reduce(
+      (acc, [key, segment]) => {
+        acc[key as TwoDimensionalCoordinatesString] = {
+          ...segment,
+          dirty: true,
+          selected: false,
+        }
+        return acc
+      },
+      {} as DrawableMapSegmentDictionary,
+    )
+    drawableSegmentsRef.current = drawableSegments
   }, [segments])
 
   const [selectedTool, setSelectedTool] = useState<Tool>('pointer')
@@ -108,7 +121,6 @@ export function MapContent({
         .map(({ x, y }) => segments[`${x},${y}`])
         .filter((segment) => segment !== undefined)
       setInterimSegments(newSegments)
-      // Handle cases for 0 dx or dy
     } else {
       setInterimSegments([])
     }
@@ -131,7 +143,7 @@ export function MapContent({
     <div style={style}>
       <MapCanvas
         meta={meta}
-        segments={Object.values(segments)}
+        segments={Object.values(drawableSegmentsRef.current ?? {})}
         selectedSegments={[
           selectedSegment,
           destinationSelectedSegment,
