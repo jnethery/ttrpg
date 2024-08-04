@@ -204,6 +204,7 @@ const handlePointerTool = ({
             setInterimCoordinateStrings((prev) => {
               // Remove the previous interim segments, and add the new ones
               // Order needs to be remove, and then add, to avoid removing selected segments that were in the previous set
+              // TODO: An optimization could be to only add/remove the segments that are in the new line
               updatedSegments = {
                 ...updatedSegments,
                 ...removeSelectedDrawableSegments(
