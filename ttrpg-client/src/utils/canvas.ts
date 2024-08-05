@@ -52,17 +52,17 @@ export const getRectRGBString = ({
 }
 
 const getTerrainRGBString = ({
-  selected,
   height,
-  minHeight,
   maxHeight,
+  minHeight,
+  selected,
   terrain,
   waterDepth,
 }: {
-  selected: boolean
   height: number
-  minHeight: number
   maxHeight: number
+  minHeight: number
+  selected: boolean
   terrain: Terrain
   waterDepth: number
 }): string => {
@@ -153,33 +153,152 @@ function replaceSelectedDrawableSegment(
   return updatedDrawableSegments
 }
 
-const handlePointerTool = ({
-  event,
+const handleBrushTool = ({
   canvasRef,
+  destinationSelectedSegmentCoordinateString,
   dimensions,
+  event,
+  interimSegmentCoordinateStrings,
+  lastPaintedSegmentCoordinateString,
   segments,
   selectedSegmentCoordinateString,
-  setSelectedSegmentCoordinateString,
   setDestinationSegmentCoordinateString,
-  setInterimCoordinateStrings,
   setDrawableSegments,
+  setInterimCoordinateStrings,
+  setLastPaintedSegmentCoordinateString,
+  setSelectedSegmentCoordinateString,
 }: {
-  event: React.MouseEvent<HTMLCanvasElement>
   canvasRef: React.RefObject<HTMLCanvasElement>
+  destinationSelectedSegmentCoordinateString: TwoDimensionalCoordinatesString | null
   dimensions: { width: number; height: number }
+  event: React.MouseEvent<HTMLCanvasElement>
+  interimSegmentCoordinateStrings: TwoDimensionalCoordinatesString[]
+  lastPaintedSegmentCoordinateString: TwoDimensionalCoordinatesString | null
   segments: MapSegmentDictionary
+  selectedSegmentCoordinateString: TwoDimensionalCoordinatesString | null
   setDestinationSegmentCoordinateString: React.Dispatch<
     React.SetStateAction<TwoDimensionalCoordinatesString | null>
   >
-  selectedSegmentCoordinateString: TwoDimensionalCoordinatesString | null
-  setSelectedSegmentCoordinateString: React.Dispatch<
-    React.SetStateAction<TwoDimensionalCoordinatesString | null>
+  setDrawableSegments: React.Dispatch<
+    React.SetStateAction<DrawableMapSegmentDictionary | null>
   >
   setInterimCoordinateStrings: React.Dispatch<
     React.SetStateAction<TwoDimensionalCoordinatesString[]>
   >
+  setLastPaintedSegmentCoordinateString: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString | null>
+  >
+  setSelectedSegmentCoordinateString: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString | null>
+  >
+}) => {
+  /*
+  if (event.buttons === 0) {
+        setLastPaintedSegmentCoordinateString(null)
+      } else if (event.buttons === 1) {
+        if (
+          selectedSegmentCoordinateString ||
+          destinationSelectedSegmentCoordinateString
+        ) {
+          // setSelectedSegment(null)
+          // setDestinationSelectedSegment(null)
+        }
+        // TODO: Do this interpolation logic in the Canvas element
+        // Make it more sophisticated by drawing a theoretical curve between the last 2 points and the current one,
+        // and then finding the segments that lie closest to the intersection with that curve between the last point and the current one
+        let interpolatedSegments: TwoDimensionalCoordinatesString[] = []
+        if (lastPaintedSegmentCoordinateString) {
+          // Check that the last painted segment is over 1 tile away from the current segment
+          if (
+            calculateLinearDistance(
+              lastPaintedSegmentCoordinateString,
+              segment.coordinates,
+            ) > 1
+          ) {
+            const coordinates = getLineCoordinates({
+              origin: lastPaintedSegmentCoordinateString,
+              destination: segment.coordinates,
+            })
+            interpolatedSegments = coordinates
+              .map(({ x, y }) => segments[`${x},${y}`])
+              .filter((segment) => segment !== undefined)
+              .map(
+                (segment) =>
+                  `${segment.coordinates.x},${segment.coordinates.y}` as TwoDimensionalCoordinatesString,
+              )
+          }
+        }
+        setLastPaintedSegmentCoordinateString(
+          `${segment.coordinates.x},${segment.coordinates.y}`,
+        )
+        setInterimSegmentCoordinateStrings([
+          ...interimSegmentCoordinateStrings,
+          ...interpolatedSegments,
+          `${segment.coordinates.x},${segment.coordinates.y}`,
+        ])
+      }
+        */
+
+  const coordinate = getCanvasCoordinate(event, canvasRef, dimensions)
+  if (coordinate) {
+    // const segment = segments[`${coordinate.x},${coordinate.y}`]
+    if (event.buttons === 0) {
+      setLastPaintedSegmentCoordinateString(null)
+    } else if (event.buttons === 1) {
+      if (
+        selectedSegmentCoordinateString ||
+        destinationSelectedSegmentCoordinateString
+      ) {
+        setSelectedSegmentCoordinateString(null)
+        setDestinationSegmentCoordinateString(null)
+        setInterimCoordinateStrings([])
+        setDrawableSegments((prev) => {
+          const removableCoordinates = [
+            ...interimSegmentCoordinateStrings,
+            selectedSegmentCoordinateString,
+            destinationSelectedSegmentCoordinateString,
+          ]
+          const removableSegments = removableCoordinates
+            .map((coord) => (coord ? segments[coord] : null))
+            .filter((segment) => segment !== null && segment !== undefined)
+
+          return {
+            ...prev,
+            ...removeSelectedDrawableSegments(removableSegments),
+          }
+        })
+      }
+    }
+  }
+}
+
+const handlePointerTool = ({
+  canvasRef,
+  dimensions,
+  event,
+  segments,
+  selectedSegmentCoordinateString,
+  setDestinationSegmentCoordinateString,
+  setDrawableSegments,
+  setInterimCoordinateStrings,
+  setSelectedSegmentCoordinateString,
+}: {
+  canvasRef: React.RefObject<HTMLCanvasElement>
+  dimensions: { width: number; height: number }
+  event: React.MouseEvent<HTMLCanvasElement>
+  segments: MapSegmentDictionary
+  selectedSegmentCoordinateString: TwoDimensionalCoordinatesString | null
+  setDestinationSegmentCoordinateString: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString | null>
+  >
   setDrawableSegments: React.Dispatch<
     React.SetStateAction<DrawableMapSegmentDictionary | null>
+  >
+  setInterimCoordinateStrings: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString[]>
+  >
+  setSelectedSegmentCoordinateString: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString | null>
   >
 }) => {
   const coordinate = getCanvasCoordinate(event, canvasRef, dimensions)
@@ -231,11 +350,13 @@ const handlePointerTool = ({
         let updatedSegments: DrawableMapSegmentDictionary = {}
         // Remove the interim segments
         setInterimCoordinateStrings((prev) => {
-          updatedSegments = {
-            ...updatedSegments,
-            ...removeSelectedDrawableSegments(
-              prev.map((coord) => segments[coord]),
-            ),
+          if (prev.length > 0) {
+            updatedSegments = {
+              ...updatedSegments,
+              ...removeSelectedDrawableSegments(
+                prev.map((coord) => segments[coord]),
+              ),
+            }
           }
           return []
         })
@@ -258,9 +379,19 @@ const handlePointerTool = ({
               prev ? segments[prev] : null,
             ),
           }
+          console.log({
+            updatedSegments,
+            segment,
+            prev,
+            replaceResult: replaceSelectedDrawableSegment(
+              segment,
+              prev ? segments[prev] : null,
+            ),
+          })
           return `${segment.coordinates.x},${segment.coordinates.y}`
         })
         setDrawableSegments((prev) => {
+          console.log({ prev })
           return {
             ...prev,
             ...updatedSegments,
@@ -271,48 +402,108 @@ const handlePointerTool = ({
   }
 }
 
-export const handleClick = ({
-  event,
+export const handleMouseMove = ({
   canvasRef,
+  destinationSelectedSegmentCoordinateString,
   dimensions,
+  event,
+  interimSegmentCoordinateStrings,
+  lastPaintedSegmentCoordinateString,
   segments,
   selectedSegmentCoordinateString,
-  setSelectedSegmentCoordinateString,
   setDestinationSegmentCoordinateString,
-  setInterimCoordinateStrings,
   setDrawableSegments,
+  setInterimCoordinateStrings,
+  setLastPaintedSegmentCoordinateString,
+  setSelectedSegmentCoordinateString,
   tool,
 }: {
-  event: React.MouseEvent<HTMLCanvasElement>
   canvasRef: React.RefObject<HTMLCanvasElement>
+  destinationSelectedSegmentCoordinateString: TwoDimensionalCoordinatesString | null
   dimensions: { width: number; height: number }
+  event: React.MouseEvent<HTMLCanvasElement>
+  interimSegmentCoordinateStrings: TwoDimensionalCoordinatesString[]
+  lastPaintedSegmentCoordinateString: TwoDimensionalCoordinatesString | null
   segments: MapSegmentDictionary
+  selectedSegmentCoordinateString: TwoDimensionalCoordinatesString | null
   setDestinationSegmentCoordinateString: React.Dispatch<
     React.SetStateAction<TwoDimensionalCoordinatesString | null>
   >
-  selectedSegmentCoordinateString: TwoDimensionalCoordinatesString | null
-  setSelectedSegmentCoordinateString: React.Dispatch<
-    React.SetStateAction<TwoDimensionalCoordinatesString | null>
+  setDrawableSegments: React.Dispatch<
+    React.SetStateAction<DrawableMapSegmentDictionary | null>
   >
   setInterimCoordinateStrings: React.Dispatch<
     React.SetStateAction<TwoDimensionalCoordinatesString[]>
   >
+  setLastPaintedSegmentCoordinateString: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString | null>
+  >
+  setSelectedSegmentCoordinateString: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString | null>
+  >
+  tool: Tool
+}) => {
+  if (tool === 'brush') {
+    handleBrushTool({
+      canvasRef,
+      destinationSelectedSegmentCoordinateString,
+      dimensions,
+      event,
+      interimSegmentCoordinateStrings,
+      lastPaintedSegmentCoordinateString,
+      segments,
+      selectedSegmentCoordinateString,
+      setDestinationSegmentCoordinateString,
+      setDrawableSegments,
+      setInterimCoordinateStrings,
+      setLastPaintedSegmentCoordinateString,
+      setSelectedSegmentCoordinateString,
+    })
+  }
+}
+
+export const handleClick = ({
+  canvasRef,
+  dimensions,
+  event,
+  segments,
+  selectedSegmentCoordinateString,
+  setDestinationSegmentCoordinateString,
+  setDrawableSegments,
+  setInterimCoordinateStrings,
+  setSelectedSegmentCoordinateString,
+  tool,
+}: {
+  canvasRef: React.RefObject<HTMLCanvasElement>
+  dimensions: { width: number; height: number }
+  event: React.MouseEvent<HTMLCanvasElement>
+  segments: MapSegmentDictionary
+  selectedSegmentCoordinateString: TwoDimensionalCoordinatesString | null
+  setDestinationSegmentCoordinateString: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString | null>
+  >
   setDrawableSegments: React.Dispatch<
     React.SetStateAction<DrawableMapSegmentDictionary | null>
+  >
+  setInterimCoordinateStrings: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString[]>
+  >
+  setSelectedSegmentCoordinateString: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString | null>
   >
   tool: Tool
 }) => {
   if (tool === 'pointer') {
     handlePointerTool({
-      event,
       canvasRef,
       dimensions,
+      event,
       segments,
-      setDestinationSegmentCoordinateString,
       selectedSegmentCoordinateString,
-      setSelectedSegmentCoordinateString,
-      setInterimCoordinateStrings,
+      setDestinationSegmentCoordinateString,
       setDrawableSegments,
+      setInterimCoordinateStrings,
+      setSelectedSegmentCoordinateString,
     })
   }
 }

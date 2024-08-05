@@ -1,14 +1,10 @@
 import { useRef, useState, useEffect } from 'react'
 
-import { MapMeta, MapSegment, MapSegmentDictionary } from 'types/mapSegments'
+import { MapMeta, MapSegmentDictionary } from 'types/mapSegments'
 import { DrawableMapSegmentDictionary } from 'types/drawableMapSegments'
 import { Tool } from 'types/tools'
 import { TwoDimensionalCoordinatesString } from 'types/coordinates'
-import {
-  getCanvasCoordinate,
-  getRectRGBString,
-  handleClick,
-} from 'utils/canvas'
+import { getRectRGBString, handleClick, handleMouseMove } from 'utils/canvas'
 
 // TODO: Make this configurable in the UI
 const dimensions = {
@@ -17,59 +13,45 @@ const dimensions = {
   border: 1,
 }
 
-// TODO: Do the logic here instead of in the parent component, to prevent sending unnecessary events
-const handleMouseMove = (
-  event: React.MouseEvent<HTMLCanvasElement>,
-  canvasRef: React.RefObject<HTMLCanvasElement>,
-  segments: MapSegmentDictionary,
-  tool: Tool,
-  onMouseOver?: (event: React.MouseEvent, segment: MapSegment) => void,
-) => {
-  if (onMouseOver) {
-    if (canvasRef.current) {
-      const coordinate = getCanvasCoordinate(event, canvasRef, dimensions)
-      if (coordinate) {
-        const segment = segments[`${coordinate.x},${coordinate.y}`]
-        if (segment) {
-          onMouseOver(event, segment)
-        }
-      }
-    }
-  }
-}
-
 interface MapCanvasProps {
-  tool: Tool
+  destinationSelectedSegmentCoordinateString: TwoDimensionalCoordinatesString | null
   meta: MapMeta
+  interimSegmentCoordinateStrings: TwoDimensionalCoordinatesString[]
   segments: MapSegmentDictionary
   selectedSegmentCoordinateString: TwoDimensionalCoordinatesString | null
-  setSelectedSegmentCoordinateString: React.Dispatch<
-    React.SetStateAction<TwoDimensionalCoordinatesString | null>
-  >
   setDestinationSegmentCoordinateString: React.Dispatch<
     React.SetStateAction<TwoDimensionalCoordinatesString | null>
   >
   setInterimCoordinateStrings: React.Dispatch<
     React.SetStateAction<TwoDimensionalCoordinatesString[]>
   >
-  onMouseOver?: (event: React.MouseEvent, segment: MapSegment) => void
+  setSelectedSegmentCoordinateString: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString | null>
+  >
+  tool: Tool
 }
 
 // TODO: Add some of these props to a context to avoid prop drilling
 export const MapCanvas: React.FC<MapCanvasProps> = ({
-  tool,
+  destinationSelectedSegmentCoordinateString,
   meta,
+  interimSegmentCoordinateStrings,
   segments,
   selectedSegmentCoordinateString,
-  setSelectedSegmentCoordinateString,
   setDestinationSegmentCoordinateString,
   setInterimCoordinateStrings,
-  onMouseOver,
+  setSelectedSegmentCoordinateString,
+  tool,
 }) => {
   const { width, length, gridIncrements } = meta
   const canvasWidth = dimensions.width * width * gridIncrements
   const canvasHeight = dimensions.height * length * gridIncrements
   const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  const [
+    lastPaintedSegmentCoordinateString,
+    setLastPaintedSegmentCoordinateString,
+  ] = useState<TwoDimensionalCoordinatesString | null>(null)
 
   const [drawableSegments, setDrawableSegments] =
     useState<DrawableMapSegmentDictionary | null>(null)
@@ -142,20 +124,35 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
       ref={canvasRef}
       onClick={(event) =>
         handleClick({
-          event,
           canvasRef,
-          segments,
-          setDrawableSegments,
-          setDestinationSegmentCoordinateString,
-          selectedSegmentCoordinateString,
-          setSelectedSegmentCoordinateString,
-          setInterimCoordinateStrings,
-          tool,
           dimensions,
+          event,
+          segments,
+          selectedSegmentCoordinateString,
+          setDestinationSegmentCoordinateString,
+          setDrawableSegments,
+          setInterimCoordinateStrings,
+          setSelectedSegmentCoordinateString,
+          tool,
         })
       }
       onMouseMove={(event) =>
-        handleMouseMove(event, canvasRef, segments, tool, onMouseOver)
+        handleMouseMove({
+          canvasRef,
+          destinationSelectedSegmentCoordinateString,
+          dimensions,
+          event,
+          interimSegmentCoordinateStrings,
+          lastPaintedSegmentCoordinateString,
+          segments,
+          selectedSegmentCoordinateString,
+          setDestinationSegmentCoordinateString,
+          setDrawableSegments,
+          setInterimCoordinateStrings,
+          setLastPaintedSegmentCoordinateString,
+          setSelectedSegmentCoordinateString,
+          tool,
+        })
       }
     />
   )

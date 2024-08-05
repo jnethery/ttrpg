@@ -2,7 +2,6 @@ import { CSSProperties, useState } from 'react'
 
 import { MapSegment, MapMeta, MapSegmentDictionary } from 'types/mapSegments'
 import { Tool, toolConfig } from 'types/tools'
-import { getLineCoordinates, calculateLinearDistance } from 'utils/math'
 
 import { Panel } from 'components/Layout'
 import { Inspector } from 'components/Toolbar'
@@ -32,61 +31,6 @@ export function MapContent({
   const [interimSegmentCoordinateStrings, setInterimSegmentCoordinateStrings] =
     useState<TwoDimensionalCoordinatesString[]>([])
 
-  const [
-    lastPaintedSegmentCoordinateString,
-    setLastPaintedSegmentCoordinateString,
-  ] = useState<TwoDimensionalCoordinatesString | null>(null)
-
-  // TODO: Remove this once it's handled in the canvas
-  const handleMouseOver = (event: React.MouseEvent, segment: MapSegment) => {
-    if (selectedTool == 'brush') {
-      if (event.buttons === 0) {
-        setLastPaintedSegmentCoordinateString(null)
-      } else if (event.buttons === 1) {
-        if (
-          selectedSegmentCoordinateString ||
-          destinationSelectedSegmentCoordinateString
-        ) {
-          // setSelectedSegment(null)
-          // setDestinationSelectedSegment(null)
-        }
-        // TODO: Do this interpolation logic in the Canvas element
-        // Make it more sophisticated by drawing a theoretical curve between the last 2 points and the current one,
-        // and then finding the segments that lie closest to the intersection with that curve between the last point and the current one
-        let interpolatedSegments: TwoDimensionalCoordinatesString[] = []
-        if (lastPaintedSegmentCoordinateString) {
-          // Check that the last painted segment is over 1 tile away from the current segment
-          if (
-            calculateLinearDistance(
-              lastPaintedSegmentCoordinateString,
-              segment.coordinates,
-            ) > 1
-          ) {
-            const coordinates = getLineCoordinates({
-              origin: lastPaintedSegmentCoordinateString,
-              destination: segment.coordinates,
-            })
-            interpolatedSegments = coordinates
-              .map(({ x, y }) => segments[`${x},${y}`])
-              .filter((segment) => segment !== undefined)
-              .map(
-                (segment) =>
-                  `${segment.coordinates.x},${segment.coordinates.y}` as TwoDimensionalCoordinatesString,
-              )
-          }
-        }
-        setLastPaintedSegmentCoordinateString(
-          `${segment.coordinates.x},${segment.coordinates.y}`,
-        )
-        setInterimSegmentCoordinateStrings([
-          ...interimSegmentCoordinateStrings,
-          ...interpolatedSegments,
-          `${segment.coordinates.x},${segment.coordinates.y}`,
-        ])
-      }
-    }
-  }
-
   const style: CSSProperties = {
     display: 'flex',
     gap: 10,
@@ -103,16 +47,19 @@ export function MapContent({
   return (
     <div style={style}>
       <MapCanvas
-        tool={selectedTool}
+        destinationSelectedSegmentCoordinateString={
+          destinationSelectedSegmentCoordinateString
+        }
         meta={meta}
+        interimSegmentCoordinateStrings={interimSegmentCoordinateStrings}
         segments={segments}
+        selectedSegmentCoordinateString={selectedSegmentCoordinateString}
         setDestinationSegmentCoordinateString={
           setDestinationSelectedSegmentCoordinateString
         }
-        selectedSegmentCoordinateString={selectedSegmentCoordinateString}
-        setSelectedSegmentCoordinateString={setSelectedSegmentCoordinateString}
         setInterimCoordinateStrings={setInterimSegmentCoordinateStrings}
-        onMouseOver={handleMouseOver}
+        setSelectedSegmentCoordinateString={setSelectedSegmentCoordinateString}
+        tool={selectedTool}
       />
       {/* TODO: Convert the bottom into a collapsible Toolbar component */}
       <Panel
