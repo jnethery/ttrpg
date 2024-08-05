@@ -379,23 +379,15 @@ const handlePointerTool = ({
               prev ? segments[prev] : null,
             ),
           }
-          console.log({
-            updatedSegments,
-            segment,
-            prev,
-            replaceResult: replaceSelectedDrawableSegment(
-              segment,
-              prev ? segments[prev] : null,
-            ),
+          // This always needs to happen after segments are updated
+          setDrawableSegments((prev) => {
+            console.log({ prev })
+            return {
+              ...prev,
+              ...updatedSegments,
+            }
           })
           return `${segment.coordinates.x},${segment.coordinates.y}`
-        })
-        setDrawableSegments((prev) => {
-          console.log({ prev })
-          return {
-            ...prev,
-            ...updatedSegments,
-          }
         })
       }
     }
