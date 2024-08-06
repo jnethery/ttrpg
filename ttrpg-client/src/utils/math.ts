@@ -18,6 +18,12 @@ export const coordinateStringToCoordinates = (
   return { x, y }
 }
 
+export const coordinatesToCoordinateString = (
+  coordinates: TwoDimensionalCoordinates,
+): TwoDimensionalCoordinatesString => {
+  return `${coordinates.x},${coordinates.y}`
+}
+
 export const calculateLinearDistance = (
   origin: TwoDimensionalCoordinates | TwoDimensionalCoordinatesString,
   destination: TwoDimensionalCoordinates | TwoDimensionalCoordinatesString,
