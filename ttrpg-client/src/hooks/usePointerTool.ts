@@ -90,7 +90,7 @@ export const usePointerTool = ({
           })
           // Remove the destination segment
           setDestinationSegmentCoordinateString((prev) => {
-            if (prev) {
+            if (prev && segments[prev]) {
               updatedSegments = {
                 ...updatedSegments,
                 ...removeSelectedDrawableSegments([segments[prev]]),

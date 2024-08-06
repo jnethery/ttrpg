@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import { MapSegment } from 'types/mapSegments'
 import { DrawableMapSegmentDictionary } from 'types/drawableMapSegments'
 import { TwoDimensionalCoordinatesString } from 'types/coordinates'
@@ -16,16 +18,10 @@ import { useMapContext } from 'hooks/useMapContext'
 export const useBrushTool = ({
   canvasRef,
   dimensions,
-  lastPaintedSegmentCoordinateString,
-  setLastPaintedSegmentCoordinateString,
   setDrawableSegments,
 }: {
   canvasRef: React.RefObject<HTMLCanvasElement>
   dimensions: { width: number; height: number }
-  lastPaintedSegmentCoordinateString: TwoDimensionalCoordinatesString | null
-  setLastPaintedSegmentCoordinateString: React.Dispatch<
-    React.SetStateAction<TwoDimensionalCoordinatesString | null>
-  >
   setDrawableSegments: React.Dispatch<
     React.SetStateAction<DrawableMapSegmentDictionary | null>
   >
@@ -39,6 +35,11 @@ export const useBrushTool = ({
     setInterimCoordinateStrings,
     setSelectedSegmentCoordinateString,
   } = useMapContext()
+
+  const [
+    lastPaintedSegmentCoordinateString,
+    setLastPaintedSegmentCoordinateString,
+  ] = useState<TwoDimensionalCoordinatesString | null>(null)
 
   const handleBrushTool = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const coordinate = getCanvasCoordinate(event, canvasRef, dimensions)

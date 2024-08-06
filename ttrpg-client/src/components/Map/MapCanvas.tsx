@@ -22,11 +22,6 @@ export const MapCanvas: React.FC = () => {
   const canvasHeight = dimensions.height * length * gridIncrements
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  const [
-    lastPaintedSegmentCoordinateString,
-    setLastPaintedSegmentCoordinateString,
-  ] = useState<TwoDimensionalCoordinatesString | null>(null)
-
   const [drawableSegments, setDrawableSegments] =
     useState<DrawableMapSegmentDictionary | null>(null)
 
@@ -38,8 +33,6 @@ export const MapCanvas: React.FC = () => {
   const { handleBrushTool } = useBrushTool({
     dimensions,
     canvasRef,
-    lastPaintedSegmentCoordinateString,
-    setLastPaintedSegmentCoordinateString,
     setDrawableSegments,
   })
 
