@@ -22,10 +22,6 @@ export const ToolTile: FC<ToolTileProps> = ({ tool, icon }) => {
         width: 50,
         border: 1,
       }}
-      style={{
-        borderColor: colorConfig.dark.rgbString,
-        borderRadius: 10,
-      }}
       children={<FontAwesomeIcon icon={icon} />}
       selectionOptions={
         selectedTool == tool

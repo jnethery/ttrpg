@@ -3,6 +3,7 @@ import React, { CSSProperties, useEffect } from 'react'
 import { useFormik } from 'formik'
 
 import { MapSegment } from 'types/mapSegments'
+import { Button } from 'components/Layout'
 
 const getValues = (segment: MapSegment | null) => {
   return {
@@ -63,7 +64,7 @@ export const SelectedSegmentInfo: React.FC<{
         />
       </div>
       <div>Terrain: {segment?.terrain ?? 'N/A'}</div>
-      <button type="submit">Update</button>
+      <Button type="submit">Update</Button>
     </form>
   )
 }

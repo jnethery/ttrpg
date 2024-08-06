@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Panel } from 'components/Layout'
+import { Panel, Button } from 'components/Layout'
 
 interface InspectorProps {
   refetch: () => void
@@ -13,18 +13,18 @@ interface SaveLoadButtonProps {
 
 export const SaveLoadButtons: React.FC<SaveLoadButtonProps> = ({ refetch }) => {
   return (
-    <Panel>
-      <button style={{ flex: 1 }} onClick={refetch}>
+    <Panel elevation={2}>
+      <Button style={{ flex: 1 }} onClick={refetch}>
         Refetch
-      </button>
+      </Button>
       <div
         style={{
           display: 'flex',
           gap: 10,
         }}
       >
-        <button style={{ flex: 1 }}>Save</button>
-        <button style={{ flex: 1 }}>Load</button>
+        <Button style={{ flex: 1 }}>Save</Button>
+        <Button style={{ flex: 1 }}>Load</Button>
       </div>
     </Panel>
   )
@@ -33,6 +33,7 @@ export const SaveLoadButtons: React.FC<SaveLoadButtonProps> = ({ refetch }) => {
 export const Inspector: React.FC<InspectorProps> = ({ refetch, children }) => {
   return (
     <Panel
+      elevation={1}
       style={{
         width: 300,
         gap: 10,

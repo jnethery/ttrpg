@@ -1,4 +1,5 @@
 import { CSSProperties } from 'react'
+import { Paper } from '@mui/material'
 
 import { SelectionOptions } from 'types/selection'
 import { Dimensions } from 'types/dimensions'
@@ -43,8 +44,8 @@ export const Tile: React.FC<TileProps> = ({
     ...selectionStyle,
   })
   return (
-    <div onClick={onClick} onMouseOver={onMouseOver} style={tileStyle}>
+    <Paper onClick={onClick} onMouseOver={onMouseOver} style={tileStyle}>
       {children}
-    </div>
+    </Paper>
   )
 }

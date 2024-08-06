@@ -1,4 +1,5 @@
 import React from 'react'
+import { Container } from '@mui/material'
 
 import { MapSegment } from 'types/mapSegments'
 import { Panel } from 'components/Layout'
@@ -23,8 +24,12 @@ export const SelectedSegmentInspector: React.FC<
   } = useMapContext()
 
   return (
-    <Panel>
-      <Panel>
+    <Panel elevation={2}>
+      <Container
+        style={{
+          padding: 5,
+        }}
+      >
         <SelectedSegmentInfo
           title={'Origin'}
           segment={
@@ -45,7 +50,7 @@ export const SelectedSegmentInspector: React.FC<
             updateSegment={updateSegment}
           />
         )}
-      </Panel>
+      </Container>
       {selectedSegmentCoordinateString &&
         segments[selectedSegmentCoordinateString] &&
         destinationSegmentCoordinateString &&
