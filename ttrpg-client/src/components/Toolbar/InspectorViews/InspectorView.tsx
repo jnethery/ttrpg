@@ -1,10 +1,11 @@
 import { isSelectedSegmentInspectorProps } from 'utils/InspectorViews/selectedSegmentInspector'
-import { useMapContext } from 'hooks/useMapContext'
+import { useToolContext } from 'hooks/useToolContext'
 
 import {
   SelectedSegmentInspectorProps,
   SelectedSegmentInspector,
 } from './SelectedSegmentInspector'
+import { BrushSettingsInspector } from './BrushSettingsInspector'
 
 type SomeOtherViewProps = {
   test: string
@@ -15,14 +16,15 @@ interface InspectorViewProps {
 }
 
 export const InspectorView: React.FC<InspectorViewProps> = ({ props }) => {
-  const { selectedTool } = useMapContext()
-  console.log('selectedTool', selectedTool)
+  const { selectedTool } = useToolContext()
 
   if (selectedTool === 'pointer') {
     if (isSelectedSegmentInspectorProps(props)) {
       const { updateSegment } = props
       return <SelectedSegmentInspector updateSegment={updateSegment} />
     }
+  } else if (selectedTool === 'brush') {
+    return <BrushSettingsInspector />
   }
   return (
     <div>

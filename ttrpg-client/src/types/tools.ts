@@ -27,3 +27,7 @@ export const toolConfig: Array<{ tool: Tool; icon: IconDefinition }> = [
     icon: faEyeDropper,
   },
 ]
+
+export type BrushSettings = {
+  size: number
+}

@@ -6,6 +6,7 @@ import { getRectRGBString } from 'utils/canvas'
 import { useMapContext } from 'hooks/useMapContext'
 import { usePointerTool } from 'hooks/usePointerTool'
 import { useBrushTool } from 'hooks/useBrushTool'
+import { useToolContext } from 'hooks/useToolContext'
 
 // TODO: Make this configurable in the UI
 const dimensions = {
@@ -15,7 +16,8 @@ const dimensions = {
 }
 
 export const MapCanvas: React.FC = () => {
-  const { meta, segments, selectedTool } = useMapContext()
+  const { meta, segments } = useMapContext()
+  const { selectedTool } = useToolContext()
 
   const { width, length, gridIncrements } = meta
   const canvasWidth = dimensions.width * width * gridIncrements

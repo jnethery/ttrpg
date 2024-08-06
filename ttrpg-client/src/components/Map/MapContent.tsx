@@ -9,6 +9,7 @@ import { InspectorView } from 'components/Toolbar/InspectorViews/InspectorView'
 import { MapCanvas } from './MapCanvas'
 import { ToolTile } from './ToolTile'
 import { MapProvider } from 'providers/MapProvider'
+import { ToolProvider } from 'providers/ToolProvider'
 
 export function MapContent({
   meta,
@@ -36,38 +37,40 @@ export function MapContent({
 
   return (
     <MapProvider meta={meta} segments={segments}>
-      <div style={style}>
-        <MapCanvas />
-        {/* TODO: Convert the bottom into a collapsible Toolbar component */}
-        <Panel
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            gap: 5,
-          }}
-        >
-          <Inspector refetch={refetch}>
-            <InspectorView
-              props={{
-                updateSegment,
-              }}
-            />
-          </Inspector>
-          <Panel>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 10,
-              }}
-            >
-              {toolConfig.map(({ tool, icon }) => (
-                <ToolTile tool={tool} icon={icon} />
-              ))}
-            </div>
+      <ToolProvider>
+        <div style={style}>
+          <MapCanvas />
+          {/* TODO: Convert the bottom into a collapsible Toolbar component */}
+          <Panel
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              gap: 5,
+            }}
+          >
+            <Inspector refetch={refetch}>
+              <InspectorView
+                props={{
+                  updateSegment,
+                }}
+              />
+            </Inspector>
+            <Panel>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 10,
+                }}
+              >
+                {toolConfig.map(({ tool, icon }) => (
+                  <ToolTile tool={tool} icon={icon} />
+                ))}
+              </div>
+            </Panel>
           </Panel>
-        </Panel>
-      </div>
+        </div>
+      </ToolProvider>
     </MapProvider>
   )
 }

@@ -1,6 +1,5 @@
 import React, { createContext, useState } from 'react'
 
-import { Tool } from 'types/tools'
 import { MapMeta, MapSegmentDictionary } from 'types/mapSegments'
 import { TwoDimensionalCoordinatesString } from 'types/coordinates'
 
@@ -19,8 +18,6 @@ type MapContextType = {
   setSelectedSegmentCoordinateString: React.Dispatch<
     React.SetStateAction<TwoDimensionalCoordinatesString | null>
   >
-  selectedTool: Tool
-  setSelectedTool: React.Dispatch<React.SetStateAction<Tool>>
 }
 
 export const MapContext = createContext<MapContextType | undefined>(undefined)
@@ -36,8 +33,6 @@ export const MapProvider: React.FC<MapProviderProps> = ({
   segments,
   children,
 }) => {
-  const [selectedTool, setSelectedTool] = useState<Tool>('pointer')
-
   const [selectedSegmentCoordinateString, setSelectedSegmentCoordinateString] =
     useState<TwoDimensionalCoordinatesString | null>(null)
   const [
@@ -49,16 +44,14 @@ export const MapProvider: React.FC<MapProviderProps> = ({
   >([])
 
   const value = {
-    selectedTool,
-    setSelectedTool,
+    destinationSegmentCoordinateString,
+    interimCoordinateStrings,
     meta,
     segments,
     selectedSegmentCoordinateString,
-    destinationSegmentCoordinateString,
-    interimCoordinateStrings,
-    setSelectedSegmentCoordinateString,
     setDestinationSegmentCoordinateString,
     setInterimCoordinateStrings,
+    setSelectedSegmentCoordinateString,
   }
 
   return <MapContext.Provider value={value}>{children}</MapContext.Provider>
