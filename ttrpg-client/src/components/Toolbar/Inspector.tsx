@@ -4,7 +4,7 @@ import { Panel } from 'components/Layout'
 
 interface InspectorProps {
   refetch: () => void
-  inspectorView: React.ReactNode
+  children: React.ReactNode
 }
 
 interface SaveLoadButtonProps {
@@ -30,10 +30,7 @@ export const SaveLoadButtons: React.FC<SaveLoadButtonProps> = ({ refetch }) => {
   )
 }
 
-export const Inspector: React.FC<InspectorProps> = ({
-  refetch,
-  inspectorView,
-}) => {
+export const Inspector: React.FC<InspectorProps> = ({ refetch, children }) => {
   return (
     <Panel
       style={{
@@ -42,7 +39,7 @@ export const Inspector: React.FC<InspectorProps> = ({
       }}
     >
       <SaveLoadButtons refetch={refetch} />
-      {inspectorView}
+      {children}
     </Panel>
   )
 }

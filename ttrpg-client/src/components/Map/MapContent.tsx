@@ -1,14 +1,14 @@
-import { CSSProperties, useState } from 'react'
+import { CSSProperties } from 'react'
 
 import { MapSegment, MapMeta, MapSegmentDictionary } from 'types/mapSegments'
-import { Tool, toolConfig } from 'types/tools'
+import { toolConfig } from 'types/tools'
 
 import { Panel } from 'components/Layout'
 import { Inspector } from 'components/Toolbar'
 import { InspectorView } from 'components/Toolbar/InspectorViews/InspectorView'
 import { MapCanvas } from './MapCanvas'
 import { ToolTile } from './ToolTile'
-import { TwoDimensionalCoordinatesString } from 'types/coordinates'
+import { MapProvider } from 'providers/MapProvider'
 
 export function MapContent({
   meta,
@@ -21,16 +21,6 @@ export function MapContent({
   setSegments: (segments: MapSegmentDictionary) => void
   refetch: () => void
 }) {
-  const [selectedTool, setSelectedTool] = useState<Tool>('pointer')
-  const [selectedSegmentCoordinateString, setSelectedSegmentCoordinateString] =
-    useState<TwoDimensionalCoordinatesString | null>(null)
-  const [
-    destinationSelectedSegmentCoordinateString,
-    setDestinationSelectedSegmentCoordinateString,
-  ] = useState<TwoDimensionalCoordinatesString | null>(null)
-  const [interimSegmentCoordinateStrings, setInterimSegmentCoordinateStrings] =
-    useState<TwoDimensionalCoordinatesString[]>([])
-
   const style: CSSProperties = {
     display: 'flex',
     gap: 10,
@@ -45,71 +35,39 @@ export function MapContent({
   }
 
   return (
-    <div style={style}>
-      <MapCanvas
-        destinationSelectedSegmentCoordinateString={
-          destinationSelectedSegmentCoordinateString
-        }
-        meta={meta}
-        interimSegmentCoordinateStrings={interimSegmentCoordinateStrings}
-        segments={segments}
-        selectedSegmentCoordinateString={selectedSegmentCoordinateString}
-        setDestinationSegmentCoordinateString={
-          setDestinationSelectedSegmentCoordinateString
-        }
-        setInterimCoordinateStrings={setInterimSegmentCoordinateStrings}
-        setSelectedSegmentCoordinateString={setSelectedSegmentCoordinateString}
-        tool={selectedTool}
-      />
-      {/* TODO: Convert the bottom into a collapsible Toolbar component */}
-      <Panel
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          gap: 5,
-        }}
-      >
-        <Inspector
-          refetch={refetch}
-          inspectorView={
+    <MapProvider meta={meta} segments={segments}>
+      <div style={style}>
+        <MapCanvas />
+        {/* TODO: Convert the bottom into a collapsible Toolbar component */}
+        <Panel
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: 5,
+          }}
+        >
+          <Inspector refetch={refetch}>
             <InspectorView
-              tool={selectedTool}
               props={{
-                meta,
-                selectedSegment: selectedSegmentCoordinateString
-                  ? segments[selectedSegmentCoordinateString]
-                  : null,
-                destinationSelectedSegment:
-                  destinationSelectedSegmentCoordinateString
-                    ? segments[destinationSelectedSegmentCoordinateString]
-                    : null,
-                interimSegments: interimSegmentCoordinateStrings.map(
-                  (coordinateString) => segments[coordinateString],
-                ),
                 updateSegment,
               }}
             />
-          }
-        />
-        <Panel>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 10,
-            }}
-          >
-            {toolConfig.map(({ tool, icon }) => (
-              <ToolTile
-                tool={tool}
-                icon={icon}
-                selectedTool={selectedTool}
-                setSelectedTool={setSelectedTool}
-              />
-            ))}
-          </div>
+          </Inspector>
+          <Panel>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 10,
+              }}
+            >
+              {toolConfig.map(({ tool, icon }) => (
+                <ToolTile tool={tool} icon={icon} />
+              ))}
+            </div>
+          </Panel>
         </Panel>
-      </Panel>
-    </div>
+      </div>
+    </MapProvider>
   )
 }

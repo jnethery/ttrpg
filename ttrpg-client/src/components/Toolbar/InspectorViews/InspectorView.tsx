@@ -1,6 +1,5 @@
-import { Tool } from 'types/tools'
-
 import { isSelectedSegmentInspectorProps } from 'utils/InspectorViews/selectedSegmentInspector'
+import { useMapContext } from 'hooks/useMapContext'
 
 import {
   SelectedSegmentInspectorProps,
@@ -12,37 +11,23 @@ type SomeOtherViewProps = {
 }
 
 interface InspectorViewProps {
-  tool: Tool
   props: SelectedSegmentInspectorProps | SomeOtherViewProps
 }
 
-export const InspectorView: React.FC<InspectorViewProps> = ({
-  tool,
-  props,
-}) => {
-  if (tool === 'pointer') {
+export const InspectorView: React.FC<InspectorViewProps> = ({ props }) => {
+  const { selectedTool } = useMapContext()
+  console.log('selectedTool', selectedTool)
+
+  if (selectedTool === 'pointer') {
     if (isSelectedSegmentInspectorProps(props)) {
-      const {
-        meta,
-        selectedSegment,
-        destinationSelectedSegment,
-        interimSegments,
-        updateSegment,
-      } = props
-      return (
-        <SelectedSegmentInspector
-          meta={meta}
-          selectedSegment={selectedSegment}
-          destinationSelectedSegment={destinationSelectedSegment}
-          interimSegments={interimSegments}
-          updateSegment={updateSegment}
-        />
-      )
+      const { updateSegment } = props
+      return <SelectedSegmentInspector updateSegment={updateSegment} />
     }
   }
   return (
     <div>
-      {tool.charAt(0).toUpperCase() + tool.slice(1)} inspector not implemented
+      {selectedTool.charAt(0).toUpperCase() + selectedTool.slice(1)} inspector
+      not implemented
     </div>
   )
 }

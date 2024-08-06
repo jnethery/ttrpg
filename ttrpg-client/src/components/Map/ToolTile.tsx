@@ -4,22 +4,17 @@ import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
 
 import { Tool } from 'types/tools'
 import { colorConfig } from 'types/colors'
-
 import { Tile } from 'components/Layout'
+import { useMapContext } from 'hooks/useMapContext'
 
 interface ToolTileProps {
   tool: Tool
   icon: IconDefinition
-  selectedTool: Tool
-  setSelectedTool: (tool: Tool) => void
 }
 
-export const ToolTile: FC<ToolTileProps> = ({
-  tool,
-  icon,
-  selectedTool,
-  setSelectedTool,
-}) => {
+export const ToolTile: FC<ToolTileProps> = ({ tool, icon }) => {
+  const { selectedTool, setSelectedTool } = useMapContext()
+
   return (
     <Tile
       dimensions={{

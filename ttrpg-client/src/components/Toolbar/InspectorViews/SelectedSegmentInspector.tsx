@@ -1,52 +1,64 @@
 import React from 'react'
 
-import { MapSegment, MapMeta } from 'types/mapSegments'
-
+import { MapSegment } from 'types/mapSegments'
 import { Panel } from 'components/Layout'
+import { useMapContext } from 'hooks/useMapContext'
+
 import { SelectedTraversalInfo } from './SelectedTraversalInfo'
 import { SelectedSegmentInfo } from './SelectedSegmentInfo'
 
 export interface SelectedSegmentInspectorProps {
-  meta: MapMeta
-  selectedSegment: MapSegment | null
-  destinationSelectedSegment: MapSegment | null
-  interimSegments: MapSegment[]
   updateSegment: (segment: MapSegment) => void
 }
 
 export const SelectedSegmentInspector: React.FC<
   SelectedSegmentInspectorProps
-> = ({
-  meta,
-  selectedSegment,
-  destinationSelectedSegment,
-  interimSegments,
-  updateSegment,
-}) => {
+> = ({ updateSegment }) => {
+  const {
+    meta,
+    selectedSegmentCoordinateString,
+    destinationSegmentCoordinateString,
+    interimCoordinateStrings,
+    segments,
+  } = useMapContext()
+
   return (
     <Panel>
       <Panel>
         <SelectedSegmentInfo
           title={'Origin'}
-          segment={selectedSegment}
+          segment={
+            selectedSegmentCoordinateString
+              ? segments[selectedSegmentCoordinateString]
+              : null
+          }
           updateSegment={updateSegment}
         />
-        {destinationSelectedSegment && (
+        {destinationSegmentCoordinateString && (
           <SelectedSegmentInfo
             title={'Destination'}
-            segment={destinationSelectedSegment}
+            segment={
+              destinationSegmentCoordinateString
+                ? segments[destinationSegmentCoordinateString]
+                : null
+            }
             updateSegment={updateSegment}
           />
         )}
       </Panel>
-      {selectedSegment && destinationSelectedSegment && (
-        <SelectedTraversalInfo
-          meta={meta}
-          origin={selectedSegment}
-          destination={destinationSelectedSegment}
-          interim={interimSegments}
-        />
-      )}
+      {selectedSegmentCoordinateString &&
+        segments[selectedSegmentCoordinateString] &&
+        destinationSegmentCoordinateString &&
+        segments[destinationSegmentCoordinateString] && (
+          <SelectedTraversalInfo
+            meta={meta}
+            origin={segments[selectedSegmentCoordinateString]}
+            destination={segments[destinationSegmentCoordinateString]}
+            interim={interimCoordinateStrings.map((interimCoordinateString) => {
+              return segments[interimCoordinateString]
+            })}
+          />
+        )}
     </Panel>
   )
 }

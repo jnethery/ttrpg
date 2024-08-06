@@ -1,10 +1,11 @@
 import { useRef, useState, useEffect } from 'react'
 
-import { MapMeta, MapSegmentDictionary } from 'types/mapSegments'
 import { DrawableMapSegmentDictionary } from 'types/drawableMapSegments'
-import { Tool } from 'types/tools'
 import { TwoDimensionalCoordinatesString } from 'types/coordinates'
-import { getRectRGBString, handleClick, handleMouseMove } from 'utils/canvas'
+import { getRectRGBString } from 'utils/canvas'
+import { useMapContext } from 'hooks/useMapContext'
+import { usePointerTool } from 'hooks/usePointerTool'
+import { useBrushTool } from 'hooks/useBrushTool'
 
 // TODO: Make this configurable in the UI
 const dimensions = {
@@ -13,36 +14,9 @@ const dimensions = {
   border: 1,
 }
 
-interface MapCanvasProps {
-  destinationSelectedSegmentCoordinateString: TwoDimensionalCoordinatesString | null
-  meta: MapMeta
-  interimSegmentCoordinateStrings: TwoDimensionalCoordinatesString[]
-  segments: MapSegmentDictionary
-  selectedSegmentCoordinateString: TwoDimensionalCoordinatesString | null
-  setDestinationSegmentCoordinateString: React.Dispatch<
-    React.SetStateAction<TwoDimensionalCoordinatesString | null>
-  >
-  setInterimCoordinateStrings: React.Dispatch<
-    React.SetStateAction<TwoDimensionalCoordinatesString[]>
-  >
-  setSelectedSegmentCoordinateString: React.Dispatch<
-    React.SetStateAction<TwoDimensionalCoordinatesString | null>
-  >
-  tool: Tool
-}
+export const MapCanvas: React.FC = () => {
+  const { meta, segments, selectedTool } = useMapContext()
 
-// TODO: Add some of these props to a context to avoid prop drilling
-export const MapCanvas: React.FC<MapCanvasProps> = ({
-  destinationSelectedSegmentCoordinateString,
-  meta,
-  interimSegmentCoordinateStrings,
-  segments,
-  selectedSegmentCoordinateString,
-  setDestinationSegmentCoordinateString,
-  setInterimCoordinateStrings,
-  setSelectedSegmentCoordinateString,
-  tool,
-}) => {
   const { width, length, gridIncrements } = meta
   const canvasWidth = dimensions.width * width * gridIncrements
   const canvasHeight = dimensions.height * length * gridIncrements
@@ -55,6 +29,19 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
 
   const [drawableSegments, setDrawableSegments] =
     useState<DrawableMapSegmentDictionary | null>(null)
+
+  const { handlePointerTool } = usePointerTool({
+    dimensions,
+    canvasRef,
+    setDrawableSegments,
+  })
+  const { handleBrushTool } = useBrushTool({
+    dimensions,
+    canvasRef,
+    lastPaintedSegmentCoordinateString,
+    setLastPaintedSegmentCoordinateString,
+    setDrawableSegments,
+  })
 
   useEffect(() => {
     // TODO: Maintain selected and dirty props when making this assignment
@@ -122,38 +109,16 @@ export const MapCanvas: React.FC<MapCanvasProps> = ({
       width={canvasWidth}
       height={canvasHeight}
       ref={canvasRef}
-      onClick={(event) =>
-        handleClick({
-          canvasRef,
-          dimensions,
-          event,
-          segments,
-          selectedSegmentCoordinateString,
-          setDestinationSegmentCoordinateString,
-          setDrawableSegments,
-          setInterimCoordinateStrings,
-          setSelectedSegmentCoordinateString,
-          tool,
-        })
-      }
-      onMouseMove={(event) =>
-        handleMouseMove({
-          canvasRef,
-          destinationSelectedSegmentCoordinateString,
-          dimensions,
-          event,
-          interimSegmentCoordinateStrings,
-          lastPaintedSegmentCoordinateString,
-          segments,
-          selectedSegmentCoordinateString,
-          setDestinationSegmentCoordinateString,
-          setDrawableSegments,
-          setInterimCoordinateStrings,
-          setLastPaintedSegmentCoordinateString,
-          setSelectedSegmentCoordinateString,
-          tool,
-        })
-      }
+      onClick={(event) => {
+        if (selectedTool === 'pointer') {
+          handlePointerTool(event)
+        }
+      }}
+      onMouseMove={(event) => {
+        if (selectedTool === 'brush') {
+          handleBrushTool(event)
+        }
+      }}
     />
   )
 }
