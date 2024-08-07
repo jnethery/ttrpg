@@ -21,7 +21,7 @@ export const BrushSettingsInspector: React.FC = () => {
           aria-labelledby="input-slider"
           value={brushSettings.size}
           min={1}
-          max={50}
+          max={5}
           onChange={(_, value) => {
             setBrushSettings((prev) => ({
               ...prev,

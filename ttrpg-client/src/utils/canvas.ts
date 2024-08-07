@@ -3,7 +3,10 @@ import {
   DrawableMapSegment,
   DrawableMapSegmentDictionary,
 } from 'types/drawableMapSegments'
-import { TwoDimensionalCoordinatesString } from 'types/coordinates'
+import {
+  TwoDimensionalCoordinatesString,
+  TwoDimensionalCoordinates,
+} from 'types/coordinates'
 import { Terrain } from 'types/terrains'
 import { colorConfig } from 'types/colors'
 import {
@@ -30,6 +33,34 @@ export const getCanvasCoordinate = (
     }
   }
   return null
+}
+
+export const getNeighboringSegmentsInRadius = (
+  segments: MapSegmentDictionary,
+  origin: TwoDimensionalCoordinates,
+  radius: number,
+): MapSegment[] => {
+  // TODO: See if it's possible to optimize this function
+  if (radius <= 1) {
+    return []
+  }
+  const r = Math.floor((2 * radius - 1) / 2)
+  // TODO: For now, only do this in a circle. Add the ability to use custom shapes.
+  const neighboringSegments: MapSegment[] = []
+  const u = origin.y
+  const v = origin.x
+  for (let x = v - r; x <= v + r; x++) {
+    const yRange = Math.floor(Math.sqrt(r ** 2 - (x - v) ** 2))
+    const yMin = u - yRange
+    const yMax = u + yRange
+    for (let y = yMin; y <= yMax; y++) {
+      const segment = segments[`${x},${y}`]
+      if (segment) {
+        neighboringSegments.push(segment)
+      }
+    }
+  }
+  return neighboringSegments
 }
 
 export const getRectRGBString = ({

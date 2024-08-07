@@ -7,13 +7,16 @@ import {
   getCanvasCoordinate,
   removeSelectedDrawableSegments,
   addSelectedDrawableSegments,
+  getNeighboringSegmentsInRadius,
 } from 'utils/canvas'
 import {
   calculateLinearDistance,
   getLineCoordinates,
   coordinatesToCoordinateString,
+  coordinateStringToCoordinates,
 } from 'utils/math'
 import { useMapContext } from 'hooks/useMapContext'
+import { useToolContext } from './useToolContext'
 
 export const useBrushTool = ({
   canvasRef,
@@ -35,6 +38,7 @@ export const useBrushTool = ({
     setInterimCoordinateStrings,
     setSelectedSegmentCoordinateString,
   } = useMapContext()
+  const { brushSettings } = useToolContext()
 
   const [
     lastPaintedSegmentCoordinateString,
@@ -43,8 +47,8 @@ export const useBrushTool = ({
 
   const handleBrushTool = (event: React.MouseEvent<HTMLCanvasElement>) => {
     const coordinate = getCanvasCoordinate(event, canvasRef, dimensions)
+
     if (coordinate) {
-      // const segment = segments[`${coordinate.x},${coordinate.y}`]
       if (event.buttons === 0) {
         setLastPaintedSegmentCoordinateString(null)
       } else if (event.buttons === 1) {
@@ -101,11 +105,25 @@ export const useBrushTool = ({
           coordinatesToCoordinateString(coordinate),
         )
         setInterimCoordinateStrings((prev) => {
-          const updatedCoordinateStrings = [
-            ...prev,
-            ...interpolatedCoordinateStrings,
-            coordinatesToCoordinateString(coordinate),
+          const newCoordinateStrings = [
+            ...[
+              ...interpolatedCoordinateStrings,
+              coordinatesToCoordinateString(coordinate),
+            ].reduce((acc, coord) => {
+              acc.add(coord)
+              // TODO: There's likely a more efficient way to do this
+              getNeighboringSegmentsInRadius(
+                segments,
+                coordinateStringToCoordinates(coord),
+                brushSettings.size,
+              ).forEach((segment) => {
+                acc.add(`${segment.coordinates.x},${segment.coordinates.y}`)
+              })
+              return acc
+            }, new Set<TwoDimensionalCoordinatesString>()),
           ]
+          const updatedCoordinateStrings = [...prev, ...newCoordinateStrings]
+          // TODO: When setting drawable segments, only set the segments that are actually new
           setDrawableSegments((prev) => {
             return {
               ...prev,
