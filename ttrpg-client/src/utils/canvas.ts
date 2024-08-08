@@ -45,15 +45,18 @@ export const getNeighboringSegmentsInRadius = (
     return []
   }
   const r = Math.floor((2 * radius - 1) / 2)
+  const rSquared = r ** 2
+
   // TODO: For now, only do this in a circle. Add the ability to use custom shapes.
   const neighboringSegments: MapSegment[] = []
   const u = origin.y
   const v = origin.x
   for (let x = v - r; x <= v + r; x++) {
-    const yRange = Math.floor(Math.sqrt(r ** 2 - (x - v) ** 2))
-    const yMin = u - yRange
-    const yMax = u + yRange
-    for (let y = yMin; y <= yMax; y++) {
+    const xDistSquared = (x - v) ** 2
+    if (xDistSquared > rSquared) continue
+
+    const yRange = Math.floor(Math.sqrt(rSquared - xDistSquared))
+    for (let y = u - yRange; y <= u + yRange; y++) {
       const segment = segments[`${x},${y}`]
       if (segment) {
         neighboringSegments.push(segment)
