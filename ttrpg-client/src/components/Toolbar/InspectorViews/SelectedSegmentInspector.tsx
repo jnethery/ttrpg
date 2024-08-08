@@ -17,8 +17,8 @@ export const SelectedSegmentInspector: React.FC<
 > = ({ updateSegment }) => {
   const {
     meta,
-    selectedSegmentCoordinateString,
-    destinationSegmentCoordinateString,
+    originCoordinateString,
+    destinationCoordinateString,
     interimCoordinateStrings,
     segments,
   } = useMapContext()
@@ -33,32 +33,30 @@ export const SelectedSegmentInspector: React.FC<
         <SelectedSegmentInfo
           title={'Origin'}
           segment={
-            selectedSegmentCoordinateString
-              ? segments[selectedSegmentCoordinateString]
-              : null
+            originCoordinateString ? segments[originCoordinateString] : null
           }
           updateSegment={updateSegment}
         />
-        {destinationSegmentCoordinateString && (
+        {destinationCoordinateString && (
           <SelectedSegmentInfo
             title={'Destination'}
             segment={
-              destinationSegmentCoordinateString
-                ? segments[destinationSegmentCoordinateString]
+              destinationCoordinateString
+                ? segments[destinationCoordinateString]
                 : null
             }
             updateSegment={updateSegment}
           />
         )}
       </Container>
-      {selectedSegmentCoordinateString &&
-        segments[selectedSegmentCoordinateString] &&
-        destinationSegmentCoordinateString &&
-        segments[destinationSegmentCoordinateString] && (
+      {originCoordinateString &&
+        segments[originCoordinateString] &&
+        destinationCoordinateString &&
+        segments[destinationCoordinateString] && (
           <SelectedTraversalInfo
             meta={meta}
-            origin={segments[selectedSegmentCoordinateString]}
-            destination={segments[destinationSegmentCoordinateString]}
+            origin={segments[originCoordinateString]}
+            destination={segments[destinationCoordinateString]}
             interim={interimCoordinateStrings.map((interimCoordinateString) => {
               return segments[interimCoordinateString]
             })}

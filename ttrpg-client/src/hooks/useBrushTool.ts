@@ -5,7 +5,6 @@ import { DrawableMapSegmentDictionary } from 'types/drawableMapSegments'
 import { TwoDimensionalCoordinatesString } from 'types/coordinates'
 import {
   getCanvasCoordinate,
-  removeSelectedDrawableSegments,
   addSelectedDrawableSegments,
   getNeighboringSegmentsInRadius,
 } from 'utils/canvas'
@@ -30,15 +29,7 @@ export const useBrushTool = ({
     React.SetStateAction<DrawableMapSegmentDictionary | null>
   >
 }) => {
-  const {
-    destinationSegmentCoordinateString,
-    interimCoordinateStrings,
-    segments,
-    selectedSegmentCoordinateString,
-    setDestinationSegmentCoordinateString,
-    setInterimCoordinateStrings,
-    setSelectedSegmentCoordinateString,
-  } = useMapContext()
+  const { segments, setInterimCoordinateStrings } = useMapContext()
   const { brushSettings } = useToolContext()
 
   const [
@@ -53,30 +44,6 @@ export const useBrushTool = ({
       if (event.buttons === 0) {
         setLastPaintedSegmentCoordinateString(null)
       } else if (event.buttons === 1) {
-        if (
-          selectedSegmentCoordinateString ||
-          destinationSegmentCoordinateString
-        ) {
-          setSelectedSegmentCoordinateString(null)
-          setDestinationSegmentCoordinateString(null)
-          setInterimCoordinateStrings([])
-          setDrawableSegments((prev) => {
-            const removableCoordinates = [
-              ...interimCoordinateStrings,
-              selectedSegmentCoordinateString,
-              destinationSegmentCoordinateString,
-            ]
-            const removableSegments = removableCoordinates
-              .map((coord) => (coord ? segments[coord] : null))
-              .filter((segment) => segment !== null && segment !== undefined)
-
-            return {
-              ...prev,
-              ...removeSelectedDrawableSegments(removableSegments),
-            }
-          })
-        }
-
         // TODO: Make this more sophisticated by drawing a theoretical curve between the last 2 points and the current one,
         // and then finding the segments that lie closest to the intersection with that curve between the last point and the current one
         let interpolatedCoordinateStrings: TwoDimensionalCoordinatesString[] =

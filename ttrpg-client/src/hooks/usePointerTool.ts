@@ -6,6 +6,8 @@ import {
   removeSelectedDrawableSegments,
   addSelectedDrawableSegments,
   getInterimSegmentsForLine,
+  removeDestinationSegmentFromUpdatedSegments,
+  removeInterimSegmentsFromUpdatedSegments,
 } from 'utils/canvas'
 import { useMapContext } from 'hooks/useMapContext'
 
@@ -22,10 +24,12 @@ export const usePointerTool = ({
 }) => {
   const {
     segments,
-    selectedSegmentCoordinateString,
-    setDestinationSegmentCoordinateString,
+    originCoordinateString,
+    destinationCoordinateString,
+    interimCoordinateStrings,
+    setDestinationCoordinateString,
     setInterimCoordinateStrings,
-    setSelectedSegmentCoordinateString,
+    setOriginCoordinateString,
   } = useMapContext()
 
   const handlePointerTool = (event: React.MouseEvent<HTMLCanvasElement>) => {
@@ -34,17 +38,17 @@ export const usePointerTool = ({
       const segment = segments[`${coordinate.x},${coordinate.y}`]
       if (segment) {
         if (event.shiftKey) {
-          setDestinationSegmentCoordinateString((prev) => {
+          setDestinationCoordinateString((prev) => {
             // Replace the destination segment
             let updatedSegments = replaceSelectedDrawableSegment(
               segment,
               prev ? segments[prev] : null,
             )
 
-            if (selectedSegmentCoordinateString) {
+            if (originCoordinateString) {
               // Calculate the line between the two points and select all segments that lie on that line
               const interimSegments = getInterimSegmentsForLine(
-                selectedSegmentCoordinateString,
+                originCoordinateString,
                 `${segment.coordinates.x},${segment.coordinates.y}`,
                 segments,
               )
@@ -76,40 +80,27 @@ export const usePointerTool = ({
           })
         } else {
           let updatedSegments: DrawableMapSegmentDictionary = {}
-          // Remove the interim segments
-          setInterimCoordinateStrings((prev) => {
-            if (prev.length > 0) {
-              updatedSegments = {
-                ...updatedSegments,
-                ...removeSelectedDrawableSegments(
-                  prev.map((coord) => segments[coord]),
-                ),
-              }
-            }
-            return []
-          })
-          // Remove the destination segment
-          setDestinationSegmentCoordinateString((prev) => {
-            if (prev && segments[prev]) {
-              updatedSegments = {
-                ...updatedSegments,
-                ...removeSelectedDrawableSegments([segments[prev]]),
-              }
-            }
-            return null
-          })
           // Replace the selected segment
-          setSelectedSegmentCoordinateString((prev) => {
+          setOriginCoordinateString((prev) => {
             updatedSegments = {
-              ...updatedSegments,
               ...replaceSelectedDrawableSegment(
                 segment,
                 prev ? segments[prev] : null,
               ),
+              ...removeDestinationSegmentFromUpdatedSegments({
+                segments,
+                destinationCoordinateString,
+                setDestinationCoordinateString,
+              }),
+              ...removeInterimSegmentsFromUpdatedSegments({
+                segments,
+                interimCoordinateStrings,
+                setInterimCoordinateStrings,
+              }),
             }
+
             // This always needs to happen after segments are updated
             setDrawableSegments((prev) => {
-              console.log({ prev })
               return {
                 ...prev,
                 ...updatedSegments,

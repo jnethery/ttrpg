@@ -184,3 +184,138 @@ export function replaceSelectedDrawableSegment(
   }
   return updatedDrawableSegments
 }
+
+export function removeInterimSegmentsFromUpdatedSegments({
+  segments,
+  interimCoordinateStrings,
+  setInterimCoordinateStrings,
+}: {
+  segments: MapSegmentDictionary
+  interimCoordinateStrings: TwoDimensionalCoordinatesString[]
+  setInterimCoordinateStrings: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString[]>
+  >
+}) {
+  if (interimCoordinateStrings.length > 0) {
+    const updatedSegments: DrawableMapSegmentDictionary =
+      removeSelectedDrawableSegments(
+        interimCoordinateStrings.map((coord) => segments[coord]),
+      )
+    setInterimCoordinateStrings([])
+    return updatedSegments
+  }
+  return {}
+}
+
+export function removeOriginSegmentFromUpdatedSegments({
+  segments,
+  originCoordinateString,
+  setOriginCoordinateString,
+}: {
+  segments: MapSegmentDictionary
+  originCoordinateString: TwoDimensionalCoordinatesString | null
+  setOriginCoordinateString: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString | null>
+  >
+}) {
+  if (originCoordinateString) {
+    const updatedSegments: DrawableMapSegmentDictionary =
+      removeSelectedDrawableSegments([segments[originCoordinateString]])
+    setOriginCoordinateString(null)
+    return updatedSegments
+  }
+  return {}
+}
+
+export function removeDestinationSegmentFromUpdatedSegments({
+  segments,
+  destinationCoordinateString,
+  setDestinationCoordinateString,
+}: {
+  segments: MapSegmentDictionary
+  destinationCoordinateString: TwoDimensionalCoordinatesString | null
+  setDestinationCoordinateString: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString | null>
+  >
+}) {
+  if (destinationCoordinateString) {
+    const updatedSegments: DrawableMapSegmentDictionary =
+      removeSelectedDrawableSegments([segments[destinationCoordinateString]])
+    setDestinationCoordinateString(null)
+    return updatedSegments
+  }
+  return {}
+}
+
+export function resetSelectedSegments({
+  segments,
+  interimCoordinateStrings,
+  originCoordinateString,
+  destinationCoordinateString,
+  setInterimCoordinateStrings,
+  setOriginCoordinateString,
+  setDestinationCoordinateString,
+  setDrawableSegments,
+  excludedUpdates,
+}: {
+  segments: MapSegmentDictionary
+  originCoordinateString: TwoDimensionalCoordinatesString | null
+  interimCoordinateStrings: TwoDimensionalCoordinatesString[]
+  destinationCoordinateString: TwoDimensionalCoordinatesString | null
+  setOriginCoordinateString: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString | null>
+  >
+  setInterimCoordinateStrings: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString[]>
+  >
+  setDestinationCoordinateString: React.Dispatch<
+    React.SetStateAction<TwoDimensionalCoordinatesString | null>
+  >
+  setDrawableSegments: React.Dispatch<
+    React.SetStateAction<DrawableMapSegmentDictionary | null>
+  >
+  excludedUpdates?: ('origin' | 'interim' | 'destination')[]
+}) {
+  let updatedSegments: DrawableMapSegmentDictionary = {}
+
+  // Remove the interim segments
+  if (!excludedUpdates?.includes('interim')) {
+    updatedSegments = removeInterimSegmentsFromUpdatedSegments({
+      segments,
+      interimCoordinateStrings,
+      setInterimCoordinateStrings,
+    })
+  }
+  // Remove the destination segment
+  if (!excludedUpdates?.includes('destination')) {
+    updatedSegments = {
+      ...updatedSegments,
+      ...removeDestinationSegmentFromUpdatedSegments({
+        segments,
+        destinationCoordinateString,
+        setDestinationCoordinateString,
+      }),
+    }
+  }
+
+  // Remove the selected segment
+  if (!excludedUpdates?.includes('origin')) {
+    updatedSegments = {
+      ...updatedSegments,
+      ...removeOriginSegmentFromUpdatedSegments({
+        segments,
+        originCoordinateString,
+        setOriginCoordinateString,
+      }),
+    }
+  }
+
+  if (Object.keys(updatedSegments).length > 0) {
+    setDrawableSegments((prev) => {
+      return {
+        ...prev,
+        ...updatedSegments,
+      }
+    })
+  }
+}

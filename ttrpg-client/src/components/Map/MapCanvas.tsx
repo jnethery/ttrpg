@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react'
 
 import { DrawableMapSegmentDictionary } from 'types/drawableMapSegments'
 import { TwoDimensionalCoordinatesString } from 'types/coordinates'
-import { getRectRGBString } from 'utils/canvas'
+import { getRectRGBString, resetSelectedSegments } from 'utils/canvas'
 import { useMapContext } from 'hooks/useMapContext'
 import { usePointerTool } from 'hooks/usePointerTool'
 import { useBrushTool } from 'hooks/useBrushTool'
@@ -16,9 +16,17 @@ const dimensions = {
 }
 
 export const MapCanvas: React.FC = () => {
-  const { meta, segments } = useMapContext()
+  const {
+    meta,
+    segments,
+    originCoordinateString,
+    interimCoordinateStrings,
+    destinationCoordinateString,
+    setOriginCoordinateString,
+    setDestinationCoordinateString,
+    setInterimCoordinateStrings,
+  } = useMapContext()
   const { selectedTool } = useToolContext()
-  // TODO: Add a useEffect to reset the selected drawableSegments when the tool changes
 
   const { width, length, gridIncrements } = meta
   const canvasWidth = dimensions.width * width * gridIncrements
@@ -27,6 +35,20 @@ export const MapCanvas: React.FC = () => {
 
   const [drawableSegments, setDrawableSegments] =
     useState<DrawableMapSegmentDictionary | null>(null)
+
+  useEffect(() => {
+    // When the selected tool changes, reset the selected segments
+    resetSelectedSegments({
+      segments,
+      interimCoordinateStrings,
+      originCoordinateString,
+      destinationCoordinateString,
+      setDestinationCoordinateString,
+      setDrawableSegments,
+      setInterimCoordinateStrings,
+      setOriginCoordinateString,
+    })
+  }, [selectedTool])
 
   const { handlePointerTool } = usePointerTool({
     dimensions,
@@ -45,7 +67,7 @@ export const MapCanvas: React.FC = () => {
         const coordinateString = key as TwoDimensionalCoordinatesString
         acc[coordinateString] = {
           ...segment,
-          dirty: drawableSegments?.[coordinateString]?.dirty ?? true,
+          dirty: true,
           selected: drawableSegments?.[coordinateString]?.selected ?? false,
         }
         return acc
