@@ -18,6 +18,7 @@ import {
 import { useMapContext } from 'hooks/useMapContext'
 import { useToolContext } from './useToolContext'
 
+// TODO: Abstract pieces of this function to share functionality with the terraform tool
 export const useBrushTool = ({
   canvasRef,
   dimensions,

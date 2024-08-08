@@ -18,6 +18,7 @@ const dimensions = {
 export const MapCanvas: React.FC = () => {
   const { meta, segments } = useMapContext()
   const { selectedTool } = useToolContext()
+  // TODO: Add a useEffect to reset the selected drawableSegments when the tool changes
 
   const { width, length, gridIncrements } = meta
   const canvasWidth = dimensions.width * width * gridIncrements
@@ -39,19 +40,19 @@ export const MapCanvas: React.FC = () => {
   })
 
   useEffect(() => {
-    // TODO: Maintain selected and dirty props when making this assignment
-    const drawableSegments = Object.entries(segments).reduce(
+    const newDrawableSegments = Object.entries(segments).reduce(
       (acc, [key, segment]) => {
-        acc[key as TwoDimensionalCoordinatesString] = {
+        const coordinateString = key as TwoDimensionalCoordinatesString
+        acc[coordinateString] = {
           ...segment,
-          dirty: true,
-          selected: false,
+          dirty: drawableSegments?.[coordinateString]?.dirty ?? true,
+          selected: drawableSegments?.[coordinateString]?.selected ?? false,
         }
         return acc
       },
       {} as DrawableMapSegmentDictionary,
     )
-    setDrawableSegments(drawableSegments)
+    setDrawableSegments(newDrawableSegments)
   }, [segments])
 
   useEffect(() => {

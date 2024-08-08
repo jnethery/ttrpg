@@ -40,7 +40,6 @@ export const getNeighboringSegmentsInRadius = (
   origin: TwoDimensionalCoordinates,
   radius: number,
 ): MapSegment[] => {
-  // TODO: See if it's possible to optimize this function
   if (radius <= 1) {
     return []
   }

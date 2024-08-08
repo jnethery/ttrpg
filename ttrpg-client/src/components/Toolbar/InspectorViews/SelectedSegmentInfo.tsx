@@ -1,4 +1,3 @@
-// TODO: Clean this up
 import React, { CSSProperties, useEffect } from 'react'
 import { useFormik } from 'formik'
 
