@@ -1,6 +1,4 @@
 import React from 'react'
-import { Container } from '@mui/material'
-import { useTheme } from '@mui/material/styles'
 
 import { Panel } from 'components/Layout'
 import { useMapContext } from 'hooks/useMapContext'
@@ -9,7 +7,6 @@ import { SelectedTraversalInfo } from './SelectedTraversalInfo'
 import { SegmentInfo } from './SegmentInfo'
 
 export const SelectedSegmentInspector: React.FC = () => {
-  const theme = useTheme()
   const {
     meta,
     originCoordinateString,
@@ -20,32 +17,26 @@ export const SelectedSegmentInspector: React.FC = () => {
 
   return (
     <Panel elevation={2}>
-      <Container
-        style={{
-          padding: theme.spacing(1),
-        }}
-      >
+      <Panel elevation={3}>
+        <SegmentInfo
+          title={'Selected Origin'}
+          segment={
+            originCoordinateString ? segments[originCoordinateString] : null
+          }
+        />
+      </Panel>
+      {destinationCoordinateString && (
         <Panel elevation={3}>
           <SegmentInfo
-            title={'Selected Origin'}
+            title={'Destination'}
             segment={
-              originCoordinateString ? segments[originCoordinateString] : null
+              destinationCoordinateString
+                ? segments[destinationCoordinateString]
+                : null
             }
           />
         </Panel>
-        {destinationCoordinateString && (
-          <Panel elevation={3}>
-            <SegmentInfo
-              title={'Destination'}
-              segment={
-                destinationCoordinateString
-                  ? segments[destinationCoordinateString]
-                  : null
-              }
-            />
-          </Panel>
-        )}
-      </Container>
+      )}
       {originCoordinateString &&
         segments[originCoordinateString] &&
         destinationCoordinateString &&
