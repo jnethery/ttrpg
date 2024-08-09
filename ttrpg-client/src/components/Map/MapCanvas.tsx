@@ -59,7 +59,6 @@ export const MapCanvas: React.FC = () => {
   const { handleBrushTool } = useBrushTool({
     dimensions,
     canvasRef,
-    setDrawableSegments,
   })
   const { handleEyeDropperTool } = useEyeDropperTool({
     dimensions,

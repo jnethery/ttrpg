@@ -145,12 +145,11 @@ export function getInterimSegmentsForLine(
     .filter((segment) => segment !== undefined)
 }
 
-export function addSelectedDrawableSegments(segments: MapSegment[]) {
+export function addDrawableSegments(segments: DrawableMapSegment[]) {
   const updatedDrawableSegments = segments.reduce((acc, segment) => {
     acc[`${segment.coordinates.x},${segment.coordinates.y}`] = {
       ...segment,
       dirty: true,
-      selected: true,
     }
     return acc
   }, {} as DrawableMapSegmentDictionary)

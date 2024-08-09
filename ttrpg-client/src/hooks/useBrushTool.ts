@@ -1,11 +1,9 @@
 import { useState } from 'react'
 
-import { MapSegment } from 'types/mapSegments'
-import { DrawableMapSegmentDictionary } from 'types/drawableMapSegments'
 import { TwoDimensionalCoordinatesString } from 'types/coordinates'
 import {
   getCanvasCoordinate,
-  addSelectedDrawableSegments,
+  addDrawableSegments,
   getNeighboringSegmentsInRadius,
 } from 'utils/canvas'
 import {
@@ -21,15 +19,11 @@ import { useToolContext } from './useToolContext'
 export const useBrushTool = ({
   canvasRef,
   dimensions,
-  setDrawableSegments,
 }: {
   canvasRef: React.RefObject<HTMLCanvasElement>
   dimensions: { width: number; height: number }
-  setDrawableSegments: React.Dispatch<
-    React.SetStateAction<DrawableMapSegmentDictionary | null>
-  >
 }) => {
-  const { segments, setInterimCoordinateStrings } = useMapContext()
+  const { segments, inspectedSegment, setSegments } = useMapContext()
   const { brushSettings } = useToolContext()
 
   const [
@@ -46,54 +40,54 @@ export const useBrushTool = ({
         if (event.type === 'click') {
           // TODO: Add brush size to this
           // Draw the segment at the current coordinate
-          setInterimCoordinateStrings((prev) => {
-            const updatedCoordinateStrings = [
-              ...prev,
-              coordinatesToCoordinateString(coordinate),
-            ]
-            setDrawableSegments((prev) => {
+          if (inspectedSegment) {
+            setSegments((prev) => {
               return {
                 ...prev,
-                ...addSelectedDrawableSegments(
-                  updatedCoordinateStrings.map(
-                    (coord) => segments[coord] as MapSegment,
-                  ),
-                ),
+                ...addDrawableSegments([
+                  {
+                    ...segments[coordinatesToCoordinateString(coordinate)],
+                    ...inspectedSegment,
+                    coordinates: {
+                      ...inspectedSegment.coordinates,
+                      ...coordinate,
+                    },
+                  },
+                ]),
               }
             })
-            return updatedCoordinateStrings
-          })
+          }
         }
       } else if (event.buttons === 1) {
         // TODO: Make this more sophisticated by drawing a theoretical curve between the last 2 points and the current one,
         // and then finding the segments that lie closest to the intersection with that curve between the last point and the current one
-        let interpolatedCoordinateStrings: TwoDimensionalCoordinatesString[] =
-          []
-        if (lastPaintedSegmentCoordinateString) {
-          // Check that the last painted segment is over 1 tile away from the current segment
-          if (
-            calculateLinearDistance(
-              lastPaintedSegmentCoordinateString,
-              coordinate,
-            ) > 1
-          ) {
-            const coordinates = getLineCoordinates({
-              origin: lastPaintedSegmentCoordinateString,
-              destination: coordinate,
-            })
-            interpolatedCoordinateStrings = coordinates
-              .map(({ x, y }) => segments[`${x},${y}`])
-              .filter((segment) => segment !== undefined)
-              .map(
-                (segment) =>
-                  `${segment.coordinates.x},${segment.coordinates.y}` as TwoDimensionalCoordinatesString,
-              )
+        if (inspectedSegment) {
+          let interpolatedCoordinateStrings: TwoDimensionalCoordinatesString[] =
+            []
+          if (lastPaintedSegmentCoordinateString) {
+            // Check that the last painted segment is over 1 tile away from the current segment
+            if (
+              calculateLinearDistance(
+                lastPaintedSegmentCoordinateString,
+                coordinate,
+              ) > 1
+            ) {
+              const coordinates = getLineCoordinates({
+                origin: lastPaintedSegmentCoordinateString,
+                destination: coordinate,
+              })
+              interpolatedCoordinateStrings = coordinates
+                .map(({ x, y }) => segments[`${x},${y}`])
+                .filter((segment) => segment !== undefined)
+                .map(
+                  (segment) =>
+                    `${segment.coordinates.x},${segment.coordinates.y}` as TwoDimensionalCoordinatesString,
+                )
+            }
           }
-        }
-        setLastPaintedSegmentCoordinateString(
-          coordinatesToCoordinateString(coordinate),
-        )
-        setInterimCoordinateStrings((prev) => {
+          setLastPaintedSegmentCoordinateString(
+            coordinatesToCoordinateString(coordinate),
+          )
           const newCoordinateStrings = [
             ...[
               ...interpolatedCoordinateStrings,
@@ -111,20 +105,25 @@ export const useBrushTool = ({
               return acc
             }, new Set<TwoDimensionalCoordinatesString>()),
           ]
-          const updatedCoordinateStrings = [...prev, ...newCoordinateStrings]
           // TODO: When setting drawable segments, only set the segments that are actually new
-          setDrawableSegments((prev) => {
+          setSegments((prev) => {
             return {
               ...prev,
-              ...addSelectedDrawableSegments(
-                updatedCoordinateStrings.map(
-                  (coord) => segments[coord] as MapSegment,
-                ),
+              ...addDrawableSegments(
+                newCoordinateStrings.map((coord) => {
+                  return {
+                    ...segments[coord],
+                    ...inspectedSegment,
+                    coordinates: {
+                      ...inspectedSegment.coordinates,
+                      ...coordinateStringToCoordinates(coord),
+                    },
+                  }
+                }),
               ),
             }
           })
-          return updatedCoordinateStrings
-        })
+        }
       }
     }
   }

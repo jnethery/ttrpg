@@ -16,21 +16,27 @@ import { TwoColumnListItem } from 'components/Layout'
 
 interface FormValues {
   waterDepth: string
+  height: string
   terrain: Terrain
 }
 
 const getValues = (segment: MapSegment | null): FormValues => {
   return {
     waterDepth: segment?.waterDepth.toString() ?? '',
+    height: segment?.coordinates.z.toString() ?? '',
     terrain: segment?.terrain ?? 'rock',
   }
 }
 
-const parseValues = (values: FormValues): Partial<MapSegment> => {
-  const segment = {} as Partial<MapSegment>
+const parseValues = (values: FormValues) => {
+  const segment = {} as Partial<MapSegment> & { height?: number }
   const parsedWaterDepth = parseFloat(values.waterDepth)
   if (!isNaN(parsedWaterDepth)) {
     segment.waterDepth = parsedWaterDepth
+  }
+  const parsedHeight = parseFloat(values.height)
+  if (!isNaN(parsedHeight)) {
+    segment.height = parsedHeight
   }
   segment.terrain = values.terrain
   return segment
@@ -51,6 +57,10 @@ export const SegmentInfo: React.FC<{
           updateSegment({
             ...segment,
             ...parsedValues,
+            coordinates: {
+              ...segment.coordinates,
+              z: parsedValues.height ?? segment.coordinates.z,
+            },
           })
         }
       }
@@ -91,37 +101,55 @@ export const SegmentInfo: React.FC<{
             }
           />
         )}
-        <TwoColumnListItem
-          label="Height"
-          value={
-            <Typography>
-              {segment ? segment.coordinates.z.toFixed(2) : 'N/A'}
-            </Typography>
-          }
-        />
+        <HeightField formik={formik} isStatic={!updateSegment} />
         <WaterDepthField formik={formik} isStatic={!updateSegment} />
-        <TerrainField
-          segment={segment}
-          formik={formik}
-          isStatic={!updateSegment}
-        />
+        <TerrainField formik={formik} isStatic={!updateSegment} />
       </List>
     </form>
   )
 }
 
-interface WaterDepthFieldProps {
+interface FieldProps {
   formik: FormikProps<FormValues>
   isStatic?: boolean
 }
 
-interface TerrainFieldProps {
-  segment: MapSegment | null
+interface FieldProps {
   formik: FormikProps<FormValues>
   isStatic?: boolean
 }
 
-const TerrainField: React.FC<TerrainFieldProps> = ({ formik, isStatic }) => {
+const HeightField: React.FC<FieldProps> = ({ formik, isStatic }) => {
+  const fieldValue = isStatic ? (
+    <Typography>
+      {formik.values.height.length > 0
+        ? Number(formik.values.height).toFixed(2)
+        : 'N/A'}
+    </Typography>
+  ) : (
+    <TextField
+      type="number"
+      variant="outlined"
+      placeholder="0.00"
+      name="height"
+      value={formik.values.height ?? 'N/A'}
+      onChange={(event) => {
+        formik.handleChange(event)
+        const parsedValue = parseFloat(event.target.value)
+        if (
+          !isNaN(parsedValue) &&
+          event.target.value === parsedValue.toString()
+        ) {
+          formik.handleSubmit()
+        }
+      }}
+    />
+  )
+
+  return <TwoColumnListItem label="Height" value={fieldValue} />
+}
+
+const TerrainField: React.FC<FieldProps> = ({ formik, isStatic }) => {
   const fieldValue = isStatic ? (
     <Typography>{formik.values.terrain ?? 'N/A'}</Typography>
   ) : (
@@ -146,13 +174,12 @@ const TerrainField: React.FC<TerrainFieldProps> = ({ formik, isStatic }) => {
   return <TwoColumnListItem label="Terrain" value={fieldValue} />
 }
 
-const WaterDepthField: React.FC<WaterDepthFieldProps> = ({
-  formik,
-  isStatic,
-}) => {
+const WaterDepthField: React.FC<FieldProps> = ({ formik, isStatic }) => {
   const fieldValue = isStatic ? (
     <Typography>
-      {formik.values.waterDepth.length > 0 ? formik.values.waterDepth : 'N/A'}
+      {formik.values.waterDepth.length > 0
+        ? Number(formik.values.waterDepth).toFixed(2)
+        : 'N/A'}
     </Typography>
   ) : (
     <TextField

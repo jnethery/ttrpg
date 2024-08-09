@@ -4,7 +4,7 @@ import {
   getCanvasCoordinate,
   replaceSelectedDrawableSegment,
   removeSelectedDrawableSegments,
-  addSelectedDrawableSegments,
+  addDrawableSegments,
   getInterimSegmentsForLine,
   removeDestinationSegmentFromUpdatedSegments,
   removeInterimSegmentsFromUpdatedSegments,
@@ -61,7 +61,14 @@ export const usePointerTool = ({
                   ...removeSelectedDrawableSegments(
                     prev.map((coord) => segments[coord]),
                   ),
-                  ...addSelectedDrawableSegments(interimSegments),
+                  ...addDrawableSegments(
+                    interimSegments.map((segment) => {
+                      return {
+                        ...segment,
+                        selected: true,
+                      }
+                    }),
+                  ),
                 }
                 return interimSegments.map(
                   (segment) =>

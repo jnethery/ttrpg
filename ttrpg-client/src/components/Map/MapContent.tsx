@@ -15,11 +15,12 @@ import { ToolProvider } from 'providers/ToolProvider'
 export function MapContent({
   meta,
   segments,
+  setSegments,
   refetch,
 }: {
   meta: MapMeta
   segments: MapSegmentDictionary
-  setSegments: (segments: MapSegmentDictionary) => void
+  setSegments: React.Dispatch<React.SetStateAction<MapSegmentDictionary | null>>
   refetch: () => void
 }) {
   const theme = useTheme()
@@ -29,7 +30,7 @@ export function MapContent({
   }
 
   return (
-    <MapProvider meta={meta} segments={segments}>
+    <MapProvider meta={meta} segments={segments} setSegments={setSegments}>
       <ToolProvider>
         <div style={style}>
           <div style={{ display: 'block', flex: 'none' }}>
@@ -55,7 +56,7 @@ export function MapContent({
                 }}
               >
                 {toolConfig.map(({ tool, icon }) => (
-                  <ToolTile tool={tool} icon={icon} />
+                  <ToolTile key={tool} tool={tool} icon={icon} />
                 ))}
               </div>
             </Panel>

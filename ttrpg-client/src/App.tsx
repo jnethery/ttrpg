@@ -5,7 +5,7 @@ import './App.css'
 import { Map } from 'components/Map'
 
 const darkTheme = createTheme({
-  spacing: [0, 5, 10],
+  spacing: (factor: number) => `${5 * factor}px`,
   palette: {
     mode: 'dark',
     primary: {
