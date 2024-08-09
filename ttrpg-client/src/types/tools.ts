@@ -1,4 +1,5 @@
 import {
+  faGear,
   faArrowPointer,
   faPaintBrush,
   faMountain,
@@ -6,7 +7,7 @@ import {
   IconDefinition,
 } from '@fortawesome/free-solid-svg-icons'
 
-const tools = ['pointer', 'brush', 'terraform', 'eyedropper'] as const
+const tools = ['gear', 'pointer', 'brush', 'terraform', 'eyedropper'] as const
 export type Tool = (typeof tools)[number]
 
 export const toolConfig: Array<{ tool: Tool; icon: IconDefinition }> = [
@@ -25,6 +26,10 @@ export const toolConfig: Array<{ tool: Tool; icon: IconDefinition }> = [
   {
     tool: 'eyedropper',
     icon: faEyeDropper,
+  },
+  {
+    tool: 'gear',
+    icon: faGear,
   },
 ]
 

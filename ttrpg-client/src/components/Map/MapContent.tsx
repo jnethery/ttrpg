@@ -30,7 +30,12 @@ export function MapContent({
   }
 
   return (
-    <MapProvider meta={meta} segments={segments} setSegments={setSegments}>
+    <MapProvider
+      meta={meta}
+      refetch={refetch}
+      segments={segments}
+      setSegments={setSegments}
+    >
       <ToolProvider>
         <div style={style}>
           <div style={{ display: 'block', flex: 'none' }}>
@@ -44,7 +49,7 @@ export function MapContent({
               gap: theme.spacing(1),
             }}
           >
-            <Inspector refetch={refetch}>
+            <Inspector>
               <InspectorView />
             </Inspector>
             <Panel>

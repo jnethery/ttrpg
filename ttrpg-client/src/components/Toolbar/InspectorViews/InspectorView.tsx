@@ -3,6 +3,7 @@ import { useToolContext } from 'hooks/useToolContext'
 import { SelectedSegmentInspector } from './SelectedSegmentInspector'
 import { BrushSettingsInspector } from './BrushSettingsInspector'
 import { EyeDropperInspector } from './EyeDropperInspector'
+import { SettingsInspector } from './SettingsInspector'
 
 export const InspectorView: React.FC = () => {
   const { selectedTool } = useToolContext()
@@ -13,6 +14,8 @@ export const InspectorView: React.FC = () => {
     return <BrushSettingsInspector />
   } else if (selectedTool === 'eyedropper') {
     return <EyeDropperInspector />
+  } else if (selectedTool === 'gear') {
+    return <SettingsInspector />
   }
   return (
     <div>
