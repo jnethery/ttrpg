@@ -34,6 +34,7 @@ export const MapCanvas: React.FC = () => {
   const canvasHeight = dimensions.height * length * gridIncrements
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
+  // TODO: Add multiple copies of drawableSegments to allow for undo/redo
   const [drawableSegments, setDrawableSegments] =
     useState<DrawableMapSegmentDictionary | null>(null)
 
@@ -65,6 +66,7 @@ export const MapCanvas: React.FC = () => {
     canvasRef,
   })
 
+  // TODO: Figure out a way to only update this when the whole set of segments change
   useEffect(() => {
     const newDrawableSegments = Object.entries(segments).reduce(
       (acc, [key, segment]) => {
