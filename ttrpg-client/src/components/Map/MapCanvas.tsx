@@ -93,7 +93,9 @@ export const MapCanvas: React.FC = () => {
               ctx.fillStyle = getRectRGBString({
                 meta,
                 segment,
+                alpha: 1,
               })
+
               // Draw terrain color
               ctx.fillRect(
                 segment.coordinates.x * dimensions.width,

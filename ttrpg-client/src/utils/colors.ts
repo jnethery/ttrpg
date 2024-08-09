@@ -11,8 +11,8 @@ export const rgbStringToColor = (rgb: string): Color => {
   return [r, g, b]
 }
 
-export const colorToRGBString = (color: Color): string => {
-  return `rgb(${color[0]}, ${color[1]}, ${color[2]})`
+export const colorToRGBString = (color: Color, alpha: number): string => {
+  return `rgb(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`
 }
 
 export const calculateGrayscaleColor = (normalizedValue: number): Color => {

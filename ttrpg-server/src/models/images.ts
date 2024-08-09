@@ -8,5 +8,5 @@ export const getImage = async (id: string): Promise<DBImage | null> => {
   // Get tile.png
   const tilePath = path.join(imagesDir, 'tile.png')
   const tile = fs.readFileSync(tilePath)
-  return { id: '1234', title: 'tile', data: tile }
+  return { id: '1234', title: 'tile', data: tile.toString('base64') }
 }

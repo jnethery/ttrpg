@@ -68,9 +68,11 @@ export const getNeighboringSegmentsInRadius = (
 export const getRectRGBString = ({
   meta,
   segment,
+  alpha,
 }: {
   meta: MapMeta
   segment: DrawableMapSegment
+  alpha: number
 }): string => {
   const z = segment.coordinates.z
   return getTerrainRGBString({
@@ -80,6 +82,7 @@ export const getRectRGBString = ({
     maxHeight: meta.localMaxHeight,
     terrain: segment.terrain,
     waterDepth: segment.waterDepth,
+    alpha,
   })
 }
 
@@ -90,6 +93,7 @@ const getTerrainRGBString = ({
   selected,
   terrain,
   waterDepth,
+  alpha,
 }: {
   height: number
   maxHeight: number
@@ -97,6 +101,7 @@ const getTerrainRGBString = ({
   selected: boolean
   terrain: Terrain
   waterDepth: number
+  alpha: number
 }): string => {
   return selected
     ? colorConfig.primary.rgbString
@@ -108,6 +113,7 @@ const getTerrainRGBString = ({
           terrain,
           { waterDepth },
         ),
+        alpha,
       )
 }
 
