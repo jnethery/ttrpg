@@ -80,15 +80,17 @@ export const SegmentInfo: React.FC<{
           </Container>
         </ListItem>
         <Divider />
-        <TwoColumnListItem
-          label="Location"
-          value={
-            <Typography>
-              {segment ? segment.coordinates.x : 'N/A'},{' '}
-              {segment ? segment.coordinates.y : 'N/A'}
-            </Typography>
-          }
-        />
+        {!updateSegment && (
+          <TwoColumnListItem
+            label="Location"
+            value={
+              <Typography>
+                {segment ? segment.coordinates.x : 'N/A'},{' '}
+                {segment ? segment.coordinates.y : 'N/A'}
+              </Typography>
+            }
+          />
+        )}
         <TwoColumnListItem
           label="Height"
           value={
