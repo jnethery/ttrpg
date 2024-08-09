@@ -2,7 +2,7 @@ import React, { CSSProperties } from 'react'
 
 import { MapSegment, MapMeta } from 'types/mapSegments'
 import { calculateLinearDistance } from 'utils/math'
-import { calculateTerrainChange } from 'utils/terrain'
+import { calculateTerrainChange, calculateVisibility } from 'utils/terrain'
 
 interface SelectedTraversalInfoProps {
   origin: MapSegment
@@ -24,6 +24,7 @@ export const SelectedTraversalInfo: React.FC<SelectedTraversalInfoProps> = ({
 
   const { minElevation, maxElevation, minElevationChange, maxElevationChange } =
     calculateTerrainChange(origin, destination, interim)
+  const destinationVisible = calculateVisibility(origin, destination, interim)
 
   return (
     <div style={style}>
@@ -43,6 +44,9 @@ export const SelectedTraversalInfo: React.FC<SelectedTraversalInfoProps> = ({
       <div>
         Elevation Range: {minElevation.toFixed(2)} to {maxElevation.toFixed(2)}{' '}
         {meta.verticalUnits}
+      </div>
+      <div>
+        Is Destination Visible from Origin: {destinationVisible ? 'Yes' : 'No'}
       </div>
     </div>
   )
