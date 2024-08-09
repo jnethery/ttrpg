@@ -32,7 +32,9 @@ export function MapContent({
     <MapProvider meta={meta} segments={segments}>
       <ToolProvider>
         <div style={style}>
-          <MapCanvas />
+          <div style={{ display: 'block', flex: 'none' }}>
+            <MapCanvas />
+          </div>
           {/* TODO: Convert the bottom into a collapsible Toolbar component */}
           <Panel
             style={{
