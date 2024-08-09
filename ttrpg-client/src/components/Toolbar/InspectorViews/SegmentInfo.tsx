@@ -20,6 +20,12 @@ interface FormValues {
   terrain: Terrain
 }
 
+interface ParsedSegment {
+  waterDepth: number
+  height: number
+  terrain: Terrain
+}
+
 const getValues = (segment: MapSegment | null): FormValues => {
   return {
     waterDepth: segment?.waterDepth.toString() ?? '',
@@ -29,15 +35,12 @@ const getValues = (segment: MapSegment | null): FormValues => {
 }
 
 const parseValues = (values: FormValues) => {
-  const segment = {} as Partial<MapSegment> & { height?: number }
+  const segment = {} as ParsedSegment
   const parsedWaterDepth = parseFloat(values.waterDepth)
-  if (!isNaN(parsedWaterDepth)) {
-    segment.waterDepth = parsedWaterDepth
-  }
   const parsedHeight = parseFloat(values.height)
-  if (!isNaN(parsedHeight)) {
-    segment.height = parsedHeight
-  }
+
+  segment.waterDepth = !isNaN(parsedWaterDepth) ? parsedWaterDepth : 0
+  segment.height = !isNaN(parsedHeight) ? parsedHeight : 0
   segment.terrain = values.terrain
   return segment
 }
@@ -51,15 +54,15 @@ export const SegmentInfo: React.FC<{
     initialValues: getValues(segment),
     enableReinitialize: true,
     onSubmit: (values) => {
-      if (segment && updateSegment) {
+      if (updateSegment) {
         const parsedValues = parseValues(values)
         if (Object.keys(parsedValues).length > 0) {
           updateSegment({
             ...segment,
             ...parsedValues,
             coordinates: {
-              ...segment.coordinates,
-              z: parsedValues.height ?? segment.coordinates.z,
+              ...(segment?.coordinates ?? { x: 0, y: 0, z: 0 }),
+              z: parsedValues.height ?? segment?.coordinates.z ?? 0,
             },
           })
         }
