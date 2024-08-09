@@ -5,6 +5,7 @@ const cors = require('cors')
 import { Request, Response } from 'express'
 
 import { charactersRouter } from 'routes/characters'
+import { imagesRouter } from 'routes/images'
 import { mapSegmentsRouter } from 'routes/mapSegments'
 
 const app = express()
@@ -29,4 +30,5 @@ app.get('/', (_req: Request, res: Response) => {
 
 app.use(express.json())
 app.use('/characters', charactersRouter)
+app.use('/images', imagesRouter)
 app.use('/mapSegments', mapSegmentsRouter)
