@@ -13,6 +13,15 @@ const getValues = (segment: MapSegment | null): FormValues => {
   }
 }
 
+const parseValues = (values: FormValues): Partial<MapSegment> => {
+  const segment = {} as Partial<MapSegment>
+  const parsedWaterDepth = parseFloat(values.waterDepth)
+  if (!isNaN(parsedWaterDepth)) {
+    segment.waterDepth = parsedWaterDepth
+  }
+  return segment
+}
+
 export const SegmentInfo: React.FC<{
   title: string
   segment: MapSegment | null
@@ -23,10 +32,13 @@ export const SegmentInfo: React.FC<{
     enableReinitialize: true,
     onSubmit: (values) => {
       if (segment && updateSegment) {
-        updateSegment({
-          ...segment,
-          waterDepth: parseFloat(values.waterDepth),
-        })
+        const parsedValues = parseValues(values)
+        if (Object.keys(parsedValues).length > 0) {
+          updateSegment({
+            ...segment,
+            ...parsedValues,
+          })
+        }
       }
     },
   })
