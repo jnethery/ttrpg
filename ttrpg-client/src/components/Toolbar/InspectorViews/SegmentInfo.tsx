@@ -12,6 +12,7 @@ import {
 
 import { MapSegment } from 'types/mapSegments'
 import { Terrain, terrains } from 'types/terrains'
+import { TwoColumnListItem } from 'components/Layout'
 
 interface FormValues {
   waterDepth: string
@@ -104,20 +105,6 @@ export const SegmentInfo: React.FC<{
         />
       </List>
     </form>
-  )
-}
-
-const TwoColumnListItem: React.FC<{
-  label: string
-  value: React.ReactNode
-}> = ({ label, value }) => {
-  return (
-    <ListItem>
-      <Container sx={{ textAlign: 'left' }}>
-        <Typography fontWeight={'fontWeightBold'}>{label}</Typography>
-      </Container>
-      <Container sx={{ textAlign: 'right' }}>{value}</Container>
-    </ListItem>
   )
 }
 
