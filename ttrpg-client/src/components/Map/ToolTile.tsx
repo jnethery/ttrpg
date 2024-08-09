@@ -1,9 +1,9 @@
 import { FC } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
+import { useTheme } from '@mui/material/styles'
 
 import { Tool } from 'types/tools'
-import { colorConfig } from 'types/colors'
 import { Tile } from 'components/Layout'
 import { useToolContext } from 'hooks/useToolContext'
 
@@ -13,6 +13,7 @@ interface ToolTileProps {
 }
 
 export const ToolTile: FC<ToolTileProps> = ({ tool, icon }) => {
+  const theme = useTheme()
   const { selectedTool, setSelectedTool } = useToolContext()
 
   return (
@@ -28,7 +29,7 @@ export const ToolTile: FC<ToolTileProps> = ({ tool, icon }) => {
           ? {
               selected: true,
               selectionStyle: {
-                borderColor: colorConfig.primary.rgbString,
+                borderColor: theme.palette.primary.main,
               },
             }
           : undefined

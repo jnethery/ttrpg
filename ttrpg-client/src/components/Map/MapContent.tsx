@@ -1,6 +1,7 @@
 import { CSSProperties } from 'react'
+import { useTheme } from '@mui/material/styles'
 
-import { MapSegment, MapMeta, MapSegmentDictionary } from 'types/mapSegments'
+import { MapMeta, MapSegmentDictionary } from 'types/mapSegments'
 import { toolConfig } from 'types/tools'
 
 import { Panel } from 'components/Layout'
@@ -14,7 +15,6 @@ import { ToolProvider } from 'providers/ToolProvider'
 export function MapContent({
   meta,
   segments,
-  setSegments,
   refetch,
 }: {
   meta: MapMeta
@@ -22,17 +22,10 @@ export function MapContent({
   setSegments: (segments: MapSegmentDictionary) => void
   refetch: () => void
 }) {
+  const theme = useTheme()
   const style: CSSProperties = {
     display: 'flex',
-    gap: 10,
-  }
-
-  const updateSegment = (segment: MapSegment) => {
-    const updatedSegments = {
-      ...segments,
-      [`${segment.coordinates.x},${segment.coordinates.y}`]: segment,
-    }
-    setSegments(updatedSegments)
+    gap: theme.spacing(2),
   }
 
   return (
@@ -45,22 +38,18 @@ export function MapContent({
             style={{
               display: 'flex',
               flexDirection: 'row',
-              gap: 5,
+              gap: theme.spacing(1),
             }}
           >
             <Inspector refetch={refetch}>
-              <InspectorView
-                props={{
-                  updateSegment,
-                }}
-              />
+              <InspectorView />
             </Inspector>
             <Panel>
               <div
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: 10,
+                  gap: theme.spacing(2),
                 }}
               >
                 {toolConfig.map(({ tool, icon }) => (

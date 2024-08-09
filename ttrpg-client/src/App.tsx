@@ -5,8 +5,15 @@ import './App.css'
 import { Map } from 'components/Map'
 
 const darkTheme = createTheme({
+  spacing: [0, 5, 10],
   palette: {
     mode: 'dark',
+    primary: {
+      main: '#FFEE58',
+    },
+    secondary: {
+      main: '#5869ff',
+    },
   },
 })
 

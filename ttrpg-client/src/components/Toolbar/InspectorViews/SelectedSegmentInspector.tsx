@@ -1,5 +1,6 @@
 import React from 'react'
 import { Container } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 
 import { Panel } from 'components/Layout'
 import { useMapContext } from 'hooks/useMapContext'
@@ -8,6 +9,7 @@ import { SelectedTraversalInfo } from './SelectedTraversalInfo'
 import { SegmentInfo } from './SegmentInfo'
 
 export const SelectedSegmentInspector: React.FC = () => {
+  const theme = useTheme()
   const {
     meta,
     originCoordinateString,
@@ -20,7 +22,7 @@ export const SelectedSegmentInspector: React.FC = () => {
     <Panel elevation={2}>
       <Container
         style={{
-          padding: 5,
+          padding: theme.spacing(1),
         }}
       >
         <Panel elevation={3}>

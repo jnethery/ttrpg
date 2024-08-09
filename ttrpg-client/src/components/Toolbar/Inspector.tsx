@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTheme } from '@mui/material/styles'
 
 import { Panel, Button } from 'components/Layout'
 
@@ -12,6 +13,8 @@ interface SaveLoadButtonProps {
 }
 
 export const SaveLoadButtons: React.FC<SaveLoadButtonProps> = ({ refetch }) => {
+  const theme = useTheme()
+
   return (
     <Panel elevation={2}>
       <Button style={{ flex: 1 }} onClick={refetch}>
@@ -20,7 +23,7 @@ export const SaveLoadButtons: React.FC<SaveLoadButtonProps> = ({ refetch }) => {
       <div
         style={{
           display: 'flex',
-          gap: 10,
+          gap: theme.spacing(2),
         }}
       >
         <Button style={{ flex: 1 }}>Save</Button>
@@ -31,12 +34,14 @@ export const SaveLoadButtons: React.FC<SaveLoadButtonProps> = ({ refetch }) => {
 }
 
 export const Inspector: React.FC<InspectorProps> = ({ refetch, children }) => {
+  const theme = useTheme()
+
   return (
     <Panel
       elevation={1}
       style={{
         width: 300,
-        gap: 10,
+        gap: theme.spacing(2),
       }}
     >
       <SaveLoadButtons refetch={refetch} />

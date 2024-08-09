@@ -12,6 +12,8 @@ const colorNames = [
   'panel',
 ] as const
 export type ColorName = (typeof colorNames)[number]
+
+// TODO: See about adding as much of this as possible to the theme
 export const colorConfig: Record<
   ColorName,
   {

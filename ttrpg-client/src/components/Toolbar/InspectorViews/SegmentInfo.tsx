@@ -1,5 +1,6 @@
 import React, { CSSProperties, useEffect } from 'react'
 import { useFormik, FormikProps } from 'formik'
+import { TextField } from '@mui/material'
 
 import { MapSegment } from 'types/mapSegments'
 
@@ -82,14 +83,17 @@ const WaterDepthField: React.FC<WaterDepthFieldProps> = ({
   formik,
   isStatic,
 }) => {
+  const labelText = 'Water Depth'
+
   return (
     <div>
-      Water Depth:{' '}
       {!isStatic && (
-        <input
-          type="text"
+        <TextField
+          type="number"
+          variant="outlined"
           placeholder="0.00"
           name="waterDepth"
+          label={labelText}
           value={formik.values.waterDepth ?? 'N/A'}
           onChange={(event) => {
             formik.handleChange(event)
@@ -103,7 +107,14 @@ const WaterDepthField: React.FC<WaterDepthFieldProps> = ({
           }}
         />
       )}
-      {isStatic && <div>{formik.values.waterDepth ?? 'N/A'}</div>}
+      {isStatic && (
+        <div>
+          {labelText}:{' '}
+          {formik.values.waterDepth.length > 0
+            ? formik.values.waterDepth
+            : 'N/A'}
+        </div>
+      )}
     </div>
   )
 }
