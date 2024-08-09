@@ -43,6 +43,27 @@ export const useBrushTool = ({
     if (coordinate) {
       if (event.buttons === 0) {
         setLastPaintedSegmentCoordinateString(null)
+        if (event.type === 'click') {
+          // TODO: Add brush size to this
+          // Draw the segment at the current coordinate
+          setInterimCoordinateStrings((prev) => {
+            const updatedCoordinateStrings = [
+              ...prev,
+              coordinatesToCoordinateString(coordinate),
+            ]
+            setDrawableSegments((prev) => {
+              return {
+                ...prev,
+                ...addSelectedDrawableSegments(
+                  updatedCoordinateStrings.map(
+                    (coord) => segments[coord] as MapSegment,
+                  ),
+                ),
+              }
+            })
+            return updatedCoordinateStrings
+          })
+        }
       } else if (event.buttons === 1) {
         // TODO: Make this more sophisticated by drawing a theoretical curve between the last 2 points and the current one,
         // and then finding the segments that lie closest to the intersection with that curve between the last point and the current one

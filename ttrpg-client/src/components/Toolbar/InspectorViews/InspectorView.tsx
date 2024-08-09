@@ -1,30 +1,18 @@
-import { isSelectedSegmentInspectorProps } from 'utils/InspectorViews/selectedSegmentInspector'
 import { useToolContext } from 'hooks/useToolContext'
 
-import {
-  SelectedSegmentInspectorProps,
-  SelectedSegmentInspector,
-} from './SelectedSegmentInspector'
+import { SelectedSegmentInspector } from './SelectedSegmentInspector'
 import { BrushSettingsInspector } from './BrushSettingsInspector'
+import { EyeDropperInspector } from './EyeDropperInspector'
 
-type SomeOtherViewProps = {
-  test: string
-}
-
-interface InspectorViewProps {
-  props: SelectedSegmentInspectorProps | SomeOtherViewProps
-}
-
-export const InspectorView: React.FC<InspectorViewProps> = ({ props }) => {
+export const InspectorView: React.FC = () => {
   const { selectedTool } = useToolContext()
 
   if (selectedTool === 'pointer') {
-    if (isSelectedSegmentInspectorProps(props)) {
-      const { updateSegment } = props
-      return <SelectedSegmentInspector updateSegment={updateSegment} />
-    }
+    return <SelectedSegmentInspector />
   } else if (selectedTool === 'brush') {
     return <BrushSettingsInspector />
+  } else if (selectedTool === 'eyedropper') {
+    return <EyeDropperInspector />
   }
   return (
     <div>

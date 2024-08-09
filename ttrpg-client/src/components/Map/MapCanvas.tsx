@@ -6,6 +6,7 @@ import { getRectRGBString, resetSelectedSegments } from 'utils/canvas'
 import { useMapContext } from 'hooks/useMapContext'
 import { usePointerTool } from 'hooks/usePointerTool'
 import { useBrushTool } from 'hooks/useBrushTool'
+import { useEyeDropperTool } from 'hooks/useEyeDropperTool'
 import { useToolContext } from 'hooks/useToolContext'
 
 // TODO: Make this configurable in the UI
@@ -59,6 +60,10 @@ export const MapCanvas: React.FC = () => {
     dimensions,
     canvasRef,
     setDrawableSegments,
+  })
+  const { handleEyeDropperTool } = useEyeDropperTool({
+    dimensions,
+    canvasRef,
   })
 
   useEffect(() => {
@@ -130,6 +135,10 @@ export const MapCanvas: React.FC = () => {
       onClick={(event) => {
         if (selectedTool === 'pointer') {
           handlePointerTool(event)
+        } else if (selectedTool === 'brush') {
+          handleBrushTool(event)
+        } else if (selectedTool === 'eyedropper') {
+          handleEyeDropperTool(event)
         }
       }}
       onMouseMove={(event) => {

@@ -1,9 +1,10 @@
 import React, { createContext, useState } from 'react'
 
-import { MapMeta, MapSegmentDictionary } from 'types/mapSegments'
+import { MapMeta, MapSegment, MapSegmentDictionary } from 'types/mapSegments'
 import { TwoDimensionalCoordinatesString } from 'types/coordinates'
 
 type MapContextType = {
+  inspectedSegment: MapSegment | null
   destinationCoordinateString: TwoDimensionalCoordinatesString | null
   interimCoordinateStrings: TwoDimensionalCoordinatesString[]
   meta: MapMeta
@@ -18,6 +19,7 @@ type MapContextType = {
   setOriginCoordinateString: React.Dispatch<
     React.SetStateAction<TwoDimensionalCoordinatesString | null>
   >
+  setInspectedSegment: React.Dispatch<React.SetStateAction<MapSegment | null>>
 }
 
 export const MapContext = createContext<MapContextType | undefined>(undefined)
@@ -33,6 +35,9 @@ export const MapProvider: React.FC<MapProviderProps> = ({
   segments,
   children,
 }) => {
+  const [inspectedSegment, setInspectedSegment] = useState<MapSegment | null>(
+    null,
+  )
   const [originCoordinateString, setOriginCoordinateString] =
     useState<TwoDimensionalCoordinatesString | null>(null)
   const [destinationCoordinateString, setDestinationCoordinateString] =
@@ -43,11 +48,13 @@ export const MapProvider: React.FC<MapProviderProps> = ({
 
   const value = {
     destinationCoordinateString,
+    inspectedSegment,
     interimCoordinateStrings,
     meta,
-    segments,
     originCoordinateString,
+    segments,
     setDestinationCoordinateString,
+    setInspectedSegment,
     setInterimCoordinateStrings,
     setOriginCoordinateString,
   }

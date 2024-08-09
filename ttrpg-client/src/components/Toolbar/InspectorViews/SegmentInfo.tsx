@@ -1,25 +1,28 @@
 import React, { CSSProperties, useEffect } from 'react'
-import { useFormik } from 'formik'
+import { useFormik, FormikProps } from 'formik'
 
 import { MapSegment } from 'types/mapSegments'
-import { Button } from 'components/Layout'
 
-const getValues = (segment: MapSegment | null) => {
+interface FormValues {
+  waterDepth: string
+}
+
+const getValues = (segment: MapSegment | null): FormValues => {
   return {
     waterDepth: segment?.waterDepth.toString() ?? '',
   }
 }
 
-export const SelectedSegmentInfo: React.FC<{
+export const SegmentInfo: React.FC<{
   title: string
   segment: MapSegment | null
-  updateSegment: (segment: MapSegment) => void
+  updateSegment?: (segment: MapSegment) => void
 }> = ({ title, segment, updateSegment }) => {
-  const formik = useFormik({
+  const formik = useFormik<FormValues>({
     initialValues: getValues(segment),
     enableReinitialize: true,
     onSubmit: (values) => {
-      if (segment) {
+      if (segment && updateSegment) {
         updateSegment({
           ...segment,
           waterDepth: parseFloat(values.waterDepth),
@@ -52,18 +55,43 @@ export const SelectedSegmentInfo: React.FC<{
     <form style={style} onSubmit={formik.handleSubmit}>
       <div>{title}</div>
       <div>{coordinateInfoString}</div>
-      <div>
-        Water Depth:{' '}
+      <WaterDepthField formik={formik} isStatic={!updateSegment} />
+      <div>Terrain: {segment?.terrain ?? 'N/A'}</div>
+    </form>
+  )
+}
+
+interface WaterDepthFieldProps {
+  formik: FormikProps<FormValues>
+  isStatic?: boolean
+}
+
+const WaterDepthField: React.FC<WaterDepthFieldProps> = ({
+  formik,
+  isStatic,
+}) => {
+  return (
+    <div>
+      Water Depth:{' '}
+      {!isStatic && (
         <input
           type="text"
           placeholder="0.00"
           name="waterDepth"
           value={formik.values.waterDepth ?? 'N/A'}
-          onChange={formik.handleChange}
+          onChange={(event) => {
+            formik.handleChange(event)
+            const parsedValue = parseFloat(event.target.value)
+            if (
+              !isNaN(parsedValue) &&
+              event.target.value === parsedValue.toString()
+            ) {
+              formik.handleSubmit()
+            }
+          }}
         />
-      </div>
-      <div>Terrain: {segment?.terrain ?? 'N/A'}</div>
-      <Button type="submit">Update</Button>
-    </form>
+      )}
+      {isStatic && <div>{formik.values.waterDepth ?? 'N/A'}</div>}
+    </div>
   )
 }
