@@ -23,7 +23,8 @@ export const useBrushTool = ({
   canvasRef: React.RefObject<HTMLCanvasElement>
   dimensions: { width: number; height: number }
 }) => {
-  const { segments, inspectedSegment, setSegments } = useMapContext()
+  const { segments, inspectedSegment, setSegments, setDrawableSegments } =
+    useMapContext()
   const { brushSettings } = useToolContext()
 
   const [
@@ -41,19 +42,26 @@ export const useBrushTool = ({
           // TODO: Add brush size to this
           // Draw the segment at the current coordinate
           if (inspectedSegment) {
+            const newSegments = addDrawableSegments([
+              {
+                ...segments[coordinatesToCoordinateString(coordinate)],
+                ...inspectedSegment,
+                coordinates: {
+                  ...inspectedSegment.coordinates,
+                  ...coordinate,
+                },
+              },
+            ])
             setSegments((prev) => {
               return {
                 ...prev,
-                ...addDrawableSegments([
-                  {
-                    ...segments[coordinatesToCoordinateString(coordinate)],
-                    ...inspectedSegment,
-                    coordinates: {
-                      ...inspectedSegment.coordinates,
-                      ...coordinate,
-                    },
-                  },
-                ]),
+                ...newSegments,
+              }
+            })
+            setDrawableSegments((prev) => {
+              return {
+                ...prev,
+                ...newSegments,
               }
             })
           }
@@ -106,21 +114,28 @@ export const useBrushTool = ({
             }, new Set<TwoDimensionalCoordinatesString>()),
           ]
           // TODO: When setting drawable segments, only set the segments that are actually new
+          const newSegments = addDrawableSegments(
+            newCoordinateStrings.map((coord) => {
+              return {
+                ...segments[coord],
+                ...inspectedSegment,
+                coordinates: {
+                  ...inspectedSegment.coordinates,
+                  ...coordinateStringToCoordinates(coord),
+                },
+              }
+            }),
+          )
           setSegments((prev) => {
             return {
               ...prev,
-              ...addDrawableSegments(
-                newCoordinateStrings.map((coord) => {
-                  return {
-                    ...segments[coord],
-                    ...inspectedSegment,
-                    coordinates: {
-                      ...inspectedSegment.coordinates,
-                      ...coordinateStringToCoordinates(coord),
-                    },
-                  }
-                }),
-              ),
+              ...newSegments,
+            }
+          })
+          setDrawableSegments((prev) => {
+            return {
+              ...prev,
+              ...newSegments,
             }
           })
         }
