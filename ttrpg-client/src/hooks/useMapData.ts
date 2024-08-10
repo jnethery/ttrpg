@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 
 import { MapMeta, MapSegmentDictionary, MapDataSchema } from 'types/mapSegments'
 import { DrawableMapSegmentDictionary } from 'types/drawableMapSegments'
@@ -12,6 +12,8 @@ interface UseMapDataProps {
 
 export const useMapData = ({ context }: UseMapDataProps) => {
   const [meta, setMeta] = useState<MapMeta | null>(null)
+  const prevMeta = useRef<MapMeta | null>(null)
+
   const [segments, setSegments] = useState<MapSegmentDictionary | null>(null)
   // TODO: Add multiple copies of drawableSegments to allow for undo/redo
   const [drawableSegments, setDrawableSegments] =
@@ -51,6 +53,32 @@ export const useMapData = ({ context }: UseMapDataProps) => {
   useEffect(() => {
     fetchData()
   }, [fetchData])
+
+  useEffect(() => {
+    if (
+      meta &&
+      segments &&
+      prevMeta.current &&
+      JSON.stringify(prevMeta.current) !== JSON.stringify(meta)
+    ) {
+      // TODO: If the meta dimensions are greater than the previous dimensions, add new default segments
+
+      // Redraw all segments when the meta changes
+      const newDrawableSegments = Object.entries(segments).reduce(
+        (acc, [key, segment]) => {
+          const coordinateString = key as TwoDimensionalCoordinatesString
+          acc[coordinateString] = {
+            ...segment,
+            dirty: true,
+          }
+          return acc
+        },
+        {} as DrawableMapSegmentDictionary,
+      )
+      setDrawableSegments(newDrawableSegments)
+    }
+    prevMeta.current = meta
+  }, [meta, segments, setDrawableSegments])
 
   return {
     meta,

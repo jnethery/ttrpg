@@ -14,6 +14,7 @@ import { ToolProvider } from 'providers/ToolProvider'
 
 export function MapContent({
   meta,
+  setMeta,
   segments,
   drawableSegments,
   setSegments,
@@ -21,6 +22,7 @@ export function MapContent({
   refetch,
 }: {
   meta: MapMeta
+  setMeta: React.Dispatch<React.SetStateAction<MapMeta | null>>
   segments: MapSegmentDictionary
   drawableSegments: MapSegmentDictionary | null
   setSegments: React.Dispatch<React.SetStateAction<MapSegmentDictionary | null>>
@@ -38,6 +40,7 @@ export function MapContent({
   return (
     <MapProvider
       meta={meta}
+      setMeta={setMeta}
       refetch={refetch}
       segments={segments}
       drawableSegments={drawableSegments}

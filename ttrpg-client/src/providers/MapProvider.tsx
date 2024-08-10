@@ -9,6 +9,7 @@ type MapContextType = {
   destinationCoordinateString: TwoDimensionalCoordinatesString | null
   interimCoordinateStrings: TwoDimensionalCoordinatesString[]
   meta: MapMeta
+  setMeta: React.Dispatch<React.SetStateAction<MapMeta | null>>
   refetch: () => void
   segments: MapSegmentDictionary
   drawableSegments: DrawableMapSegmentDictionary | null
@@ -33,6 +34,7 @@ export const MapContext = createContext<MapContextType | undefined>(undefined)
 
 interface MapProviderProps {
   meta: MapMeta
+  setMeta: React.Dispatch<React.SetStateAction<MapMeta | null>>
   refetch: () => void
   segments: MapSegmentDictionary
   drawableSegments: DrawableMapSegmentDictionary | null
@@ -45,6 +47,7 @@ interface MapProviderProps {
 
 export const MapProvider: React.FC<MapProviderProps> = ({
   meta,
+  setMeta,
   refetch,
   segments,
   drawableSegments,
@@ -69,6 +72,7 @@ export const MapProvider: React.FC<MapProviderProps> = ({
     inspectedSegment,
     interimCoordinateStrings,
     meta,
+    setMeta,
     originCoordinateString,
     refetch,
     segments,

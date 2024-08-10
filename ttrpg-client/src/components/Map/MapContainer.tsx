@@ -14,6 +14,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({ context }) => {
     drawableSegments,
     setDrawableSegments,
     meta,
+    setMeta,
     refetch,
     error,
   } = useMapData({
@@ -31,6 +32,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({ context }) => {
   return (
     <MapContent
       meta={meta}
+      setMeta={setMeta}
       segments={segments}
       drawableSegments={drawableSegments}
       setSegments={setSegments}
