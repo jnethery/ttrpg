@@ -61,10 +61,22 @@ export const useMapData = ({ context }: UseMapDataProps) => {
       prevMeta.current &&
       JSON.stringify(prevMeta.current) !== JSON.stringify(meta)
     ) {
-      // TODO: If the meta dimensions are greater than the previous dimensions, add new default segments
+      const expandedSegments = getExpandedSegments({
+        width: meta.width,
+        length: meta.length,
+        gridIncrements: meta.gridIncrements,
+        segments,
+      })
+
+      if (
+        Object.keys(expandedSegments).length !== Object.keys(segments).length
+      ) {
+        console.log({ expandedSegments })
+        setSegments(expandedSegments)
+      }
 
       // Redraw all segments when the meta changes
-      const newDrawableSegments = Object.entries(segments).reduce(
+      const newDrawableSegments = Object.entries(expandedSegments).reduce(
         (acc, [key, segment]) => {
           const coordinateString = key as TwoDimensionalCoordinatesString
           acc[coordinateString] = {
@@ -90,4 +102,31 @@ export const useMapData = ({ context }: UseMapDataProps) => {
     error,
     refetch: fetchData,
   }
+}
+
+const getExpandedSegments = ({
+  width,
+  length,
+  gridIncrements,
+  segments,
+}: {
+  width: number
+  length: number
+  gridIncrements: number
+  segments: MapSegmentDictionary
+}) => {
+  const expandedSegments = { ...segments }
+  for (let x = 0; x < width * gridIncrements; x++) {
+    for (let y = 0; y < length * gridIncrements; y++) {
+      const coordinateString = `${x},${y}` as TwoDimensionalCoordinatesString
+      if (!expandedSegments[coordinateString]) {
+        expandedSegments[coordinateString] = {
+          coordinates: { x, y, z: 0 },
+          terrain: 'grass',
+          waterDepth: 0,
+        }
+      }
+    }
+  }
+  return expandedSegments
 }
