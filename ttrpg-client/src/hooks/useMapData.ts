@@ -10,8 +10,20 @@ interface UseMapDataProps {
   context: MapContext
 }
 
+const defaultMeta: MapMeta = {
+  localMinHeight: -1,
+  localMaxHeight: 10,
+  globalMaxHeight: -1,
+  globalMinHeight: 10,
+  width: 3,
+  length: 3,
+  gridIncrements: 10,
+  lateralUnits: 'feet',
+  verticalUnits: 'feet',
+}
+
 export const useMapData = ({ context }: UseMapDataProps) => {
-  const [meta, setMeta] = useState<MapMeta | null>(null)
+  const [meta, setMeta] = useState<MapMeta | null>(defaultMeta)
   const prevMeta = useRef<MapMeta | null>(null)
 
   const [segments, setSegments] = useState<MapSegmentDictionary | null>(null)
@@ -51,27 +63,19 @@ export const useMapData = ({ context }: UseMapDataProps) => {
   }, [context])
 
   useEffect(() => {
-    fetchData()
-  }, [fetchData])
-
-  useEffect(() => {
-    if (
-      meta &&
-      segments &&
-      prevMeta.current &&
-      JSON.stringify(prevMeta.current) !== JSON.stringify(meta)
-    ) {
+    console.log({ meta, prevMeta, segments, drawableSegments })
+    if (meta && JSON.stringify(prevMeta.current) !== JSON.stringify(meta)) {
       const expandedSegments = getExpandedSegments({
         width: meta.width,
         length: meta.length,
         gridIncrements: meta.gridIncrements,
-        segments,
+        segments: segments ?? {},
       })
 
       if (
-        Object.keys(expandedSegments).length !== Object.keys(segments).length
+        Object.keys(expandedSegments).length !==
+        Object.keys(segments ?? {}).length
       ) {
-        console.log({ expandedSegments })
         setSegments(expandedSegments)
       }
 

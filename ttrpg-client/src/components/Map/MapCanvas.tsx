@@ -8,10 +8,10 @@ import { useBrushTool } from 'hooks/useBrushTool'
 import { useEyeDropperTool } from 'hooks/useEyeDropperTool'
 import { useToolContext } from 'hooks/useToolContext'
 
-// TODO: Make this configurable in the UI
+// TODO: Move this to a ViewpointProvider
 const dimensions = {
-  width: 10,
-  height: 10,
+  width: 20,
+  height: 20,
   border: 1,
 }
 
