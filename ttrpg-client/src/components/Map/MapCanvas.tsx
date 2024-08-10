@@ -1,7 +1,6 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useEffect } from 'react'
 
 import { DrawableMapSegmentDictionary } from 'types/drawableMapSegments'
-import { TwoDimensionalCoordinatesString } from 'types/coordinates'
 import { getRectRGBString, resetSelectedSegments } from 'utils/canvas'
 import { useMapContext } from 'hooks/useMapContext'
 import { usePointerTool } from 'hooks/usePointerTool'
@@ -18,14 +17,16 @@ const dimensions = {
 
 export const MapCanvas: React.FC = () => {
   const {
-    meta,
-    segments,
-    originCoordinateString,
-    interimCoordinateStrings,
     destinationCoordinateString,
-    setOriginCoordinateString,
+    interimCoordinateStrings,
+    meta,
+    originCoordinateString,
+    segments,
     setDestinationCoordinateString,
+    drawableSegments,
+    setDrawableSegments,
     setInterimCoordinateStrings,
+    setOriginCoordinateString,
   } = useMapContext()
   const { selectedTool } = useToolContext()
 
@@ -33,10 +34,6 @@ export const MapCanvas: React.FC = () => {
   const canvasWidth = dimensions.width * width * gridIncrements
   const canvasHeight = dimensions.height * length * gridIncrements
   const canvasRef = useRef<HTMLCanvasElement>(null)
-
-  // TODO: Add multiple copies of drawableSegments to allow for undo/redo
-  const [drawableSegments, setDrawableSegments] =
-    useState<DrawableMapSegmentDictionary | null>(null)
 
   useEffect(() => {
     // When the selected tool changes, reset the selected segments
@@ -65,23 +62,6 @@ export const MapCanvas: React.FC = () => {
     dimensions,
     canvasRef,
   })
-
-  // TODO: Figure out a way to only update this when the whole set of segments change
-  useEffect(() => {
-    const newDrawableSegments = Object.entries(segments).reduce(
-      (acc, [key, segment]) => {
-        const coordinateString = key as TwoDimensionalCoordinatesString
-        acc[coordinateString] = {
-          ...segment,
-          dirty: true,
-          selected: drawableSegments?.[coordinateString]?.selected ?? false,
-        }
-        return acc
-      },
-      {} as DrawableMapSegmentDictionary,
-    )
-    setDrawableSegments(newDrawableSegments)
-  }, [segments])
 
   useEffect(() => {
     if (canvasRef.current) {

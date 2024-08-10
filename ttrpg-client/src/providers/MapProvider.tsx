@@ -1,6 +1,7 @@
 import React, { createContext, useState } from 'react'
 
 import { MapMeta, MapSegment, MapSegmentDictionary } from 'types/mapSegments'
+import { DrawableMapSegmentDictionary } from 'types/drawableMapSegments'
 import { TwoDimensionalCoordinatesString } from 'types/coordinates'
 
 type MapContextType = {
@@ -10,6 +11,10 @@ type MapContextType = {
   meta: MapMeta
   refetch: () => void
   segments: MapSegmentDictionary
+  drawableSegments: DrawableMapSegmentDictionary | null
+  setDrawableSegments: React.Dispatch<
+    React.SetStateAction<DrawableMapSegmentDictionary | null>
+  >
   setSegments: React.Dispatch<React.SetStateAction<MapSegmentDictionary | null>>
   originCoordinateString: TwoDimensionalCoordinatesString | null
   setDestinationCoordinateString: React.Dispatch<
@@ -30,7 +35,11 @@ interface MapProviderProps {
   meta: MapMeta
   refetch: () => void
   segments: MapSegmentDictionary
+  drawableSegments: DrawableMapSegmentDictionary | null
   setSegments: React.Dispatch<React.SetStateAction<MapSegmentDictionary | null>>
+  setDrawableSegments: React.Dispatch<
+    React.SetStateAction<DrawableMapSegmentDictionary | null>
+  >
   children: React.ReactNode
 }
 
@@ -38,7 +47,9 @@ export const MapProvider: React.FC<MapProviderProps> = ({
   meta,
   refetch,
   segments,
+  drawableSegments,
   setSegments,
+  setDrawableSegments,
   children,
 }) => {
   const [inspectedSegment, setInspectedSegment] = useState<MapSegment | null>(
@@ -53,18 +64,20 @@ export const MapProvider: React.FC<MapProviderProps> = ({
   >([])
 
   const value = {
-    refetch,
     destinationCoordinateString,
+    drawableSegments,
     inspectedSegment,
     interimCoordinateStrings,
     meta,
     originCoordinateString,
-    setSegments,
+    refetch,
     segments,
     setDestinationCoordinateString,
+    setDrawableSegments,
     setInspectedSegment,
     setInterimCoordinateStrings,
     setOriginCoordinateString,
+    setSegments,
   }
 
   return <MapContext.Provider value={value}>{children}</MapContext.Provider>
