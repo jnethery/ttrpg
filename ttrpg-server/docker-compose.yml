@@ -17,8 +17,9 @@ services:
     ports:
       - '${DB_EXTERNAL_PORT}:${DB_PORT}'
     volumes:
-      - data:/data/db
+      - data:/var/lib/postgresql/data
     environment:
+      - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
 
