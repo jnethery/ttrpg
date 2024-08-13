@@ -4,12 +4,31 @@ import {
   createCharacter as create,
   updateCharacter as update,
 } from 'models/characters'
-import { Character, HydratedCharacter } from 'types/characters'
+import {
+  Character,
+  HydratedCharacter,
+  CHARACTER_TEMPLATE,
+  DBCharacter,
+} from 'types/characters'
 import { hydrateDBCharacter } from 'utils/characters'
+
+const getTestCharacter = (): HydratedCharacter => {
+  const character: DBCharacter = {
+    ...CHARACTER_TEMPLATE,
+    id: 'test',
+    name: 'Test Character',
+  }
+  return hydrateDBCharacter(character)
+}
 
 export const getCharacter = async (
   id: string,
 ): Promise<HydratedCharacter | null> => {
+  // Testing for rapid iteration
+  if (id === 'test') {
+    return getTestCharacter()
+  }
+
   const character = await get(id)
   if (!character) {
     return null
