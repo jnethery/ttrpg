@@ -10,6 +10,9 @@ export const CreateCharacterSchema = z.object({
     .max(50, 'Name must be less than 50 characters'),
   level: z.number().int().min(1).max(20),
   race: z.enum(races),
+  hitPoints: z.number().int().min(0),
+  tempHitPoints: z.number().int().min(0),
+  maxHitPoints: z.number().int().min(0),
   strength: AbilityScoreSchema,
   dexterity: AbilityScoreSchema,
   constitution: AbilityScoreSchema,
@@ -22,8 +25,11 @@ export const UpdateCharacterSchema = CreateCharacterSchema.partial()
 
 export type Character = {
   name: string
-  level: number
   race: Race
+  level: number
+  hitPoints: number
+  tempHitPoints: number
+  maxHitPoints: number
   strength: number
   dexterity: number
   constitution: number
@@ -44,6 +50,16 @@ export interface HydratedAbilityScores {
   charismaModded: number
 }
 
+export const HydratedCharacterSchema = CreateCharacterSchema.extend({
+  id: z.string(),
+  strengthModded: z.number(),
+  dexterityModded: z.number(),
+  constitutionModded: z.number(),
+  intelligenceModded: z.number(),
+  wisdomModded: z.number(),
+  charismaModded: z.number(),
+})
+
 export type HydratedCharacter = DBCharacter & HydratedAbilityScores
 
 const baseAbilityScores = abilities.reduce(
@@ -57,5 +73,8 @@ export const CHARACTER_TEMPLATE: Character = {
   name: '',
   race: 'human',
   level: 1,
+  hitPoints: 10,
+  maxHitPoints: 10,
+  tempHitPoints: 0,
   ...baseAbilityScores,
 }

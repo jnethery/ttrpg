@@ -28,6 +28,7 @@ export const hydrateDBCharacter = (
 ): HydratedCharacter => {
   return {
     ...character,
+    id: character.id.toString(),
     ...hydrateAbilityScores(character),
   }
 }
