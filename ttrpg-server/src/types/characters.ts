@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { Ability, abilities, AbilityScoresSchema } from 'types/abilities'
+import { Ability, abilities, AbilityScoreSchema } from 'types/abilities'
 import { races, Race } from 'types/races'
 
 export const CreateCharacterSchema = z.object({
@@ -10,12 +10,12 @@ export const CreateCharacterSchema = z.object({
     .max(50, 'Name must be less than 50 characters'),
   level: z.number().int().min(1).max(20),
   race: z.enum(races),
-  strength: z.number().int().min(1).max(20),
-  dexterity: z.number().int().min(1).max(20),
-  constitution: z.number().int().min(1).max(20),
-  intelligence: z.number().int().min(1).max(20),
-  wisdom: z.number().int().min(1).max(20),
-  charisma: z.number().int().min(1).max(20),
+  strength: AbilityScoreSchema,
+  dexterity: AbilityScoreSchema,
+  constitution: AbilityScoreSchema,
+  intelligence: AbilityScoreSchema,
+  wisdom: AbilityScoreSchema,
+  charisma: AbilityScoreSchema,
 })
 
 export const UpdateCharacterSchema = CreateCharacterSchema.partial()

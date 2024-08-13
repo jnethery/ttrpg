@@ -11,14 +11,4 @@ export const abilities = [
 export const AbilitySchema = z.enum(abilities)
 export type Ability = z.infer<typeof AbilitySchema>
 
-export const AbilityScoreSchema = z.number().min(1).max(20)
-const AbilityScoresObjectSchema = z.object(
-  abilities.reduce(
-    (acc, ability) => {
-      acc[ability] = AbilityScoreSchema
-      return acc
-    },
-    {} as Record<Ability, z.ZodNumber>,
-  ),
-)
-export const AbilityScoresSchema = AbilityScoresObjectSchema
+export const AbilityScoreSchema = z.number().int().min(1).max(30)
