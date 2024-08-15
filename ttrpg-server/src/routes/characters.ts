@@ -11,6 +11,11 @@ import { validateCharacter } from 'utils/validators'
 
 const router = express.Router()
 
+// TODO: Add the leveling middleware to the character creation endpoint, for level 1.
+// TODO: Add a level up endpoint with leveling middleware that validates the character's experience and updates their level.
+// Will inform the user if they are missing anything.
+// TODO: Remove level from the character creation and update schema and add it to the level up schema.
+
 router.get('/', async (_req: Request, res: Response) => {
   try {
     const characters = await getCharacters()

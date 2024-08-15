@@ -15,7 +15,6 @@ export const useCharacter = ({ id }: UseCharacterProps) => {
       .then((response) => response.json())
       .then((data) => {
         const parsedData = HydratedCharacterSchema.parse(data)
-        console.log({ parsedData })
         setCharacter(parsedData)
       })
       .catch((error) => {
@@ -30,6 +29,7 @@ export const useCharacter = ({ id }: UseCharacterProps) => {
 
   return {
     character,
+    setCharacter,
     error,
     refetch: fetchData,
   }
