@@ -41,8 +41,6 @@ export const getBaseLanguages = (race: Race): Language[] => {
       return ['common', 'infernal']
     case 'halfling':
       return ['common', 'halfling']
-    case 'human':
-      return ['common']
     case 'gnome':
       return ['common', 'gnomish']
     case 'dragonborn':
