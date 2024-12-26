@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Typography } from '@mui/material'
 
 import { Character } from 'types/characters'
 import { Panel, Button } from 'components/Layout'
 import { useCharacter } from 'hooks/useCharacter'
+import { getCanvasCoordinate } from 'utils/canvas'
 
 const getRollResults = (numRolls: number, denominator: number) => {
   return Array.from(
@@ -61,14 +62,6 @@ const woundAreas = [
 
 const getWoundLevel = (damage: number, maxHitPoints: number) => {
   const percentDamage = (damage / maxHitPoints) * 100
-  console.log({
-    woundLevels: Object.entries(woundLevels).sort(
-      ([thresholdA], [thresholdB]) => {
-        return Number(thresholdA) - Number(thresholdB)
-      },
-    ),
-  })
-
   const woundLevel = Object.entries(woundLevels)
     .sort(([thresholdA], [thresholdB]) => {
       return Number(thresholdB) - Number(thresholdA)
@@ -91,15 +84,128 @@ const getWoundLevel = (damage: number, maxHitPoints: number) => {
   return null
 }
 
+interface Token {
+  id: string
+  name: string
+  x: number
+  y: number
+  z: number
+  radius: number
+  baseColor: string
+}
+
+const width = 1000
+const height = 1000
+
 export const Lab = () => {
   // TODO: Move this id to a query param
   const { character, setCharacter } = useCharacter({ id: '1' })
+  const [tokenDictionary, setTokenDictionary] = useState<Record<string, Token>>(
+    {},
+  )
+  const [selectedTokenId, setSelectedTokenId] = useState<string | null>(null)
   const [numRolls, setNumRolls] = useState(1)
   const [attackRoll, setAttackRoll] = useState<number | null>(0)
   const [wounds, setWounds] = useState<string[]>([])
   const [rollResult, setRollResult] = useState<string>('')
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   if (character) {
     character.ac = 14
+  }
+
+  useEffect(() => {
+    setTokenDictionary({
+      1: {
+        id: '1',
+        name: 'Player',
+        x: 50,
+        y: 50,
+        z: 0, // Used for dragging tokens on top of each other
+        radius: 50,
+        baseColor: 'blue',
+      },
+      2: {
+        id: '2',
+        name: 'Player',
+        x: 200,
+        y: 200,
+        z: 0,
+        radius: 50,
+        baseColor: 'red',
+      },
+    })
+  }, [setTokenDictionary])
+
+  useEffect(() => {
+    if (canvasRef.current) {
+      const canvas = canvasRef.current
+      const ctx = canvas.getContext('2d')
+      if (ctx) {
+        ctx.fillStyle = 'white'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+        if (tokenDictionary) {
+          Object.values<Token>(tokenDictionary).forEach((token: Token) => {
+            ctx.beginPath()
+            ctx.fillStyle = token.baseColor
+            ctx.arc(token.x, token.y, token.radius, 0, Math.PI * 2)
+            ctx.fill()
+          })
+        }
+      }
+    }
+  }, [tokenDictionary])
+
+  const handleMouseMove = (
+    event: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
+  ) => {
+    if (canvasRef.current && selectedTokenId) {
+      const coordinate = getCanvasCoordinate(event, canvasRef, {
+        width: 1,
+        height: 1,
+      })
+      if (coordinate) {
+        const selectedToken = tokenDictionary[selectedTokenId]
+        if (selectedToken) {
+          setTokenDictionary({
+            ...tokenDictionary,
+            [selectedTokenId]: {
+              ...selectedToken,
+              x: coordinate.x,
+              y: coordinate.y,
+            },
+          })
+        }
+      }
+    }
+  }
+
+  const handleMouseDown = (
+    event: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
+  ) => {
+    if (canvasRef.current) {
+      const coordinate = getCanvasCoordinate(event, canvasRef, {
+        width: 1,
+        height: 1,
+      })
+      if (coordinate) {
+        const clickedToken = Object.values(tokenDictionary).find((token) => {
+          // The coordinate is within the circle defined by the token's x, y, and radius
+          return (
+            Math.sqrt(
+              (coordinate.x - token.x) ** 2 + (coordinate.y - token.y) ** 2,
+            ) <= token.radius
+          )
+        })
+        if (clickedToken) {
+          setSelectedTokenId(clickedToken.id)
+        }
+      }
+    }
+  }
+
+  const handleMouseUp = () => {
+    setSelectedTokenId(null)
   }
 
   return (
@@ -140,6 +246,15 @@ export const Lab = () => {
           Wounds: {JSON.stringify(wounds)}
         </Typography>
       </Panel>
+      <Typography variant="h2">Battle Grid</Typography>
+      <canvas
+        onMouseDown={(event) => handleMouseDown(event)}
+        onMouseUp={handleMouseUp}
+        onMouseMove={(event) => handleMouseMove(event)}
+        ref={canvasRef}
+        width={width}
+        height={height}
+      ></canvas>
     </Panel>
   )
 }

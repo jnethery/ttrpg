@@ -27,6 +27,7 @@ export const getCanvasCoordinate = (
     const rect = canvas.getBoundingClientRect()
     const x = event.clientX - rect.left
     const y = event.clientY - rect.top
+    console.log({ x, y })
     return {
       x: Math.floor(x / dimensions.width),
       y: Math.floor(y / dimensions.height),
