@@ -7,9 +7,16 @@
 
 import { RandomListItem } from 'types/lists'
 
-type FactionName = 'ratfolk' | 'predator' | 'prey'
+type FactionName = 'ratfolk' | 'predator' | 'prey' | 'party'
+// TODO: Get these values from the database
+interface FactionProps {
+  strength: number
+  reputation: Record<FactionName, number>
+  predisposition: number
+}
 interface RandomFactionListItem extends RandomListItem {
   value: FactionName
+  props: FactionProps
 }
 type RandomFactionList = RandomFactionListItem[]
 
@@ -17,38 +24,43 @@ export const faction: RandomFactionList = [
   {
     value: 'ratfolk',
     probability: (context) => (context?.area === 'swamp' ? 1 : 0),
+    props: {
+      strength: 4,
+      reputation: {
+        ratfolk: 0, // N/A
+        party: -20,
+        predator: -40,
+        prey: 0,
+      },
+      predisposition: 0,
+    },
   },
   {
     value: 'predator',
     probability: 1,
+    props: {
+      strength: 9,
+      reputation: {
+        predator: 0, // N/A
+        ratfolk: -40,
+        party: -30,
+        prey: -40,
+      },
+      predisposition: -10,
+    },
   },
   {
     value: 'prey',
     probability: 1,
+    props: {
+      strength: 9,
+      reputation: {
+        prey: 0, // N/A
+        ratfolk: -10,
+        party: -20,
+        predator: -40,
+      },
+      predisposition: -10,
+    },
   },
 ]
-
-// TODO: Re-implement faction reputation and predisposition
-/*faction
-  ratfolk ^[area == "swamp"]
-    str = 4 // Strength, how robust their forces are. range {0, 10}
-    rep // Reputation, the relationship they have with the target. range {-50, 50}
-      party = -20
-      predator = -40
-      prey = 0
-    pred = 0 // Predisposition, how predisposed they are towards a sentiment. range {-50, 50}
-  predator
-    str = 9
-    rep
-      party = -30
-      ratfolk = -40
-      prey = -40
-    pred = -10
-  prey
-    str = 9
-    rep
-      party = -20
-      ratfolk = -10
-      predator = -40
-    pred = -10
-*/

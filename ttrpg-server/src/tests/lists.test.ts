@@ -1,4 +1,4 @@
-import { evaluateList } from 'lib/lists/evaluate'
+import { evaluateList, evaluateItem } from 'lib/lists/evaluate'
 import { RandomList } from 'types/lists'
 
 const iterations = 10000
@@ -18,7 +18,8 @@ const testListProbability = (
 
   // Run the evaluation multiple times
   for (let i = 0; i < iterations; i++) {
-    const value = evaluateList([...testList], context) as string
+    const item = evaluateList([...testList], context)
+    const value = evaluateItem(item!)
     counts[value]++
   }
 

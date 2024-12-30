@@ -26,12 +26,13 @@ const evaluate = (item: string) => {
   return evaluatedItem
 }
 
-export const evaluateListFromKey = (key: ConfigKey = DEFAULT_KEY) => {
+export const evaluateListFromKey = (key: ConfigKey = DEFAULT_KEY): string => {
   // Select a random item from the list corresponding to the DEFAULT_KEY.
-  return evaluateList([...config[key]])
+  const item = evaluateList([...config[key]])
+  return item ? evaluateItem(item) : ''
 }
 
-const evaluateItem = (item: RandomListItem, context?: any) => {
+export const evaluateItem = (item: RandomListItem, context?: any) => {
   const value =
     typeof item.value === 'string' ? item.value : item.value(context)
   return evaluate(value)
@@ -63,7 +64,10 @@ const normalizeListProbabilities = (list: RandomList, context?: any) => {
   })
 }
 
-export const evaluateList = (list: RandomList, context?: any): string => {
+export const evaluateList = (
+  list: RandomList,
+  context?: any,
+): RandomListItem | null => {
   const randNum = Math.random()
   let cumulative = 0
   const normalizedList = normalizeListProbabilities(list, context)
@@ -81,8 +85,8 @@ export const evaluateList = (list: RandomList, context?: any): string => {
       cumulative += item.probability
     }
     if (randNum <= cumulative) {
-      return evaluateItem(item)
+      return item
     }
   }
-  return ''
+  return null
 }
