@@ -1,4 +1,11 @@
+import { config } from 'lib/lists'
+import { isFactionName } from 'lib/lists/arrays/faction'
 import { getDC } from 'lib/lists/dc'
+import {
+  getListItemFromKey,
+  getListItem,
+  evaluateItem,
+} from 'lib/lists/evaluate'
 
 /*
 generateTracks() =>
@@ -26,7 +33,25 @@ generateTracks() =>
 
 export const generateTracks = (): string => {
   // TODO: Plug in the creatures
-  const creature = '[faction]'
+  const defaultString = 'old, unidentifiable'
+
+  let creature = defaultString
+  const faction = getListItemFromKey('faction')
+  if (faction && typeof faction.value === 'string') {
+    const factionName = faction.value
+    console.log({ factionName, isFactionName: isFactionName(factionName) })
+    if (isFactionName(factionName)) {
+      // Construct a list of creatures to choose from based on the faction
+      const creatures = config.creature.filter((creature) =>
+        creature.props.factions.includes(factionName),
+      )
+      const creatureItem = getListItem(creatures)
+      if (creatureItem) {
+        creature = evaluateItem(creatureItem)
+      }
+    }
+  }
+
   const trackString = `
     you find:
     <ul>

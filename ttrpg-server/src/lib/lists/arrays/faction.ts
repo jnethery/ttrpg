@@ -7,7 +7,10 @@
 
 import { RandomListItem } from 'types/lists'
 
-export type FactionName = 'ratfolk' | 'predator' | 'prey' | 'party'
+const factions = ['ratfolk', 'predator', 'prey', 'party']
+export type FactionName = (typeof factions)[number]
+export const isFactionName = (value: string): value is FactionName =>
+  factions.includes(value as FactionName)
 // TODO: Get these values from the database
 interface FactionProps {
   strength: number

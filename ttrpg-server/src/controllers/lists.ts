@@ -1,7 +1,8 @@
-import { evaluateListFromKey } from 'lib/lists/evaluate'
+import { getListItemFromKey, evaluateItem } from 'lib/lists/evaluate'
 
-export const generateOutput = () => {
-  return evaluateListFromKey()
+export const generateOutput = (): string => {
+  const item = getListItemFromKey()
+  return item ? evaluateItem(item) : ''
 }
 
 // Need to convert all this garbage to TS somehow
