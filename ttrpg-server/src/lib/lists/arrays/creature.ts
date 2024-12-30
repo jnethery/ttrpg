@@ -1,17 +1,183 @@
+import { FactionName } from 'lib/lists/arrays/faction'
+import { RandomListItem } from 'types/lists'
+
+type CreatureTag = 'swarm'
+interface CreatureProps {
+  max?: number
+  xp: number
+  factions: FactionName[]
+  tags?: CreatureTag[]
+}
+interface RandomCreatureListItem extends RandomListItem {
+  props: CreatureProps
+}
+type RandomCreatureList = RandomCreatureListItem[]
+
+export const creature: RandomCreatureList = [
+  // Ratfolk
+  {
+    value: 'freak',
+    probability: 1,
+    props: {
+      xp: 1100,
+      factions: ['ratfolk'],
+    },
+  },
+  {
+    value: 'inventor',
+    probability: 2,
+    props: {
+      xp: 100,
+      factions: ['ratfolk'],
+    },
+  },
+  {
+    value: 'scavenger',
+    probability: 5,
+    props: {
+      xp: 50,
+      factions: ['ratfolk'],
+    },
+  },
+  {
+    value: 'captain',
+    probability: 1,
+    props: {
+      max: 1,
+      xp: 200,
+      factions: ['ratfolk'],
+    },
+  },
+  // Predators
+  {
+    value: 'giant crocodile',
+    probability: (context) => (context?.area === 'swamp' ? 1 : 0),
+    props: {
+      xp: 1800,
+      factions: ['predator'],
+    },
+  },
+  {
+    value: 'swarm of poisonous snakes',
+    probability: (context) => (context?.area === 'swamp' ? 1 : 0),
+    props: {
+      xp: 450,
+      factions: ['predator'],
+      tags: ['swarm'],
+    },
+  },
+  {
+    value: 'giant constrictor snake',
+    probability: (context) => (context?.area === 'swamp' ? 1 : 0),
+    props: {
+      xp: 450,
+      factions: ['predator'],
+    },
+  },
+  // TODO: Finish this list
+  // Prey
+  {
+    value: 'bat',
+    probability: 1,
+    props: {
+      xp: 10,
+      factions: ['prey'],
+    },
+  },
+  {
+    value: 'frog',
+    probability: 1,
+    props: {
+      xp: 10,
+      factions: ['prey'],
+    },
+  },
+  {
+    value: 'hawk',
+    probability: 1,
+    props: {
+      xp: 10,
+      factions: ['prey'],
+    },
+  },
+  {
+    value: 'lizard',
+    probability: 1,
+    props: {
+      xp: 10,
+      factions: ['prey'],
+    },
+  },
+  {
+    value: 'spider',
+    probability: 1,
+    props: {
+      xp: 10,
+      factions: ['prey'],
+    },
+  },
+  {
+    value: 'weasel',
+    probability: 1,
+    props: {
+      xp: 10,
+      factions: ['prey'],
+    },
+  },
+  {
+    value: 'stirge',
+    probability: (context) => (context?.area === 'swamp' ? 1 : 0),
+    props: {
+      xp: 25,
+      factions: ['prey'],
+    },
+  },
+  {
+    value: 'diseased giant rat',
+    probability: (context) => (context?.area === 'swamp' ? 1 : 0),
+    props: {
+      xp: 25,
+      factions: ['prey'],
+    },
+  },
+  {
+    value: 'poisonous snake',
+    probability: (context) => (context?.area === 'swamp' ? 1 : 0),
+    props: {
+      xp: 25,
+      factions: ['prey'],
+    },
+  },
+  {
+    value: 'giant rat',
+    probability: (context) => (context?.area === 'swamp' ? 1 : 0),
+    props: {
+      xp: 25,
+      factions: ['prey'],
+    },
+  },
+  {
+    value: 'rat',
+    probability: (context) => (context?.area === 'swamp' ? 1 : 0),
+    props: {
+      xp: 10,
+      factions: ['prey'],
+    },
+  },
+  {
+    value: 'raven',
+    probability: (context) => (context?.area === 'swamp' ? 1 : 0),
+    props: {
+      xp: 10,
+      factions: ['prey'],
+    },
+  },
+]
+
 /*
 // Units
 // Might want to move this to its own list
 unit
-  ratfolk
-    freak
-      xp=1100
-    captain
-      max=1
-      xp=200 // CR 1
-    inventor ^2
-      xp=100
-    scavenger ^5
-      xp=50
   predator // Beasts and monsters
     // SWAMP
     giant crocodile ^[area == "swamp"]
@@ -49,48 +215,9 @@ unit
     giant lizard ^[area == "swamp"]
       xp=50
     // CAVE
-  swarm
-    swarm of poisonous snakes ^[area == "swamp"]
-      xp=450
-    swarm of insects ^[area == "swamp"]
-      xp=100
-    swarm of wasps ^[area == "swamp"]
-      xp=100
-    swarm of rot grubs ^[area == "swamp"]
-      xp=100
-    swarm of beetles ^[area == "swamp"]
-      xp=100
-    swarm of centipedes ^[area == "swamp"]
-      xp=100
-    swarm of spiders ^[area == "swamp"]
-      xp=100
   prey // Good/small beasts
     // Mountain Goat -> SHOULD BE MOUNTAIN!
     // Sea horse -> Coastal
     // 
     // Unspecific location
-    bat
-      xp=10
-    frog
-      xp=10
-    hawk
-      xp=10
-    lizard
-      xp=10
-    spider
-      xp=10
-    weasel
-      xp=10
-    stirge ^[area == "swamp"]
-      xp=25
-    diseased giant rat ^[area == "swamp"]
-      xp=25
-    poisonous snake ^[area == "swamp"]
-      xp=25
-    giant rat ^[area == "swamp"]
-      xp=25
-    rat ^[area == "swamp"]
-      xp=10
-    raven ^[area == "swamp"]
-      xp=10
 */

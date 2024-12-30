@@ -7,7 +7,7 @@
 
 import { RandomListItem } from 'types/lists'
 
-type FactionName = 'ratfolk' | 'predator' | 'prey' | 'party'
+export type FactionName = 'ratfolk' | 'predator' | 'prey' | 'party'
 // TODO: Get these values from the database
 interface FactionProps {
   strength: number
