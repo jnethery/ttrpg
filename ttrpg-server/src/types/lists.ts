@@ -1,6 +1,6 @@
 export const DEFAULT_KEY = 'main'
-export type ValueFunction = (context?: object) => string
-export type ProbabilityFunction = (context?: object) => number
+export type ValueFunction = (context?: any) => string
+export type ProbabilityFunction = (context?: any) => number
 export interface RandomListItem {
   value: string | ValueFunction
   probability: number | ProbabilityFunction

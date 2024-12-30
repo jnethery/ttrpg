@@ -26,7 +26,7 @@ generateTracks() =>
 
 export const generateTracks = (): string => {
   // TODO: Plug in the creatures
-  const creature = 'old, unidentifiable'
+  const creature = '[faction]'
   const trackString = `
     you find:
     <ul>

@@ -7,7 +7,7 @@ const testListProbability = (
   testList: RandomList,
   expectedProbabilities: { [key: string]: number },
   tolerance: number,
-  context?: object,
+  context?: any,
 ) => {
   const counts: { [key: string]: number } = {}
 
@@ -72,5 +72,33 @@ describe('testListProbability', () => {
       num1: 9,
       num2: 10,
     })
+  })
+
+  it(`should return "A" ~50% of the time and "B" ~50% of the time when probability is auto-normalized.`, () => {
+    const testList: RandomList = [
+      { value: 'A', probability: 1 },
+      { value: 'B', probability: 1 },
+    ]
+    testListProbability(testList, { A: 0.5, B: 0.5 }, 0.05)
+  })
+
+  it(`should return "A" ~50% of the time and "B" ~50% of the time when probabilities are dynamic.`, () => {
+    const testList: RandomList = [
+      { value: 'A', probability: () => 0.5 },
+      { value: 'B', probability: () => 0.5 },
+    ]
+    testListProbability(testList, { A: 0.5, B: 0.5 }, 0.05)
+  })
+
+  it(`should return "A" ~X% of the time and "B" ~100 - X% of the time when probabilities are dynamic and auto-normalized`, () => {
+    const unnormalizedA = Math.random()
+    const unnormalizedB = Math.random()
+    const testList: RandomList = [
+      { value: 'A', probability: () => unnormalizedA },
+      { value: 'B', probability: () => unnormalizedB },
+    ]
+    const normalizedA = unnormalizedA / (unnormalizedA + unnormalizedB)
+    const normalizedB = unnormalizedB / (unnormalizedA + unnormalizedB)
+    testListProbability(testList, { A: normalizedA, B: normalizedB }, 0.05)
   })
 })

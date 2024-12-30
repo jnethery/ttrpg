@@ -31,27 +31,54 @@ export const evaluateListFromKey = (key: ConfigKey = DEFAULT_KEY) => {
   return evaluateList([...config[key]])
 }
 
-const evaluateItem = (item: RandomListItem, context?: object) => {
+const evaluateItem = (item: RandomListItem, context?: any) => {
   const value =
     typeof item.value === 'string' ? item.value : item.value(context)
   return evaluate(value)
 }
 
-export const evaluateList = (list: RandomList, context?: object): string => {
+const evaluateProbabilityFunctions = (list: RandomList, context?: any) => {
+  return list.map((item) => {
+    return {
+      ...item,
+      probability:
+        typeof item.probability === 'number'
+          ? item.probability
+          : item.probability(context),
+    }
+  })
+}
+
+const normalizeListProbabilities = (list: RandomList, context?: any) => {
+  const evaluatedList = evaluateProbabilityFunctions(list, context)
+  const totalProbability = evaluatedList.reduce(
+    (total, item) => total + (item.probability as number),
+    0,
+  )
+  return evaluatedList.map((item) => {
+    return {
+      ...item,
+      probability: (item.probability as number) / totalProbability,
+    }
+  })
+}
+
+export const evaluateList = (list: RandomList, context?: any): string => {
   const randNum = Math.random()
   let cumulative = 0
-  const debuggableList = list.filter((item) => item.debug)
-  if (debuggableList.length && list.length !== debuggableList.length) {
+  const normalizedList = normalizeListProbabilities(list, context)
+  const debuggableList = normalizedList.filter((item) => item.debug)
+  if (
+    debuggableList.length &&
+    normalizedList.length !== debuggableList.length
+  ) {
     return evaluateList(debuggableList, context)
   }
-  for (const item of list) {
+  for (const item of normalizedList) {
     if (item.debug) {
       cumulative = 1
     } else if (typeof item.probability === 'number') {
       cumulative += item.probability
-    } else if (typeof item.probability === 'function') {
-      const evaluatedProbability = item.probability(context)
-      cumulative += evaluatedProbability
     }
     if (randNum <= cumulative) {
       return evaluateItem(item)
