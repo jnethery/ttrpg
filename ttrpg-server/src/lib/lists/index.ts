@@ -1,7 +1,10 @@
 import { arrayToRandomList } from 'lib/lists/util'
+import arrays from 'lib/lists/arrays'
 
+// TODO: Move to /arrays
 const color = arrayToRandomList(['red', 'green'])
 const fruit = arrayToRandomList(['[color] apple', 'orange'])
+const main = arrayToRandomList(['[event] and [event]'])
 
 export type ConfigKey = keyof typeof config
 export const isConfigKey = (value: string): value is ConfigKey => {
@@ -10,5 +13,6 @@ export const isConfigKey = (value: string): value is ConfigKey => {
 export const config = {
   color,
   fruit,
-  mundane: [{ value: 'I want a [fruit]' }],
+  ...arrays,
+  main,
 }

@@ -1,7 +1,7 @@
-import { evaluateList } from 'lib/lists/evaluate'
+import { evaluateListFromKey } from 'lib/lists/evaluate'
 
 export const generateOutput = () => {
-  return evaluateList()
+  return evaluateListFromKey()
 }
 
 // Need to convert all this garbage to TS somehow
@@ -76,10 +76,6 @@ lerp(x, x0, x1, y0, y1) =>
   const m = (y1 - y0) / (x1 - x0)
   const b = y0 - m*x0
   return m*x + b
-
-// Randomly sorts and array
-randomizeArray(array) =>
-  return array.sort(() => Math.random() - Math.random())
 
 // Main Functions
 reset(region) =>
@@ -301,63 +297,18 @@ generateLocation() =>
     ` 
   }
   return `You discover a ${l}`
-  
-generateTracks() =>
-  const f = faction.evaluateItem
-  const creatures = getCreaturesToChooseFrom(f)
-  const c = Object.keys(creatures.creatures)[0] ?? 'old, unidentifiable'
 
-  const trackString = `
-    <ul>
-      <li>${getCreatureName(f, c)} tracks</li>
-      <li> Survival DC ${[dc]} to see moving ${[direction]}</li>
-    </ul>
-  `
-
-  if (c == "old, unidentfiable") {
-    return trackString
-  }
-
-  const encounterString = `
-    If followed:
-    ${generateEncounter(f, false, creatures)}
-  `
-  return `${trackString}${encounterString}`
   
 manualEncounterOutput = ''
 output
   [event] ^[manualEncounterOutput.length == 0]
   [manualEncounterOutput] ^[manualEncounterOutput.length > 0]
 
-dc
-  {1-30}
-
 distributed_dc
   {1-10} ^2
   {10-15} ^5
   {15-20} ^3
   {20-30}
-
-direction
-  north
-  northeast
-  east
-  southeast
-  south
-  southwest
-  west
-  northwest
-
-event
-  [mundane] ^4
-  [generateLocation()] ^2
-  [hardship] ^2
-  [tracks] ^3
-  [encounter] ^1
-
-// Need 5-10 variations
-tracks
-  [generateTracks()]
 
 encounter
   [generateEncounter(faction.evaluateItem)]
@@ -411,138 +362,6 @@ doing
 object_wants
   {food|valuables} ^[f != 'ratfolk']
   {tasties|shinies} ^[f == 'ratfolk']
-
-// Factions
-// TODO: Add Bullywugs to factions and units to swamp
-// Add Centaur faction
-// Add Drow faction
-// Add Fey factions
-// Add plants faction
-faction
-  ratfolk ^[area == "swamp"]
-    str = 4 // Strength, how robust their forces are. range {0, 10}
-    rep // Reputation, the relationship they have with the target. range {-50, 50}
-      party = -20
-      predator = -40
-      prey = 0
-    pred = 0 // Predisposition, how predisposed they are towards a sentiment. range {-50, 50}
-  predator
-    str = 9
-    rep
-      party = -30
-      ratfolk = -40
-      prey = -40
-    pred = -10
-  prey
-    str = 9
-    rep
-      party = -20
-      ratfolk = -10
-      predator = -40
-    pred = -10
-
-// Units
-// Might want to move this to its own list
-unit
-  ratfolk
-    freak
-      xp=1100
-    captain
-      max=1
-      xp=200 // CR 1
-    inventor ^2
-      xp=100
-    scavenger ^5
-      xp=50
-  predator // Beasts and monsters
-    // SWAMP
-    giant crocodile ^[area == "swamp"]
-      xp=1800
-    swarm of poisonous snakes ^[area == "swamp"]
-      xp=450
-    giant constrictor snake ^[area == "swamp"]
-      xp=450
-    shadow mastif ^[area == "swamp"]
-      xp=450
-    giant toad ^[area == "swamp"]
-      xp=200
-    giant spider ^[area == "swamp"]
-      xp=200
-    swarm of insects ^[area == "swamp"]
-      xp=100
-    swarm of wasps ^[area == "swamp"]
-      xp=100
-    crocodile ^[area == "swamp"]
-      xp=100
-    swarm of rot grubs ^[area == "swamp"]
-      xp=100
-    swarm of beetles ^[area == "swamp"]
-      xp=100
-    swarm of centipedes ^[area == "swamp"]
-      xp=100
-    swarm of spiders ^[area == "swamp"]
-      xp=100
-    constrictor snake ^[area == "swamp"]
-      xp=50
-    giant poisonous snake ^[area == "swamp"]
-      xp=50
-    giant frog ^[area == "swamp"]
-      xp=50
-    giant lizard ^[area == "swamp"]
-      xp=50
-    // CAVE
-    
-  swarm
-    swarm of poisonous snakes ^[area == "swamp"]
-      xp=450
-    swarm of insects ^[area == "swamp"]
-      xp=100
-    swarm of wasps ^[area == "swamp"]
-      xp=100
-    swarm of rot grubs ^[area == "swamp"]
-      xp=100
-    swarm of beetles ^[area == "swamp"]
-      xp=100
-    swarm of centipedes ^[area == "swamp"]
-      xp=100
-    swarm of spiders ^[area == "swamp"]
-      xp=100
-  prey // Good/small beasts
-    // Mountain Goat -> SHOULD BE MOUNTAIN!
-    // Sea horse -> Coastal
-    // 
-    // Unspecific location
-    bat
-      xp=10
-    frog
-      xp=10
-    hawk
-      xp=10
-    lizard
-      xp=10
-    spider
-      xp=10
-    weasel
-      xp=10
-    stirge ^[area == "swamp"]
-      xp=25
-    diseased giant rat ^[area == "swamp"]
-      xp=25
-    poisonous snake ^[area == "swamp"]
-      xp=25
-    giant rat ^[area == "swamp"]
-      xp=25
-    rat ^[area == "swamp"]
-      xp=10
-    raven ^[area == "swamp"]
-      xp=10
-
-mundane
-  // Common mundane events
-  nothing happens
-  nada
-  nope
-  you feel a stiff breeze
 
 //
 // sinking islet - submerges slowly, reveals buried ruins, traps unwary travelers
