@@ -7,6 +7,11 @@ export const generateOutput = (): string => {
     areas: ['swamp'],
     regions: ['Dragonsbeard Glen'],
     conditions: ['bright', 'clear'],
+    party: {
+      avgLevel: 4,
+      numPlayers: 4,
+      crMultiplier: 1,
+    },
   })
   const item = getListItemFromKey(DEFAULT_KEY)
   return item ? evaluateItem(item) : ''
@@ -22,39 +27,6 @@ be = {import:be-plugin}
 noun = {import:abstract-noun}
 adjective = {import:adjective}
 adverb = {import:manner-adverb}
-
-// Settings and Variables
-config =  {
-  areas: ["none"],
-  party: {
-    avgLevel: 4,
-    numPlayers: 4,
-  },
-  title: "Eternal Song Encounters",
-  xpThreshholds: {
-    4: {
-      easy: 125,
-      medium: 250,
-      hard: 375,
-      deadly: 500,
-    },
-    20: {
-      easy: 2800,
-      medium: 5700,
-      hard: 8500,
-      deadly: 12700,
-    }
-  },
-  getXPMultipliers: {
-    1: 1,
-    2: 1.5,
-    3: 2,
-    4: 2,
-    7: 2.5,
-    11: 3,
-    15: 4
-  }
-}
 
 // XP Functions
 // Gets the XP threshhold for the current party level

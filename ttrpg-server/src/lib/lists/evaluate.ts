@@ -39,6 +39,23 @@ export const getListItemFromKey = (
 }
 
 /**
+ * Retrieves an evaluated list item from the configuration by key.
+ * @param key - The configuration key.
+ * @returns The evaluated list item as a string or null if not found.
+ */
+export const getEvaluatedListItemFromKey = (
+  key: ConfigKey = DEFAULT_KEY,
+): string | null => {
+  const listItem = getListItemFromKey(key)
+  return listItem ? evaluateItem(listItem) : null
+}
+
+export const getEvaluatedListItem = (list: RandomList): string | null => {
+  const listItem = getListItem(list)
+  return listItem ? evaluateItem(listItem) : null
+}
+
+/**
  * Retrieves a list item based on normalized probabilities.
  * @param list - The list of items.
  * @param context - Optional context for retrieval.
@@ -55,9 +72,7 @@ export const getListItem = (list: RandomList): RandomListItem | null => {
   }
 
   for (const item of normalizedList) {
-    if (item.debug) {
-      cumulativeProbability = 1
-    } else if (typeof item.probability === 'number') {
+    if (typeof item.probability === 'number') {
       cumulativeProbability += item.probability
     }
 
@@ -136,15 +151,17 @@ const resolveProbabilities = (list: RandomList): RandomList => {
  * @param context - Optional context for normalization.
  * @returns The list with normalized probabilities.
  */
-const normalizeProbabilities = (list: RandomList): RandomList => {
+export const normalizeProbabilities = (list: RandomList): RandomList => {
   const resolvedList = resolveProbabilities(list)
   const totalProbability = resolvedList.reduce(
     (total, item) => total + (item.probability as number),
     0,
   )
 
-  return resolvedList.map((item) => ({
-    ...item,
-    probability: (item.probability as number) / totalProbability,
-  }))
+  return resolvedList
+    .map((item) => ({
+      ...item,
+      probability: (item.probability as number) / totalProbability,
+    }))
+    .filter((item) => item.probability > 0)
 }

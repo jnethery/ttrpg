@@ -76,6 +76,7 @@ const factionRelationshipFilters: Record<
     enemies: [
       (creature: BaseRandomCreatureListItem) => {
         return getEnemiesFilter({
+          operation: 'or',
           creature,
           factionName: 'ratfolk',
           diet: {
@@ -88,7 +89,12 @@ const factionRelationshipFilters: Record<
     ],
     allies: [
       (creature: BaseRandomCreatureListItem) => {
-        return getAlliesFilter({ creature, factionName: 'ratfolk' })
+        return getAlliesFilter({
+          creature,
+          operation: 'or',
+          factionName: 'ratfolk',
+          factions: ['ratfolk'],
+        })
       },
     ],
   },
@@ -100,6 +106,7 @@ const tagRelationshipFilters: Record<
 > = {}
 
 interface RelationshipsFilterProps {
+  operation: 'and' | 'or'
   diet?: {
     dietTags: CreatureTag[]
     dietSizes: Size[]
@@ -110,12 +117,15 @@ interface RelationshipsFilterProps {
   legalAlignments?: LegalAlignment[]
   moralAlignments?: MoralAlignment[]
   tags?: CreatureTag[]
+  factions?: FactionName[]
 }
 
 export const getEnemiesFilter = ({
+  operation,
   creature,
   diet,
   factionName,
+  factions: factionNames,
   moralAlignments,
   tags,
 }: RelationshipsFilterProps): boolean => {
@@ -126,6 +136,12 @@ export const getEnemiesFilter = ({
     const { enemies } = getRelatedFactions(factionName)
     const factionCondition = factions?.some((faction) =>
       enemies.includes(faction),
+    )
+    conditions.push(factionCondition)
+  }
+  if (factionNames) {
+    const factionCondition = factions?.some((faction) =>
+      factionNames.includes(faction),
     )
     conditions.push(factionCondition)
   }
@@ -148,13 +164,19 @@ export const getEnemiesFilter = ({
     )
     conditions.push(alignmentCondition)
   }
-  return conditions.length ? conditions.some((condition) => condition) : false
+  return conditions.length
+    ? operation === 'or'
+      ? conditions.some((condition) => condition)
+      : conditions.every((condition) => condition)
+    : false
 }
 
 export const getAlliesFilter = ({
+  operation,
   creature,
   creatureNames,
   factionName,
+  factions: factionNames,
   moralAlignments,
 }: RelationshipsFilterProps): boolean => {
   const conditions = []
@@ -174,6 +196,12 @@ export const getAlliesFilter = ({
     )
     conditions.push(creatureCondition)
   }
+  if (factionNames) {
+    const factionCondition = factions?.some((faction) =>
+      factionNames.includes(faction),
+    )
+    conditions.push(factionCondition)
+  }
   if (moralAlignments) {
     const { moralAlignments: creatureMoralAlignments } = creature.props
     const alignmentCondition = moralAlignments.some((alignment) =>
@@ -181,5 +209,9 @@ export const getAlliesFilter = ({
     )
     conditions.push(alignmentCondition)
   }
-  return conditions.length ? conditions.some((condition) => condition) : false
+  return conditions.length
+    ? operation === 'or'
+      ? conditions.some((condition) => condition)
+      : conditions.every((condition) => condition)
+    : false
 }

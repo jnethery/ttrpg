@@ -36,16 +36,29 @@ export const sizeValues: Record<Size, number> = {
   gargantuan: 6,
 } as const
 
-export const getOtherSizes = (size: Size, greater: boolean = false): Size[] => {
+export const getOtherSizes = (
+  size: Size,
+  comparator: 'lt' | 'lte' | 'gt' | 'gte',
+): Size[] => {
   const value = sizeValues[size]
   return sizes.filter((s: Size) => {
-    const comparison = sizeValues[s] > value
-    return greater ? comparison : !comparison
+    if (comparator === 'lt') {
+      return sizeValues[s] < value
+    } else if (comparator === 'lte') {
+      return sizeValues[s] <= value
+    } else if (comparator === 'gt') {
+      return sizeValues[s] > value
+    } else if (comparator === 'gte') {
+      return sizeValues[s] >= value
+    }
+    return false
   }) as Size[]
 }
 
-export const getSmallerSizes = (size: Size): Size[] => getOtherSizes(size)
-export const getLargerSizes = (size: Size): Size[] => getOtherSizes(size, true)
+export const getSizesLt = (size: Size): Size[] => getOtherSizes(size, 'lt')
+export const getSizesLte = (size: Size): Size[] => getOtherSizes(size, 'lte')
+export const getSizesGt = (size: Size): Size[] => getOtherSizes(size, 'gt')
+export const getSizesGte = (size: Size): Size[] => getOtherSizes(size, 'gte')
 
 export type CreatureTag = (typeof creatureTags)[number]
 export type MoralAlignment = 'good' | 'neutral' | 'evil'
@@ -68,7 +81,6 @@ export interface AttributeSet {
 export interface BaseCreatureProps extends AttributeSet {
   xp: number
   url?: string
-  max?: number
   areas?: Array<{
     area: Area
     probability: number

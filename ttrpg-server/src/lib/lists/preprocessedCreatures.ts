@@ -4,7 +4,8 @@ import {
   BaseRandomCreatureListItem,
   BaseCreatureProps,
   BaseRandomCreatureList,
-  getSmallerSizes,
+  getSizesLt,
+  getSizesLte,
 } from 'types/creatures'
 
 const defaultRatfolkProps: Partial<BaseCreatureProps> = {
@@ -66,7 +67,6 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       return getProbabilityMod(this.props, 0.25 / 5)
     },
     props: {
-      max: 1,
       xp: 200,
       legalAlignments: ['lawful'],
       moralAlignments: ['neutral', 'good'],
@@ -85,7 +85,6 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
         distant: -50,
         nearby: -50,
       },
-      max: 1,
       xp: 1800,
       areas: [
         { area: 'cursed', probability: 0.25 },
@@ -116,7 +115,6 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
     props: {
       url: 'https://www.dndbeyond.com/monsters/16787-ankheg',
       xp: 450,
-      max: 1,
       tags: ['monstrosity', 'insect'],
       sizes: ['large'],
       legalAlignments: ['neutral'],
@@ -137,10 +135,11 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       enemies: [
         (creature: BaseRandomCreatureListItem) => {
           return getEnemiesFilter({
+            operation: 'or',
             creature,
             diet: {
               dietTags: ['humanoid', 'beast'],
-              dietSizes: getSmallerSizes('huge'),
+              dietSizes: getSizesLte('large'),
             },
           })
         },
@@ -172,6 +171,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       allies: [
         (creature: BaseRandomCreatureListItem) => {
           return getAlliesFilter({
+            operation: 'or',
             creature,
             creatureNames: ['ape'],
           })
@@ -180,10 +180,11 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       enemies: [
         (creature: BaseRandomCreatureListItem) => {
           return getEnemiesFilter({
+            operation: 'or',
             creature,
             diet: {
               dietTags: ['insect', 'fish', 'reptile', 'plant'],
-              dietSizes: getSmallerSizes('medium'),
+              dietSizes: getSizesLt('medium'),
             },
           })
         },
@@ -217,6 +218,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
         (creature: BaseRandomCreatureListItem) => {
           return getAlliesFilter({
             creature,
+            operation: 'or',
             tags: ['plant', 'fey', 'druid'],
             creatureNames: ['dryad', 'treant'],
           })
@@ -236,7 +238,6 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
         distant: -50,
         nearby: -50,
       },
-      max: 1,
       xp: 2300,
       areas: [
         { area: 'cursed', probability: 0.15 },
@@ -290,6 +291,8 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
         (creature: BaseRandomCreatureListItem) => {
           return getEnemiesFilter({
             creature,
+            factionName: 'bullywug',
+            operation: 'or',
             diet: {
               dietTags: [
                 'insect',
@@ -299,7 +302,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
                 'reptile',
                 'plant',
               ],
-              dietSizes: getSmallerSizes('medium'),
+              dietSizes: getSizesLt('medium'),
             },
           })
         },
@@ -308,8 +311,10 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
         (creature: BaseRandomCreatureListItem) => {
           return getAlliesFilter({
             creature,
+            operation: 'or',
             creatureNames: ['frog', 'toad'],
             factionName: 'bullywug',
+            factions: ['bullywug'],
           })
         },
       ],
@@ -327,7 +332,6 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
         nearby: -50,
       },
       xp: 1800,
-      max: 1,
       areas: [
         { area: 'swamp', probability: 0.3 },
         { area: 'cursed', probability: 0.2 },
@@ -344,9 +348,10 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
         (creature: BaseRandomCreatureListItem) => {
           return getEnemiesFilter({
             creature,
+            operation: 'or',
             diet: {
               dietTags: ['plant'],
-              dietSizes: getSmallerSizes('large'),
+              dietSizes: getSizesLte('large'),
             },
           })
         },
@@ -355,6 +360,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
         (creature: BaseRandomCreatureListItem) => {
           return getAlliesFilter({
             creature,
+            operation: 'or',
             moralAlignments: ['evil'],
           })
         },
@@ -390,9 +396,10 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
         (creature: BaseRandomCreatureListItem) => {
           return getEnemiesFilter({
             creature,
+            operation: 'or',
             diet: {
               dietTags: ['mammal', 'bird', 'insect', 'fish'],
-              dietSizes: getSmallerSizes('large'),
+              dietSizes: getSizesLt('large'),
             },
           })
         },
@@ -448,7 +455,6 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
     props: {
       url: 'https://www.dndbeyond.com/monsters/16834-crocodile',
       xp: 100,
-      max: 1,
       tags: ['beast', 'reptile'],
       sizes: ['large'],
       legalAlignments: ['neutral'],
@@ -470,9 +476,10 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
         (creature: BaseRandomCreatureListItem) => {
           return getEnemiesFilter({
             creature,
+            operation: 'or',
             diet: {
               dietTags: ['mammal', 'bird', 'insect', 'fish'],
-              dietSizes: getSmallerSizes('large'),
+              dietSizes: getSizesLte('large'),
             },
           })
         },
@@ -508,23 +515,30 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       },
       allies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getAlliesFilter({
+          const evilFeyFilter = getAlliesFilter({
             creature,
+            operation: 'and',
             tags: ['fey'],
-            creatureNames: ['darkling', 'shadow', 'wraith'],
             moralAlignments: ['evil', 'neutral'],
           })
+          const darklingFilter = getAlliesFilter({
+            creature,
+            operation: 'or',
+            creatureNames: ['darkling', 'shadow', 'wraith'],
+          })
+          return evilFeyFilter || darklingFilter
         },
       ],
       enemies: [
         (creature: BaseRandomCreatureListItem) => {
           return getEnemiesFilter({
             creature,
+            operation: 'or',
             tags: ['fey'],
             moralAlignments: ['good'],
             diet: {
               dietTags: ['fey', 'beast'],
-              dietSizes: getSmallerSizes('medium'),
+              dietSizes: getSizesLt('medium'),
             },
           })
         },

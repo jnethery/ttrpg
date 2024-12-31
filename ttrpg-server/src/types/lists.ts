@@ -12,6 +12,9 @@ export interface RandomListItem {
 }
 export type RandomList = RandomListItem[]
 
+const difficulties = ['easy', 'medium', 'hard', 'deadly']
+export type EncounterDifficulty = (typeof difficulties)[number]
+
 const areas = [
   'arctic',
   'coastal',
@@ -33,4 +36,12 @@ export interface ListContext {
   areas?: Area[]
   regions?: Region[]
   conditions?: EnvironmentalCondition[]
+  party?: {
+    avgLevel: number
+    numPlayers: number
+    // This is the multiplier for the party's CR.
+    // If encounters are too easy, the multiplier can be increased,
+    // and if they are too hard, it can be decreased.
+    crMultiplier: number
+  }
 }
