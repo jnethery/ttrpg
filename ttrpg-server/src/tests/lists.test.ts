@@ -7,7 +7,6 @@ const testListProbability = (
   testList: RandomList,
   expectedProbabilities: { [key: string]: number },
   tolerance: number,
-  context?: any,
 ) => {
   const counts: { [key: string]: number } = {}
 
@@ -18,7 +17,7 @@ const testListProbability = (
 
   // Run the evaluation multiple times
   for (let i = 0; i < iterations; i++) {
-    const item = getListItem([...testList], context)
+    const item = getListItem([...testList])
     const value = evaluateItem(item!)
     counts[value]++
   }
@@ -59,9 +58,8 @@ describe('testListProbability', () => {
     const testList: RandomList = [
       {
         value: 'A',
-        probability: (context) => {
-          const { num1, num2 } = context as { num1: number; num2: number }
-          return num1 / num2
+        probability: () => {
+          return 9 / 10
         },
       },
       {
@@ -69,10 +67,7 @@ describe('testListProbability', () => {
         probability: 0.1,
       },
     ]
-    testListProbability(testList, { A: 0.9, B: 0.1 }, 0.05, {
-      num1: 9,
-      num2: 10,
-    })
+    testListProbability(testList, { A: 0.9, B: 0.1 }, 0.05)
   })
 
   it(`should return "A" ~50% of the time and "B" ~50% of the time when probability is auto-normalized.`, () => {

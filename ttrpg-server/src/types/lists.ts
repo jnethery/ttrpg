@@ -1,7 +1,8 @@
+import { EnvironmentalCondition } from 'types/environmentalConditions'
+
 export const DEFAULT_KEY = 'main'
-// TODO: Can we tighten down the types here?
-export type ValueFunction = (context?: any) => string
-export type ProbabilityFunction = (context?: any) => number
+export type ValueFunction = () => string
+export type ProbabilityFunction = () => number
 export interface RandomListItem {
   value: string | ValueFunction
   probability: number | ProbabilityFunction
@@ -10,3 +11,26 @@ export interface RandomListItem {
   debug?: boolean
 }
 export type RandomList = RandomListItem[]
+
+const areas = [
+  'arctic',
+  'coastal',
+  'cursed',
+  'desert',
+  'dungeon',
+  'forest',
+  'grassland',
+  'hill',
+  'mountain',
+  'swamp',
+  'underdark',
+  'underwater',
+  'urban',
+] as const
+export type Area = (typeof areas)[number]
+export type Region = 'Dragonsbeard Glen'
+export interface ListContext {
+  areas?: Area[]
+  regions?: Region[]
+  conditions?: EnvironmentalCondition[]
+}

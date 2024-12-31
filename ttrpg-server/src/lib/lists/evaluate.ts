@@ -44,17 +44,14 @@ export const getListItemFromKey = (
  * @param context - Optional context for retrieval.
  * @returns The selected list item or null if not found.
  */
-export const getListItem = (
-  list: RandomList,
-  context?: any,
-): RandomListItem | null => {
+export const getListItem = (list: RandomList): RandomListItem | null => {
   const randNum = Math.random()
   let cumulativeProbability = 0
-  const normalizedList = normalizeProbabilities(list, context)
+  const normalizedList = normalizeProbabilities(list)
   const debugItems = normalizedList.filter((item) => item.debug)
 
   if (debugItems.length && normalizedList.length !== debugItems.length) {
-    return getListItem(debugItems, context)
+    return getListItem(debugItems)
   }
 
   for (const item of normalizedList) {
@@ -82,9 +79,8 @@ export const getListItem = (
  * @param context - Optional context for evaluation.
  * @returns The evaluated value as a string.
  */
-export const evaluateItem = (item: RandomListItem, context?: any): string => {
-  const itemValue =
-    typeof item.value === 'string' ? item.value : item.value(context)
+export const evaluateItem = (item: RandomListItem): string => {
+  const itemValue = typeof item.value === 'string' ? item.value : item.value()
   return evaluate(itemValue)
 }
 
@@ -120,12 +116,12 @@ const evaluate = (input: string): string => {
  * @param context - Optional context for resolving probabilities.
  * @returns The list with resolved probabilities.
  */
-const resolveProbabilities = (list: RandomList, context?: any): RandomList => {
+const resolveProbabilities = (list: RandomList): RandomList => {
   return list.map((item) => {
     const resolvedProbability =
       typeof item.probability === 'number'
         ? item.probability
-        : item.probability(context)
+        : item.probability()
 
     return {
       ...item,
@@ -140,11 +136,8 @@ const resolveProbabilities = (list: RandomList, context?: any): RandomList => {
  * @param context - Optional context for normalization.
  * @returns The list with normalized probabilities.
  */
-const normalizeProbabilities = (
-  list: RandomList,
-  context?: any,
-): RandomList => {
-  const resolvedList = resolveProbabilities(list, context)
+const normalizeProbabilities = (list: RandomList): RandomList => {
+  const resolvedList = resolveProbabilities(list)
   const totalProbability = resolvedList.reduce(
     (total, item) => total + (item.probability as number),
     0,

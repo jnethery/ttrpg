@@ -1,7 +1,14 @@
 import { getListItemFromKey, evaluateItem } from 'lib/lists/evaluate'
+import { setContext } from 'lib/lists/context'
+import { DEFAULT_KEY } from 'types/lists'
 
 export const generateOutput = (): string => {
-  const item = getListItemFromKey()
+  setContext({
+    areas: ['swamp'],
+    regions: ['Dragonsbeard Glen'],
+    conditions: ['bright', 'clear'],
+  })
+  const item = getListItemFromKey(DEFAULT_KEY)
   return item ? evaluateItem(item) : ''
 }
 
@@ -337,32 +344,6 @@ attitude
     dc=-20
   adoring ^[weight(50, reputation, skew)]
     dc=-25
-
-wants
-  to {rest|shelter|have leisure}
-  to find [object_wants]
-    rob=true
-  to {find territory|assert dominance|prove themselves}
-    rob=true
-  to go somewhere else
-  to avoid contact
-  to {destroy|kill|take something|take someone}
-  to help allies [wants]
-  to find {item|place|person|knowledge}
-
-doing
-  {in their lair|at their camp}
-  {hunting|raiding}
-  fighting [getOtherFaction(f).pluralForm]
-  {stuck|trapped|hurt}
-  {fleeing|lost}
-  {patrolling|guarding}
-  travelling somewhere else
-  exploring
-
-object_wants
-  {food|valuables} ^[f != 'ratfolk']
-  {tasties|shinies} ^[f == 'ratfolk']
 
 //
 // sinking islet - submerges slowly, reveals buried ruins, traps unwary travelers

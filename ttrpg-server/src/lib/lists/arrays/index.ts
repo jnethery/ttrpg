@@ -1,13 +1,15 @@
-import { direction } from './direction'
-import { mundane } from './mundane'
-import { faction } from './faction'
-import { event } from './event'
 import { creature } from './creature'
+import { direction } from './direction'
+import { doing } from './doing'
+import { event } from './event'
+import { faction } from './faction'
+import { mundane } from './mundane'
 
 export default {
-  mundane,
-  direction,
-  faction,
   creature,
+  direction,
+  doing,
   event,
+  faction,
+  mundane,
 }
