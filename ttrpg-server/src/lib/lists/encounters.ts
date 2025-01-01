@@ -569,7 +569,7 @@ const getAlliesList = (
     // Get all allies
     alliesList = config.creature
       .filter((item) => {
-        item.value != creature.value
+        return item.value !== creature.value
       })
       .filter((item) => {
         return allyFilters.some((filter) => filter(item))
@@ -600,10 +600,8 @@ const addCreatureToEncounter = (
 ): boolean => {
   if (creatureList.length > 0 && combatEncounter.xp + xpRange.min <= xpLimit) {
     const creatureItem = getListItem(creatureList) as RandomCreatureListItem
-    console.log({ creatureItem, creatureList })
     if (creatureItem) {
       const name = evaluateItem(creatureItem)
-      console.log({ name })
       if (!combatEncounter.creatures[name]) {
         combatEncounter.creatures[name] = {
           creature: creatureItem,

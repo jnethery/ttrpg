@@ -8,9 +8,8 @@ import {
   getSizesLte,
 } from 'types/creatures'
 
-const defaultRatfolkProps: Partial<BaseCreatureProps> = {
+const defaultRatfolkProps: Omit<BaseCreatureProps, 'xp'> = {
   url: '', // TODO: Link to Notion or D&D Beyond
-  factions: ['ratfolk'],
   tags: ['humanoid', 'mammal'],
   areas: [{ area: 'swamp', probability: 1 }],
   regions: [{ region: 'Dragonsbeard Glen', probability: 1 }],
@@ -18,6 +17,28 @@ const defaultRatfolkProps: Partial<BaseCreatureProps> = {
     distant: 0,
     nearby: -20,
   },
+  enemies: [
+    (creature: BaseRandomCreatureListItem) => {
+      return getEnemiesFilter({
+        operation: 'or',
+        creature,
+        diet: {
+          dietTags: ['insect', 'fish', 'plant'],
+          dietSizes: ['small', 'medium'],
+        },
+        moralAlignments: ['evil'],
+      })
+    },
+  ],
+  allies: [
+    (creature: BaseRandomCreatureListItem) => {
+      return getAlliesFilter({
+        creature,
+        operation: 'or',
+        creatureNames: ['ratfolk'],
+      })
+    },
+  ],
 }
 
 // TODO: I will be using Eladrin for the Fey forest, but not for the first area
@@ -26,7 +47,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
   // HOMEBREW
   // Ratfolk
   {
-    value: 'freak',
+    value: 'ratfolk freak',
     probability: function () {
       return getProbabilityMod(this.props, 0.25 / 5)
     },
@@ -38,7 +59,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
     },
   },
   {
-    value: 'inventor',
+    value: 'ratfolk inventor',
     probability: function () {
       return getProbabilityMod(this.props, 0.25)
     },
@@ -50,7 +71,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
     },
   },
   {
-    value: 'scavenger',
+    value: 'ratfolk scavenger',
     probability: function () {
       return getProbabilityMod(this.props, (0.25 * 2) / 5)
     },
@@ -62,7 +83,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
     },
   },
   {
-    value: 'captain',
+    value: 'ratfolk captain',
     probability: function () {
       return getProbabilityMod(this.props, 0.25 / 5)
     },
@@ -228,6 +249,134 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
     },
   },
   {
+    value: 'awakened tree',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16792-awakened-tree',
+      xp: 450,
+      tags: ['plant'],
+      sizes: ['huge'],
+      legalAlignments: ['neutral'],
+      moralAlignments: ['neutral'],
+      areas: [
+        { area: 'forest', probability: 0.5 },
+        { area: 'cursed', probability: 0.3 },
+        { area: 'swamp', probability: 0.2 },
+        { area: 'grassland', probability: 0.1 },
+        { area: 'urban', probability: 0.05 },
+      ],
+      predisposition: {
+        distant: 0,
+        nearby: -50,
+      },
+      allies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getAlliesFilter({
+            creature,
+            operation: 'or',
+            tags: ['plant', 'fey', 'druid'],
+            creatureNames: ['dryad', 'treant'],
+          })
+        },
+      ],
+      enemies: [],
+    },
+  },
+  {
+    value: 'baboon',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16795-baboon',
+      xp: 10,
+      tags: ['beast', 'mammal'],
+      sizes: ['small'],
+      legalAlignments: ['neutral'],
+      moralAlignments: ['neutral'],
+      areas: [
+        { area: 'forest', probability: 0.4 },
+        { area: 'hill', probability: 0.25 },
+        { area: 'grassland', probability: 0.2 },
+        { area: 'mountain', probability: 0.1 },
+        { area: 'swamp', probability: 0.1 },
+        { area: 'urban', probability: 0.05 },
+      ],
+      predisposition: {
+        distant: -20,
+        nearby: -50,
+      },
+      allies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getAlliesFilter({
+            creature,
+            operation: 'or',
+            tags: ['fey', 'druid', 'ranger'],
+          })
+        },
+      ],
+      enemies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getEnemiesFilter({
+            operation: 'or',
+            creature,
+            diet: {
+              dietTags: ['insect', 'fish', 'reptile', 'plant'],
+              dietSizes: getSizesLt('small'),
+            },
+          })
+        },
+      ],
+    },
+  },
+  {
+    value: 'badger',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16796-badger',
+      xp: 10,
+      tags: ['beast', 'mammal'],
+      sizes: ['tiny'],
+      legalAlignments: ['neutral'],
+      moralAlignments: ['neutral'],
+      areas: [
+        { area: 'forest', probability: 0.4 },
+        { area: 'grassland', probability: 0.3 },
+        { area: 'hill', probability: 0.2 },
+        { area: 'mountain', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: 0,
+        nearby: -50,
+      },
+      allies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getAlliesFilter({
+            creature,
+            operation: 'or',
+            tags: ['fey', 'druid', 'ranger'],
+          })
+        },
+      ],
+      enemies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getEnemiesFilter({
+            operation: 'or',
+            creature,
+            diet: {
+              dietTags: ['insect', 'fish', 'reptile', 'plant'],
+              dietSizes: getSizesLt('tiny'),
+            },
+          })
+        },
+      ],
+    },
+  },
+  {
     value: 'bodak',
     probability: function () {
       return getProbabilityMod(this.props)
@@ -282,7 +431,6 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
         { area: 'grassland', probability: 0.02 },
         { area: 'hill', probability: 0.02 },
       ],
-      factions: ['bullywug'],
       tags: ['humanoid', 'amphibian'],
       sizes: ['medium'],
       legalAlignments: ['neutral'],
@@ -291,7 +439,6 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
         (creature: BaseRandomCreatureListItem) => {
           return getEnemiesFilter({
             creature,
-            factionName: 'bullywug',
             operation: 'or',
             diet: {
               dietTags: [
@@ -312,9 +459,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
           return getAlliesFilter({
             creature,
             operation: 'or',
-            creatureNames: ['frog', 'toad'],
-            factionName: 'bullywug',
-            factions: ['bullywug'],
+            creatureNames: ['frog', 'toad', 'bullywug'],
           })
         },
       ],
@@ -433,6 +578,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
         (creature: BaseRandomCreatureListItem) => {
           return getAlliesFilter({
             creature,
+            operation: 'or',
             creatureNames: ['zombie'],
           })
         },
@@ -441,6 +587,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
         (creature: BaseRandomCreatureListItem) => {
           return getEnemiesFilter({
             creature,
+            operation: 'or',
             tags: ['undead', 'humanoid'],
           })
         },

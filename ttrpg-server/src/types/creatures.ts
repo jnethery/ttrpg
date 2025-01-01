@@ -13,6 +13,7 @@ export const creatureTags = [
   'mammal',
   'monstrosity',
   'plant',
+  'ranger',
   'reptile',
   'swarm',
   'undead',
@@ -65,14 +66,8 @@ export type MoralAlignment = 'good' | 'neutral' | 'evil'
 export type LegalAlignment = 'lawful' | 'neutral' | 'chaotic'
 export type Size = 'tiny' | 'small' | 'medium' | 'large' | 'huge' | 'gargantuan'
 
-const factions = ['bullywug', 'party', 'ratfolk'] as const
-export type FactionName = (typeof factions)[number]
-export const isFactionName = (value: string): value is FactionName =>
-  factions.includes(value as FactionName)
-
 export interface AttributeSet {
   tags?: CreatureTag[]
-  factions?: FactionName[]
   moralAlignments?: MoralAlignment[]
   legalAlignments?: LegalAlignment[]
   sizes?: Size[]
@@ -97,11 +92,6 @@ export interface BaseCreatureProps extends AttributeSet {
     distant: number // -50 to 50, 0 is neutral, 50 is friendly, -50 is hostile
     nearby: number
   }
-  enemies?: RelationshipCriteria
-  allies?: RelationshipCriteria
-}
-
-export interface CreatureProps extends BaseCreatureProps {
   enemies: RelationshipCriteria
   allies: RelationshipCriteria
 }
@@ -111,7 +101,7 @@ export interface BaseRandomCreatureListItem extends RandomListItem {
 }
 
 export interface RandomCreatureListItem extends RandomListItem {
-  props: CreatureProps
+  props: BaseCreatureProps
 }
 
 export type BaseRandomCreatureList = BaseRandomCreatureListItem[]
