@@ -707,6 +707,7 @@ export const generateEncounter = (
   creature: RandomCreatureListItem,
   xpLimit: number,
   encounterDifficulty: EncounterDifficulty,
+  suppressAction: boolean = false,
 ): string => {
   const allies = getAllies(creature, xpLimit)
 
@@ -717,8 +718,16 @@ export const generateEncounter = (
     })
     .join(', ')
 
-  const doing = getListItemFromKey('doing')
-  const evaluatedAction = doing ? evaluateItem(doing) : ''
+  // TODO: Convert to a function?
+  const { doing, evaluatedAction } = (() => {
+    if (suppressAction) {
+      return { doing: null, evaluatedAction: '' }
+    }
+    const doing = getListItemFromKey('doing')
+    const evaluatedAction = doing ? evaluateItem(doing) : ''
+    return { doing, evaluatedAction }
+  })()
+
   const doingString = doing ? `<li>they are ${evaluatedAction}</li>` : ''
   const combatActions = ['hunting', 'fighting', 'fleeing'] as const
 
@@ -733,7 +742,7 @@ export const generateEncounter = (
     if (!enemy) {
       return generateEncounter(creature, xpLimit, encounterDifficulty)
     }
-    enemyString = generateEncounter(enemy, xpLimit, encounterDifficulty)
+    enemyString = generateEncounter(enemy, xpLimit, encounterDifficulty, true)
   }
 
   return `

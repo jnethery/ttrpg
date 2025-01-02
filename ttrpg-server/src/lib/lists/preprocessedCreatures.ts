@@ -377,6 +377,142 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
     },
   },
   {
+    value: 'bandit',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16798-bandit',
+      xp: 25,
+      tags: ['humanoid', 'criminal', 'mercenary'],
+      sizes: ['medium'],
+      legalAlignments: ['neutral', 'chaotic'],
+      moralAlignments: ['good', 'neutral', 'evil'],
+      areas: [
+        { area: 'urban', probability: 0.3 },
+        { area: 'forest', probability: 0.25 },
+        { area: 'grassland', probability: 0.2 },
+        { area: 'hill', probability: 0.1 },
+        { area: 'mountain', probability: 0.1 },
+        { area: 'dungeon', probability: 0.05 },
+      ],
+      predisposition: {
+        distant: -20,
+        nearby: -40,
+      },
+      allies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getAlliesFilter({
+            creature,
+            operation: 'or',
+            tags: ['criminal', 'mercenary'],
+          })
+        },
+      ],
+      enemies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getEnemiesFilter({
+            creature,
+            operation: 'and',
+            legalAlignments: ['lawful', 'neutral'],
+            tags: ['humanoid', 'criminal', 'mercenary', 'lawEnforcement'],
+          })
+        },
+      ],
+    },
+  },
+  {
+    value: 'bandit captain',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16799-bandit-captain',
+      xp: 450,
+      tags: ['humanoid', 'criminal', 'mercenary'],
+      sizes: ['medium'],
+      legalAlignments: ['neutral', 'chaotic'],
+      moralAlignments: ['neutral', 'evil'],
+      areas: [
+        { area: 'urban', probability: 0.3 },
+        { area: 'forest', probability: 0.25 },
+        { area: 'grassland', probability: 0.2 },
+        { area: 'hill', probability: 0.1 },
+        { area: 'mountain', probability: 0.1 },
+        { area: 'dungeon', probability: 0.05 },
+      ],
+      predisposition: {
+        distant: -20,
+        nearby: -40,
+      },
+      allies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getAlliesFilter({
+            creature,
+            operation: 'or',
+            tags: ['criminal', 'mercenary'],
+          })
+        },
+      ],
+      enemies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getEnemiesFilter({
+            creature,
+            operation: 'and',
+            legalAlignments: ['lawful', 'neutral'],
+            tags: ['humanoid', 'criminal', 'mercenary', 'lawEnforcement'],
+          })
+        },
+      ],
+    },
+  },
+  {
+    value: 'black bear',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16806-black-bear',
+      xp: 100,
+      tags: ['beast', 'mammal'],
+      sizes: ['medium'],
+      legalAlignments: ['neutral'],
+      moralAlignments: ['neutral'],
+      areas: [
+        { area: 'forest', probability: 0.5 },
+        { area: 'hill', probability: 0.3 },
+        { area: 'mountain', probability: 0.2 },
+        { area: 'grassland', probability: 0.1 },
+        { area: 'swamp', probability: 0.05 },
+      ],
+      predisposition: {
+        distant: 0,
+        nearby: -50,
+      },
+      allies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getAlliesFilter({
+            creature,
+            operation: 'or',
+            tags: ['fey', 'druid', 'ranger'],
+          })
+        },
+      ],
+      enemies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getEnemiesFilter({
+            creature,
+            operation: 'or',
+            diet: {
+              dietTags: ['fish', 'insect', 'mammal', 'reptile', 'plant'],
+              dietSizes: getSizesLt('medium'),
+            },
+          })
+        },
+      ],
+    },
+  },
+  {
     value: 'bodak',
     probability: function () {
       return getProbabilityMod(this.props)
