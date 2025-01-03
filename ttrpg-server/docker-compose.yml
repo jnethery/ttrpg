@@ -6,10 +6,12 @@ services:
     build: .
     ports:
       - ${PORT}:${PORT}
+      - '9229:9229' # Debugger port
     depends_on:
       - db
     volumes:
       - .:/usr/src/app
+    command: npm run dev
 
   db:
     container_name: postgres

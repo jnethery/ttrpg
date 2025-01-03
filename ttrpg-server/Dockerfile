@@ -14,5 +14,8 @@ RUN npm install
 # Copies everything in the src directory to WORKDIR/src
 COPY ./src ./src
 
-# Start the server
-CMD npm run dev
+# Expose the debugger port
+EXPOSE 9229
+
+# Start the server with the debugger
+CMD ["npm", "run", "dev"]

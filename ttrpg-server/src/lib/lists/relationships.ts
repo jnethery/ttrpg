@@ -20,15 +20,24 @@ interface RelationshipsFilterProps {
   tags?: CreatureTag[]
 }
 
-export const getEnemiesFilter = ({
+export const getRelationshipFilter = ({
   operation,
   creature,
+  creatureNames,
   diet,
   moralAlignments,
+  legalAlignments,
   tags,
 }: RelationshipsFilterProps): boolean => {
   const conditions = []
 
+  if (creatureNames) {
+    const creatureName = evaluateItem(creature)
+    const creatureCondition = creatureNames.some((name) =>
+      creatureName.includes(name),
+    )
+    conditions.push(creatureCondition)
+  }
   if (tags) {
     const { tags: creatureTags } = creature.props
     const tagCondition = tags.some((tag) => creatureTags?.includes(tag))
@@ -48,32 +57,10 @@ export const getEnemiesFilter = ({
     )
     conditions.push(alignmentCondition)
   }
-  return conditions.length
-    ? operation === 'or'
-      ? conditions.some((condition) => condition)
-      : conditions.every((condition) => condition)
-    : false
-}
-
-export const getAlliesFilter = ({
-  operation,
-  creature,
-  creatureNames,
-  moralAlignments,
-}: RelationshipsFilterProps): boolean => {
-  const conditions = []
-
-  if (creatureNames) {
-    const creatureName = evaluateItem(creature)
-    const creatureCondition = creatureNames.some((name) =>
-      creatureName.includes(name),
-    )
-    conditions.push(creatureCondition)
-  }
-  if (moralAlignments) {
-    const { moralAlignments: creatureMoralAlignments } = creature.props
-    const alignmentCondition = moralAlignments.some((alignment) =>
-      creatureMoralAlignments?.includes(alignment),
+  if (legalAlignments) {
+    const { legalAlignments: creatureLegalAlignments } = creature.props
+    const alignmentCondition = legalAlignments.some((alignment) =>
+      creatureLegalAlignments?.includes(alignment),
     )
     conditions.push(alignmentCondition)
   }

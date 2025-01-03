@@ -19,8 +19,13 @@ export const generateTracks = (): string => {
   const encounterDifficulty = (getEvaluatedListItemFromKey(
     'encounterDifficulty',
   ) ?? 'hard') as EncounterDifficulty
-  const numPlayers = getContext()?.party?.numPlayers || 4
-  const xpLimit = getXPThresholdForParty()[encounterDifficulty] * numPlayers
+  const partyContext = getContext()?.party
+  const { numPlayers, crMultiplier } = partyContext ?? {
+    numPlayers: 4,
+    crMultiplier: 1,
+  }
+  const xpLimit =
+    getXPThresholdForParty()[encounterDifficulty] * numPlayers * crMultiplier
   const eligibleCreatures = config.creature.filter(
     (creature) => creature.props.xp <= xpLimit,
   )

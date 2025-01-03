@@ -1,5 +1,5 @@
 import { getContext } from 'lib/lists/context'
-import { getAlliesFilter, getEnemiesFilter } from 'lib/lists/relationships'
+import { getRelationshipFilter } from 'lib/lists/relationships'
 import {
   BaseRandomCreatureListItem,
   BaseCreatureProps,
@@ -19,7 +19,7 @@ const defaultRatfolkProps: Omit<BaseCreatureProps, 'xp'> = {
   },
   enemies: [
     (creature: BaseRandomCreatureListItem) => {
-      return getEnemiesFilter({
+      return getRelationshipFilter({
         operation: 'or',
         creature,
         diet: {
@@ -32,7 +32,7 @@ const defaultRatfolkProps: Omit<BaseCreatureProps, 'xp'> = {
   ],
   allies: [
     (creature: BaseRandomCreatureListItem) => {
-      return getAlliesFilter({
+      return getRelationshipFilter({
         creature,
         operation: 'or',
         creatureNames: ['ratfolk'],
@@ -155,7 +155,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       allies: [],
       enemies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getEnemiesFilter({
+          return getRelationshipFilter({
             operation: 'or',
             creature,
             diet: {
@@ -191,7 +191,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       },
       allies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getAlliesFilter({
+          return getRelationshipFilter({
             operation: 'or',
             creature,
             creatureNames: ['ape'],
@@ -200,7 +200,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       ],
       enemies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getEnemiesFilter({
+          return getRelationshipFilter({
             operation: 'or',
             creature,
             diet: {
@@ -237,7 +237,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       },
       allies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getAlliesFilter({
+          return getRelationshipFilter({
             creature,
             operation: 'or',
             tags: ['plant', 'fey', 'druid'],
@@ -273,7 +273,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       },
       allies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getAlliesFilter({
+          return getRelationshipFilter({
             creature,
             operation: 'or',
             tags: ['plant', 'fey', 'druid'],
@@ -310,7 +310,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       },
       allies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getAlliesFilter({
+          return getRelationshipFilter({
             creature,
             operation: 'or',
             tags: ['fey', 'druid', 'ranger'],
@@ -319,7 +319,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       ],
       enemies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getEnemiesFilter({
+          return getRelationshipFilter({
             operation: 'or',
             creature,
             diet: {
@@ -355,7 +355,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       },
       allies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getAlliesFilter({
+          return getRelationshipFilter({
             creature,
             operation: 'or',
             tags: ['fey', 'druid', 'ranger'],
@@ -364,7 +364,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       ],
       enemies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getEnemiesFilter({
+          return getRelationshipFilter({
             operation: 'or',
             creature,
             diet: {
@@ -402,7 +402,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       },
       allies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getAlliesFilter({
+          return getRelationshipFilter({
             creature,
             operation: 'or',
             tags: ['criminal', 'mercenary'],
@@ -411,7 +411,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       ],
       enemies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getEnemiesFilter({
+          return getRelationshipFilter({
             creature,
             operation: 'and',
             legalAlignments: ['lawful', 'neutral'],
@@ -447,7 +447,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       },
       allies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getAlliesFilter({
+          return getRelationshipFilter({
             creature,
             operation: 'or',
             tags: ['criminal', 'mercenary'],
@@ -456,7 +456,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       ],
       enemies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getEnemiesFilter({
+          return getRelationshipFilter({
             creature,
             operation: 'and',
             legalAlignments: ['lawful', 'neutral'],
@@ -491,7 +491,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       },
       allies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getAlliesFilter({
+          return getRelationshipFilter({
             creature,
             operation: 'or',
             tags: ['fey', 'druid', 'ranger'],
@@ -500,12 +500,337 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       ],
       enemies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getEnemiesFilter({
+          return getRelationshipFilter({
             creature,
             operation: 'or',
             diet: {
               dietTags: ['fish', 'insect', 'mammal', 'reptile', 'plant'],
               dietSizes: getSizesLt('medium'),
+            },
+          })
+        },
+      ],
+    },
+  },
+  {
+    value: 'black pudding',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16808-black-pudding',
+      xp: 1100,
+      tags: ['ooze'],
+      sizes: ['large'],
+      legalAlignments: ['neutral'],
+      moralAlignments: ['neutral'],
+      areas: [
+        { area: 'dungeon', probability: 0.35 },
+        { area: 'underdark', probability: 0.25 },
+        { area: 'swamp', probability: 0.1 },
+        { area: 'cursed', probability: 0.08 },
+        { area: 'mountain', probability: 0.03 },
+        { area: 'forest', probability: 0.02 },
+      ],
+      predisposition: {
+        distant: 0,
+        nearby: -50,
+      },
+      allies: [],
+      enemies: [
+        (_creature: BaseRandomCreatureListItem) => {
+          // Oozes attack anything that moves
+          return true
+        },
+      ],
+    },
+  },
+  {
+    value: 'blink dog',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16809-blink-dog',
+      xp: 50,
+      tags: ['fey'],
+      sizes: ['medium'],
+      legalAlignments: ['lawful'],
+      moralAlignments: ['good'],
+      areas: [
+        { area: 'forest', probability: 0.3 },
+        { area: 'grassland', probability: 0.25 },
+        { area: 'hill', probability: 0.15 },
+        { area: 'coastal', probability: 0.1 },
+        { area: 'mountain', probability: 0.1 },
+        { area: 'cursed', probability: 0.05 },
+        { area: 'urban', probability: 0.02 },
+      ],
+      predisposition: {
+        distant: 20,
+        nearby: -10,
+      },
+      allies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'and',
+            tags: ['fey', 'ranger', 'druid'],
+            moralAlignments: ['good'],
+          })
+        },
+      ],
+      enemies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['beast', 'monstrosity'],
+            moralAlignments: ['evil'],
+            legalAlignments: ['chaotic'],
+            diet: {
+              dietTags: ['beast'],
+              dietSizes: getSizesLt('medium'),
+            },
+          })
+        },
+      ],
+    },
+  },
+  {
+    value: 'blood hawk',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16810-blood-hawk',
+      xp: 25,
+      tags: ['beast', 'bird'],
+      sizes: ['small'],
+      legalAlignments: ['neutral'],
+      moralAlignments: ['neutral'],
+      areas: [
+        { area: 'mountain', probability: 0.35 },
+        { area: 'hill', probability: 0.2 },
+        { area: 'grassland', probability: 0.15 },
+        { area: 'forest', probability: 0.1 },
+        { area: 'coastal', probability: 0.1 },
+        { area: 'desert', probability: 0.05 },
+      ],
+      predisposition: {
+        distant: -30,
+        nearby: -50,
+      },
+      allies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['monstrosity', 'druid', 'ranger', 'criminal'],
+          })
+        },
+      ],
+      enemies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            diet: {
+              dietTags: ['insect', 'fish', 'reptile', 'plant'],
+              dietSizes: getSizesLt('small'),
+            },
+          })
+        },
+      ],
+    },
+  },
+  {
+    value: 'boar',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16812-boar',
+      xp: 50,
+      tags: ['beast', 'mammal'],
+      sizes: ['medium'],
+      legalAlignments: ['neutral'],
+      moralAlignments: ['neutral'],
+      areas: [
+        { area: 'forest', probability: 0.3 },
+        { area: 'grassland', probability: 0.25 },
+        { area: 'hill', probability: 0.2 },
+        { area: 'swamp', probability: 0.1 },
+        { area: 'mountain', probability: 0.05 },
+        { area: 'coastal', probability: 0.05 },
+      ],
+      predisposition: {
+        distant: -20,
+        nearby: -50,
+      },
+      allies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['fey', 'druid', 'ranger'],
+          })
+        },
+      ],
+      enemies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            diet: {
+              dietTags: ['insect', 'fish', 'reptile', 'plant'],
+              dietSizes: getSizesLt('medium'),
+            },
+          })
+        },
+      ],
+    },
+  },
+  {
+    value: 'boggle',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/17224-boggle',
+      xp: 25,
+      tags: ['fey'],
+      sizes: ['small'],
+      legalAlignments: ['chaotic'],
+      moralAlignments: ['neutral'],
+      areas: [
+        { area: 'forest', probability: 0.4 },
+        { area: 'swamp', probability: 0.25 },
+        { area: 'urban', probability: 0.2 },
+        { area: 'dungeon', probability: 0.1 },
+        { area: 'cursed', probability: 0.05 },
+      ],
+      predisposition: {
+        distant: -50,
+        nearby: -50,
+      },
+      allies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'and',
+            tags: ['fey', 'druid'],
+            legalAlignments: ['neutral', 'chaotic'],
+          })
+        },
+      ],
+      enemies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            diet: {
+              dietTags: ['insect', 'fish', 'reptile', 'plant'],
+              dietSizes: getSizesLt('small'),
+            },
+          })
+        },
+        (creature: BaseRandomCreatureListItem) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'and',
+            tags: ['humanoid', 'lawEnforcement'],
+            legalAlignments: ['lawful'],
+          })
+        },
+      ],
+    },
+  },
+  {
+    value: 'bone naga',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.aidedd.org/dnd/monstres.php?vo=bone-naga',
+      xp: 1100,
+      tags: ['undead'],
+      sizes: ['large'],
+      legalAlignments: ['lawful'],
+      moralAlignments: ['evil'],
+      areas: [
+        { area: 'dungeon', probability: 0.4 },
+        { area: 'cursed', probability: 0.3 },
+        { area: 'underdark', probability: 0.2 },
+        { area: 'swamp', probability: 0.05 },
+        { area: 'mountain', probability: 0.03 },
+        { area: 'forest', probability: 0.02 },
+      ],
+      predisposition: {
+        distant: -20,
+        nearby: -50,
+      },
+      allies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['undead'],
+            moralAlignments: ['evil'],
+          })
+        },
+      ],
+      enemies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            moralAlignments: ['good'],
+          })
+        },
+      ],
+    },
+  },
+  {
+    value: 'brown bear',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16816-brown-bear',
+      xp: 200,
+      tags: ['beast', 'mammal'],
+      sizes: ['large'],
+      legalAlignments: ['neutral'],
+      moralAlignments: ['neutral'],
+      areas: [
+        { area: 'forest', probability: 0.4 },
+        { area: 'hill', probability: 0.25 },
+        { area: 'mountain', probability: 0.2 },
+        { area: 'grassland', probability: 0.1 },
+        { area: 'coastal', probability: 0.05 },
+      ],
+      predisposition: {
+        distant: 10,
+        nearby: -30,
+      },
+      allies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'and',
+            tags: ['druid', 'fey', 'ranger'],
+          })
+        },
+      ],
+      enemies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            diet: {
+              dietTags: ['insect', 'fish', 'reptile', 'plant'],
+              dietSizes: getSizesLt('large'),
             },
           })
         },
@@ -547,6 +872,102 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
     },
   },
   {
+    value: 'bugbear',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16843-bugbear',
+      xp: 200,
+      tags: ['goblinoid', 'humanoid'],
+      sizes: ['medium'],
+      legalAlignments: ['chaotic'],
+      moralAlignments: ['evil'],
+      areas: [
+        { area: 'forest', probability: 0.35 },
+        { area: 'dungeon', probability: 0.3 },
+        { area: 'hill', probability: 0.2 },
+        { area: 'mountain', probability: 0.1 },
+        { area: 'cursed', probability: 0.05 },
+      ],
+      regions: [
+        // TODO: Enable them for specific areas
+        { region: 'Dragonsbeard Glen', probability: 0 },
+      ],
+      predisposition: {
+        distant: -20,
+        nearby: -50,
+      },
+      allies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['goblinoid'],
+            creatureNames: ['orc'],
+          })
+        },
+      ],
+      enemies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['humanoid'],
+            moralAlignments: ['good'],
+            legalAlignments: ['lawful'],
+          })
+        },
+      ],
+    },
+  },
+  {
+    value: 'bugbear chief',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://5e.tools/bestiary/bugbear-chief-mm.html',
+      xp: 700,
+      tags: ['goblinoid', 'humanoid'],
+      sizes: ['medium'],
+      legalAlignments: ['chaotic'],
+      moralAlignments: ['evil'],
+      areas: [
+        { area: 'forest', probability: 0.35 },
+        { area: 'dungeon', probability: 0.3 },
+        { area: 'hill', probability: 0.2 },
+        { area: 'mountain', probability: 0.1 },
+        { area: 'cursed', probability: 0.05 },
+      ],
+      predisposition: {
+        distant: -20,
+        nearby: -50,
+      },
+      allies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['goblinoid', 'mercenary'],
+            creatureNames: ['orc'],
+          })
+        },
+      ],
+      enemies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['humanoid'],
+            moralAlignments: ['good'],
+            legalAlignments: ['lawful'],
+          })
+        },
+      ],
+    },
+  },
+  {
     value: 'bullywug',
     probability: function () {
       return getProbabilityMod(this.props)
@@ -573,7 +994,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       moralAlignments: ['evil'],
       enemies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getEnemiesFilter({
+          return getRelationshipFilter({
             creature,
             operation: 'or',
             diet: {
@@ -592,10 +1013,101 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       ],
       allies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getAlliesFilter({
+          return getRelationshipFilter({
             creature,
             operation: 'or',
             creatureNames: ['frog', 'toad', 'bullywug'],
+          })
+        },
+      ],
+    },
+  },
+  {
+    value: 'carrion crawler',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://5e.tools/bestiary.html#carrion%20crawler_mm',
+      xp: 450,
+      tags: ['monstrosity', 'insect'],
+      sizes: ['large'],
+      legalAlignments: ['neutral'],
+      moralAlignments: ['neutral'],
+      areas: [
+        { area: 'dungeon', probability: 0.4 },
+        { area: 'underdark', probability: 0.35 },
+        { area: 'swamp', probability: 0.1 },
+        { area: 'cursed', probability: 0.05 },
+        { area: 'forest', probability: 0.05 },
+        { area: 'mountain', probability: 0.05 },
+      ],
+      predisposition: {
+        distant: -30,
+        nearby: -50,
+      },
+      allies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['ooze', 'undead', 'monstrosity'],
+          })
+        },
+      ],
+      enemies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['beast', 'monstrosity', 'humanoid'],
+            moralAlignments: ['good'],
+          })
+        },
+      ],
+    },
+  },
+  {
+    value: 'cat',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16820-cat',
+      xp: 10,
+      tags: ['beast', 'mammal'],
+      sizes: ['tiny'],
+      legalAlignments: ['neutral'],
+      moralAlignments: ['neutral'],
+      areas: [
+        { area: 'urban', probability: 0.4 },
+        { area: 'forest', probability: 0.3 },
+        { area: 'grassland', probability: 0.2 },
+        { area: 'hill', probability: 0.05 },
+        { area: 'coastal', probability: 0.05 },
+      ],
+      predisposition: {
+        distant: 10,
+        nearby: -10,
+      },
+      allies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['humanoid', 'druid', 'ranger', 'fey'],
+          })
+        },
+      ],
+      enemies: [
+        (creature: BaseRandomCreatureListItem) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            diet: {
+              dietTags: ['insect', 'fish', 'reptile', 'plant'],
+              dietSizes: getSizesLt('tiny'),
+            },
           })
         },
       ],
@@ -627,7 +1139,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       moralAlignments: ['neutral'],
       enemies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getEnemiesFilter({
+          return getRelationshipFilter({
             creature,
             operation: 'or',
             diet: {
@@ -639,7 +1151,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       ],
       allies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getAlliesFilter({
+          return getRelationshipFilter({
             creature,
             operation: 'or',
             moralAlignments: ['evil'],
@@ -675,7 +1187,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       allies: [],
       enemies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getEnemiesFilter({
+          return getRelationshipFilter({
             creature,
             operation: 'or',
             diet: {
@@ -712,7 +1224,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       },
       allies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getAlliesFilter({
+          return getRelationshipFilter({
             creature,
             operation: 'or',
             creatureNames: ['zombie'],
@@ -721,7 +1233,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       ],
       enemies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getEnemiesFilter({
+          return getRelationshipFilter({
             creature,
             operation: 'or',
             tags: ['undead', 'humanoid'],
@@ -757,7 +1269,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       allies: [],
       enemies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getEnemiesFilter({
+          return getRelationshipFilter({
             creature,
             operation: 'or',
             diet: {
@@ -798,13 +1310,13 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       },
       allies: [
         (creature: BaseRandomCreatureListItem) => {
-          const evilFeyFilter = getAlliesFilter({
+          const evilFeyFilter = getRelationshipFilter({
             creature,
             operation: 'and',
             tags: ['fey'],
             moralAlignments: ['evil', 'neutral'],
           })
-          const darklingFilter = getAlliesFilter({
+          const darklingFilter = getRelationshipFilter({
             creature,
             operation: 'or',
             creatureNames: ['darkling', 'shadow', 'wraith'],
@@ -814,7 +1326,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       ],
       enemies: [
         (creature: BaseRandomCreatureListItem) => {
-          return getEnemiesFilter({
+          return getRelationshipFilter({
             creature,
             operation: 'or',
             tags: ['fey'],

@@ -594,13 +594,12 @@ const filterAlliesByXpRange = (
 
 const addCreatureToEncounter = (
   creatureList: RandomCreatureListItem[],
-  xpRange: { min: number; max: number },
   combatEncounter: CombatEncounter,
   xpLimit: number,
 ): boolean => {
-  if (creatureList.length > 0 && combatEncounter.xp + xpRange.min <= xpLimit) {
+  if (creatureList.length > 0) {
     const creatureItem = getListItem(creatureList) as RandomCreatureListItem
-    if (creatureItem) {
+    if (creatureItem && combatEncounter.xp + creatureItem.props.xp <= xpLimit) {
       const name = evaluateItem(creatureItem)
       if (!combatEncounter.creatures[name]) {
         combatEncounter.creatures[name] = {
@@ -657,24 +656,13 @@ const getAllies = (creature: RandomCreatureListItem, xpLimit: number) => {
     combatEncounter.count < 12 && // We don't want to go over 12 creatures, even if the xp is under the limit.
     getMultipliedXP(combatEncounter.xp, combatEncounter.count) < xpLimit
   ) {
-    let addedMinion,
-      addedStandard = true
-    addedMinion = addCreatureToEncounter(
-      minions,
-      xpRanges.minion,
-      combatEncounter,
-      xpLimit,
-    )
-    if (!addedMinion) {
-      addedStandard = addCreatureToEncounter(
-        standards,
-        xpRanges.standard,
-        combatEncounter,
-        xpLimit,
-      )
-    }
-    if (!addedStandard) {
-      addCreatureToEncounter(elites, xpRanges.elite, combatEncounter, xpLimit)
+    const listIndex = Math.floor(Math.random() * 3)
+    if (listIndex === 0) {
+      addCreatureToEncounter(minions, combatEncounter, xpLimit)
+    } else if (listIndex === 1) {
+      addCreatureToEncounter(standards, combatEncounter, xpLimit)
+    } else {
+      addCreatureToEncounter(elites, combatEncounter, xpLimit)
     }
     attemptsLeft--
   }
