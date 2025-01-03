@@ -9,11 +9,11 @@ export const List = () => {
   return (
     <Panel>
       <Typography variant="h1">List Generator</Typography>
+      <Button onClick={refetch}>Generate</Button>
       <Typography
         variant="body1"
         dangerouslySetInnerHTML={{ __html: output || '' }}
       />
-      <Button onClick={refetch}>Generate</Button>
     </Panel>
   )
 }

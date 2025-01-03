@@ -4,8 +4,8 @@ import { DEFAULT_KEY } from 'types/lists'
 
 export const generateOutput = (): string => {
   setContext({
-    areas: ['swamp', 'forest'],
-    regions: ['Dragonsbeard Glen'],
+    areas: ['swamp'],
+    regions: ['Dreadmire Swamp'],
     conditions: ['bright', 'clear'],
     party: {
       avgLevel: 4,

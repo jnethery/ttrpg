@@ -2,12 +2,21 @@ import { RandomListItem, Area, Region } from 'types/lists'
 import { EnvironmentalCondition } from 'types/environmentalConditions'
 
 export const creatureTags = [
+  'aberration',
   'amphibian',
+  'aquatic',
+  'arachnid',
   'beast',
   'bird',
+  'celestial',
+  'construct',
   'criminal',
   'druid',
+  'dwarf',
+  'elemental',
+  'elf',
   'fey',
+  'fiend',
   'fish',
   'goblinoid',
   'humanoid',

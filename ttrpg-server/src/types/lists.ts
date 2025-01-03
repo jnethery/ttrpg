@@ -31,7 +31,19 @@ const areas = [
   'urban',
 ] as const
 export type Area = (typeof areas)[number]
-export type Region = 'Dragonsbeard Glen'
+
+const regions = [
+  'Dreadmire Swamp', // The home of the ratfolk and bullywugs
+  'Veilwood Hollow', // The home of the druids and the verdant sepulcher
+  'Verdant Sepulcher', // The sacred burial ground of the druids
+  'Whispering Glade', // The home of the fey's court of illusions
+  'Shadewood Weald', // The dark forest surrounding the ruins of Khazgarad, one of the 6 temples
+  'Khazgarad Ruins', // The ruins of the temple of the prophecy of the shadow dragon
+  'Drakknarbuk Mine', // The dwarven mine, overrun by goblins
+  'Blighted Heart', // The heart of the forest
+  'Grimmhold', // The ratfolk city
+] as const
+export type Region = (typeof regions)[number]
 export interface ListContext {
   areas?: Area[]
   regions?: Region[]

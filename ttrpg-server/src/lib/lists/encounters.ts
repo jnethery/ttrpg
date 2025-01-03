@@ -8,8 +8,13 @@ import { getContext } from 'lib/lists/context'
 import { RandomCreatureListItem, RandomCreatureList } from 'types/creatures'
 import { Region, EncounterDifficulty } from 'types/lists'
 
-const regionLevels: Record<Region, number> = {
-  'Dragonsbeard Glen': 4,
+const regionLevels: Partial<Record<Region, number>> = {
+  'Dreadmire Swamp': 4,
+  'Shadewood Weald': 4,
+  'Veilwood Hollow': 5,
+  'Whispering Glade': 6,
+  'Drakknarbuk Mine': 6,
+  'Blighted Heart': 7,
 }
 const xpThresholds: Record<number, Record<EncounterDifficulty, number>> = {
   1: {
@@ -458,9 +463,11 @@ const creatureCategoryToXP: Record<
 }
 
 const getRegionLevel = (): number => {
-  const regions = getContext()?.regions ?? ['Dragonsbeard Glen']
+  const regions = getContext()?.regions ?? ['Dreadmire Swamp']
   // Get the highest level region
-  const regionLevelsArray = regions.map((region) => regionLevels[region])
+  const regionLevelsArray = regions
+    .map((region) => regionLevels[region])
+    .filter((region) => typeof region !== 'undefined') as number[]
   return Math.max(...regionLevelsArray)
 }
 
@@ -512,19 +519,6 @@ export const getXPThresholdForParty = (): Record<
   return threshold
 }
 
-/*
-const xpMultipliers = {
-  0: 1,
-  1: 1,
-  2: 1.5,
-  3: 2,
-  4: 2,
-  7: 2.5,
-  11: 3,
-  15: 4,
-}
-  */
-
 const getXPMultiplier = (numEnemies: number): number => {
   if (numEnemies >= 15) {
     return 4
@@ -565,6 +559,8 @@ const getAlliesList = (
   // Get the creature's allies
   const allyFilters = creature.props.allies
   let alliesList: RandomCreatureList = []
+
+  // These are the creatures they consider allies
   if (allyFilters.length > 0) {
     // Get all allies
     alliesList = config.creature
@@ -574,6 +570,27 @@ const getAlliesList = (
       .filter((item) => {
         return allyFilters.some((filter) => filter(item))
       }) as RandomCreatureListItem[]
+  }
+
+  // We want to have at least 3 creature types in a given battle.
+  // If there are not already 3 types (including the original creature),
+  // then try to populate with some creatures who consider THEM allies
+  const maxIterations = 50
+  let numIterations = maxIterations
+  while (numIterations > 0 && alliesList.length < 2) {
+    const prospectiveCreature = getListItem(
+      config.creature,
+    ) as RandomCreatureListItem
+    if (
+      prospectiveCreature &&
+      !alliesList.filter((ally) => ally.value === prospectiveCreature.value) &&
+      prospectiveCreature.props.allies.length > 0
+    ) {
+      if (prospectiveCreature.props.allies.some((filter) => filter(creature))) {
+        alliesList.push(prospectiveCreature)
+      }
+    }
+    numIterations--
   }
 
   // Add self to the list
@@ -597,6 +614,8 @@ const addCreatureToEncounter = (
   combatEncounter: CombatEncounter,
   xpLimit: number,
 ): boolean => {
+  const maxCreatures = 8
+
   if (creatureList.length > 0) {
     const creatureItem = getListItem(creatureList) as RandomCreatureListItem
     if (creatureItem && combatEncounter.xp + creatureItem.props.xp <= xpLimit) {
@@ -607,10 +626,12 @@ const addCreatureToEncounter = (
           count: 0,
         }
       }
-      combatEncounter.creatures[name].count++
-      combatEncounter.xp += creatureItem.props.xp
-      combatEncounter.count++
-      return true
+      if (combatEncounter.creatures[name].count < maxCreatures) {
+        combatEncounter.creatures[name].count++
+        combatEncounter.xp += creatureItem.props.xp
+        combatEncounter.count++
+        return true
+      }
     }
   }
   return false
@@ -649,11 +670,11 @@ const getAllies = (creature: RandomCreatureListItem, xpLimit: number) => {
     xp: 0,
     count: 0,
   }
+  addCreatureToEncounter([creature], combatEncounter, xpLimit)
 
   let attemptsLeft = 100
   while (
     attemptsLeft > 0 &&
-    combatEncounter.count < 12 && // We don't want to go over 12 creatures, even if the xp is under the limit.
     getMultipliedXP(combatEncounter.xp, combatEncounter.count) < xpLimit
   ) {
     const listIndex = Math.floor(Math.random() * 3)
@@ -691,6 +712,7 @@ export const xpToEncounterDifficulty = (xp: number): EncounterDifficulty => {
 // TODO: Fill out the generateEncounter function from the old code.
 // TODO: Make this return an object with the encounter details instead of a string
 // TODO: Add a check to see if an enemy is in combat already to suppress the `doing` calculation a second time.
+// TODO: See how close they are to the party and their disposition towards the party
 export const generateEncounter = (
   creature: RandomCreatureListItem,
   xpLimit: number,
