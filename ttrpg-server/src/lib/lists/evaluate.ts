@@ -31,11 +31,11 @@ const extractNestedListKeys = (input: string): string[] => {
  * @param key - The configuration key.
  * @returns The retrieved list item or null if not found.
  */
-export const getListItemFromKey = (
+export const getListItemFromKey = async (
   key: ConfigKey = DEFAULT_KEY,
-): RandomListItem | null => {
+): Promise<RandomListItem | null> => {
   const list = config[key]
-  return getListItem([...list])
+  return await getListItem([...list])
 }
 
 /**
@@ -46,14 +46,14 @@ export const getListItemFromKey = (
 export const getEvaluatedListItemFromKey = async (
   key: ConfigKey = DEFAULT_KEY,
 ): Promise<string | null> => {
-  const listItem = getListItemFromKey(key)
+  const listItem = await getListItemFromKey(key)
   return listItem ? await evaluateItem(listItem) : null
 }
 
 export const getEvaluatedListItem = async (
   list: RandomList,
 ): Promise<string | null> => {
-  const listItem = getListItem(list)
+  const listItem = await getListItem(list)
   return listItem ? await evaluateItem(listItem) : null
 }
 
@@ -63,10 +63,12 @@ export const getEvaluatedListItem = async (
  * @param context - Optional context for retrieval.
  * @returns The selected list item or null if not found.
  */
-export const getListItem = (list: RandomList): RandomListItem | null => {
+export const getListItem = async (
+  list: RandomList,
+): Promise<RandomListItem | null> => {
   const randNum = Math.random()
   let cumulativeProbability = 0
-  const normalizedList = normalizeProbabilities(list)
+  const normalizedList = await normalizeProbabilities(list)
   const debugItems = normalizedList.filter((item) => item.debug)
 
   if (debugItems.length && normalizedList.length !== debugItems.length) {
@@ -113,7 +115,7 @@ const evaluate = async (input: string): Promise<string> => {
 
   for (const key of nestedKeys) {
     if (isConfigKey(key)) {
-      const listItem = getListItemFromKey(key)
+      const listItem = await getListItemFromKey(key)
       if (listItem) {
         const value = await evaluateItem(listItem)
         result = result.replace(`[${key}]`, value)
@@ -134,7 +136,7 @@ const evaluate = async (input: string): Promise<string> => {
  * @param context - Optional context for resolving probabilities.
  * @returns The list with resolved probabilities.
  */
-const resolveProbabilities = (list: RandomList): RandomList => {
+const resolveProbabilities = async (list: RandomList): Promise<RandomList> => {
   return list.map((item) => {
     const resolvedProbability =
       typeof item.probability === 'number'
@@ -154,8 +156,10 @@ const resolveProbabilities = (list: RandomList): RandomList => {
  * @param context - Optional context for normalization.
  * @returns The list with normalized probabilities.
  */
-export const normalizeProbabilities = (list: RandomList): RandomList => {
-  const resolvedList = resolveProbabilities(list)
+export const normalizeProbabilities = async (
+  list: RandomList,
+): Promise<RandomList> => {
+  const resolvedList = await resolveProbabilities(list)
   const totalProbability = resolvedList.reduce(
     (total, item) => total + (item.probability as number),
     0,

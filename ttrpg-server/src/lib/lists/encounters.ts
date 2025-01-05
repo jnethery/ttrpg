@@ -544,9 +544,9 @@ const getMultipliedXP = (xp: number, numEnemies: number): number => {
   return xp * getXPMultiplier(numEnemies)
 }
 
-const getEnemy = (
+const getEnemy = async (
   creature: RandomCreatureListItem,
-): RandomCreatureListItem | null => {
+): Promise<RandomCreatureListItem | null> => {
   // Get the creature's enemies
   const enemyFilters = creature.props.enemies
   if (enemyFilters.length > 0) {
@@ -554,14 +554,14 @@ const getEnemy = (
     const enemyList = config.creature.filter((item) => {
       return enemyFilters.some(async (filter) => await filter(item))
     })
-    return getListItem(enemyList) as RandomCreatureListItem | null
+    return (await getListItem(enemyList)) as RandomCreatureListItem | null
   }
   return null
 }
 
-const getAlliesList = (
+const getAlliesList = async (
   creature: RandomCreatureListItem,
-): RandomCreatureListItem[] => {
+): Promise<RandomCreatureListItem[]> => {
   // Get the creature's allies
   const allyFilters = creature.props.allies
   let alliesList: RandomCreatureList = []
@@ -584,9 +584,9 @@ const getAlliesList = (
   const maxIterations = 50
   let numIterations = maxIterations
   while (numIterations > 0 && alliesList.length < 2) {
-    const prospectiveCreature = getListItem(
+    const prospectiveCreature = (await getListItem(
       config.creature,
-    ) as RandomCreatureListItem
+    )) as RandomCreatureListItem
     if (
       prospectiveCreature &&
       !alliesList.filter((ally) => ally.value === prospectiveCreature.value) &&
@@ -627,7 +627,9 @@ const addCreatureToEncounter = async (
   const maxCreatures = 8
 
   if (creatureList.length > 0) {
-    const creatureItem = getListItem(creatureList) as RandomCreatureListItem
+    const creatureItem = (await getListItem(
+      creatureList,
+    )) as RandomCreatureListItem
     if (creatureItem && combatEncounter.xp + creatureItem.props.xp <= xpLimit) {
       const name = await evaluateItem(creatureItem)
       if (!combatEncounter.creatures[name]) {
@@ -658,8 +660,8 @@ interface CombatEncounter {
   xp: number
   count: number
 }
-const getAllies = (creature: RandomCreatureListItem, xpLimit: number) => {
-  const alliesList = getAlliesList(creature)
+const getAllies = async (creature: RandomCreatureListItem, xpLimit: number) => {
+  const alliesList = await getAlliesList(creature)
   const xpRanges = getCreatureCategoryToXPForLevel()
   // There should be 0-8 minions, 0-4 standard, and 0-2 elite.
   // Based on the xpRanges, we can split the allies up into these categories.
@@ -680,21 +682,37 @@ const getAllies = (creature: RandomCreatureListItem, xpLimit: number) => {
     xp: 0,
     count: 0,
   }
-  addCreatureToEncounter([creature], combatEncounter, xpLimit)
+  await addCreatureToEncounter([creature], combatEncounter, xpLimit)
 
   let attemptsLeft = 100
   while (
     attemptsLeft > 0 &&
-    getMultipliedXP(combatEncounter.xp, combatEncounter.count) < xpLimit
+    getMultipliedXP(combatEncounter.xp, combatEncounter.count) < xpLimit &&
+    Object.keys(combatEncounter.creatures).length < 4 // We don't want to have more than 4 types of creatures in a given battle
   ) {
     const listIndex = Math.floor(Math.random() * 3)
     if (listIndex === 0) {
-      addCreatureToEncounter(minions, combatEncounter, xpLimit)
+      await addCreatureToEncounter(minions, combatEncounter, xpLimit)
     } else if (listIndex === 1) {
-      addCreatureToEncounter(standards, combatEncounter, xpLimit)
+      await addCreatureToEncounter(standards, combatEncounter, xpLimit)
     } else {
-      addCreatureToEncounter(elites, combatEncounter, xpLimit)
+      await addCreatureToEncounter(elites, combatEncounter, xpLimit)
     }
+    attemptsLeft--
+  }
+  const remaining = Object.keys(combatEncounter.creatures).map((name) => {
+    return combatEncounter.creatures[name].creature
+  })
+  while (
+    attemptsLeft > 0 &&
+    getMultipliedXP(combatEncounter.xp, combatEncounter.count) < xpLimit
+  ) {
+    const listIndex = Math.floor(Math.random() * remaining.length)
+    await addCreatureToEncounter(
+      [remaining[listIndex]],
+      combatEncounter,
+      xpLimit,
+    )
     attemptsLeft--
   }
 
@@ -719,6 +737,13 @@ export const xpToEncounterDifficulty = (xp: number): EncounterDifficulty => {
   return 'deadly'
 }
 
+export const getRandomItem = (array: string[]): string | null => {
+  if (!array.length) {
+    return null
+  }
+  return array[Math.floor(Math.random() * array.length)]
+}
+
 // TODO: Fill out the generateEncounter function from the old code.
 // TODO: Make this return an object with the encounter details instead of a string
 // TODO: Add a check to see if an enemy is in combat already to suppress the `doing` calculation a second time.
@@ -729,7 +754,18 @@ export const generateEncounter = async (
   encounterDifficulty: EncounterDifficulty,
   suppressAction: boolean = false,
 ): Promise<string> => {
-  const allies = getAllies(creature, xpLimit)
+  const allies = await getAllies(creature, xpLimit)
+
+  // Get the strongest creature and determine the alignment from them
+  const strongestAlly = Object.values(allies.creatures).reduce(
+    (prev, current) => {
+      return prev.creature.props.xp > current.creature.props.xp ? prev : current
+    },
+  )
+  let alignment = `${getRandomItem(strongestAlly.creature.props.legalAlignments ?? []) ?? 'neutral'} ${getRandomItem(strongestAlly.creature.props.moralAlignments ?? []) ?? 'neutral'}`
+  if (alignment === 'neutral neutral') {
+    alignment = 'neutral'
+  }
 
   const creaturesString = Object.keys(allies.creatures)
     .map((creature) => {
@@ -739,57 +775,126 @@ export const generateEncounter = async (
     .join(', ')
 
   // TODO: Convert to a function?
-  const { doing, evaluatedAction } = (() => {
+  const { doing, evaluatedAction } = await (async () => {
     if (suppressAction) {
       return { doing: null, evaluatedAction: '' }
     }
-    const doing = getListItemFromKey('doing')
-    const evaluatedAction = doing ? evaluateItem(doing) : ''
+    const doing = await getListItemFromKey('doing')
+    const evaluatedAction = doing ? await evaluateItem(doing) : ''
     return { doing, evaluatedAction }
   })()
 
   const doingString = doing ? `<li>they are ${evaluatedAction}</li>` : ''
-  const combatActions = ['hunting', 'fighting', 'fleeing'] as const
+  const combatActions = ['hunting', 'fighting', 'fleeing from'] as const
+  const idleActions = [
+    'in their lair',
+    'at their camp',
+    'stuck',
+    'lost',
+    'patrolling',
+    'exploring',
+    'traveling somewhere else',
+  ] as const
+  const hidingActions = ['trapped', 'hurt', 'guarding'] as const
+  const lairActions = ['in their lair', 'at their camp'] as const
+
+  const isCombatAction =
+    suppressAction ||
+    combatActions.includes(evaluatedAction as (typeof combatActions)[number])
+  const isIdleAction = idleActions.includes(
+    evaluatedAction as (typeof idleActions)[number],
+  )
+  const isHidingAction = hidingActions.includes(
+    evaluatedAction as (typeof hidingActions)[number],
+  )
+  const isLairAction = lairActions.includes(
+    evaluatedAction as (typeof lairActions)[number],
+  )
+
+  const behaviors = Object.keys(allies.creatures)
+    .map((name) => {
+      const behaviorIndex = (() => {
+        if (isCombatAction) {
+          return 'tactics'
+        } else if (isIdleAction) {
+          return getRandomItem(['idle', 'eating']) as 'idle' | 'eating'
+        } else if (isHidingAction) {
+          return 'hiding'
+        }
+        return 'idle'
+      })()
+      return (
+        name +
+        ': ' +
+        allies.creatures[name].creature.props.behavior[behaviorIndex]
+      )
+    })
+    .join(', ')
+
+  const proximity = getRandomItem(['nearby', 'distant'])
 
   let enemyString = ''
-  if (
-    combatActions.includes(evaluatedAction as (typeof combatActions)[number])
-  ) {
+  if (!suppressAction && isCombatAction) {
     // Get one of the creature's enemies
-    const enemy = getEnemy(creature)
+    const enemy = await getEnemy(creature)
     // What a pacifist. He has no enemies. Let's generate another encounter for him.
     // TODO: Run through the possible list of creatures and find one whose enemy criteria fits.
     if (!enemy) {
       return generateEncounter(creature, xpLimit, encounterDifficulty)
     }
-    enemyString = await generateEncounter(
-      enemy,
-      xpLimit,
-      encounterDifficulty,
-      true,
-    )
+    enemyString =
+      `the following creatures: ` +
+      (await generateEncounter(enemy, xpLimit, encounterDifficulty, true))
   }
 
   const result = `
     <ul>
       <li>${creaturesString}</li>
+      <li>Setting: ${getContext()?.areas?.join(', ')}</li>
       <li>They are ${xpToEncounterDifficulty(allies.xp)} (${allies.xp} XP total, ${Math.round(allies.xp / (getContext()?.party?.numPlayers ?? 4))} XP each)</li>
+      <li>They are ${proximity}</li>
+      <li>Their alignment is ${alignment}</li>
+      <li>Typical behavior: ${behaviors}</li>
       ${doingString}
     </ul>
     ${enemyString}
   `
 
+  if (suppressAction) {
+    return result
+  }
+
+  const useAI = getContext()?.useAI ?? false
+  if (useAI) {
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'user',
+          content: `
+            Summarize this D&D 5E encounter from the perspective of a party of adventurers, narrated like "You see a...", 
+            describing the scene: ${result}. 
+            ${isHidingAction ? 'do not reveal the presence of the creatures or hint at their existence, but instead describe the scary and tense ambience of the scene.' : ''}
+            ${
+              !isHidingAction
+                ? `
+              Prefer to describe the creatures rather than using their names. 
+              Their difficulty and alignment should be implicitly stated, but not explicit. 
+              For instance, if a group is 'chaotic evil', 
+              they or their actions should be described as a synonym for chaotic, 
+              like "frantic", and their morality should be represented by their viciousness.
+            `
+                : ''
+            }
+            It should be 3 sentences at max.
+            ${['hard', 'deadly'].includes(encounterDifficulty) ? 'add a list of treasures they would logically possess, as well as who logically possesses what (using their name), scaled to reward 4 players of level 4, formatted as an HTML unordered list preceded by a <p>Treasures</p>.' : ''}
+            ${isLairAction ? 'add a description of their lair, including any traps or defenses with corresponding Skill and DC to get past it, as well as any treasures (hidden or obvious) with corresponding Skill and DC to find them, formatted as an HTML unordered list preceded by a <p>Lair</p>. After it, write a short summary of the lair.' : ''}
+          `,
+        },
+      ],
+    })
+
+    return `${result}<br/>Summary: ${completion.choices[0].message.content}`
+  }
   return result
-
-  const completion = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: [
-      {
-        role: 'user',
-        content: `Summarize this D&D 5E encounter, describing the creatures and what they are doing: ${result}`,
-      },
-    ],
-  })
-
-  return `${result}<br/>Summary: ${completion.choices[0].message}`
 }

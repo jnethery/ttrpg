@@ -1,19 +1,21 @@
 import { getListItemFromKey, evaluateItem } from 'lib/lists/evaluate'
 import { setContext } from 'lib/lists/context'
-import { DEFAULT_KEY } from 'types/lists'
+import { DEFAULT_KEY, ListContext } from 'types/lists'
 
-export const generateOutput = async (): Promise<string> => {
+export const generateOutput = async (context: ListContext): Promise<string> => {
   setContext({
-    areas: ['swamp'],
-    regions: ['Dreadmire Swamp'],
-    conditions: ['bright', 'clear'],
-    party: {
+    areas: context.areas ?? ['swamp'],
+    regions: context.regions ?? ['Dreadmire Swamp'],
+    conditions: context.conditions ?? ['bright', 'clear'],
+    party: context.party ?? {
       avgLevel: 4,
       numPlayers: 4,
       crMultiplier: 1,
     },
+    useAI: context.useAI ?? false,
   })
-  const item = getListItemFromKey(DEFAULT_KEY)
+  console.log({ context })
+  const item = await getListItemFromKey(DEFAULT_KEY)
   return item ? await evaluateItem(item) : ''
 }
 

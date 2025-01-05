@@ -13,8 +13,6 @@ import { EncounterDifficulty } from 'types/lists'
 export const generateTracks = async (): Promise<string> => {
   const defaultString = 'old, unidentifiable'
 
-  let creatureName = defaultString
-  let creatureItem = null
   const encounterDifficulty = ((await getEvaluatedListItemFromKey(
     'encounterDifficulty',
   )) ?? 'hard') as EncounterDifficulty
@@ -25,10 +23,15 @@ export const generateTracks = async (): Promise<string> => {
   }
   const xpLimit =
     getXPThresholdForParty()[encounterDifficulty] * numPlayers * crMultiplier
-  const eligibleCreatures = config.creature.filter(
-    (creature) => creature.props.xp <= xpLimit,
-  )
-  const prospectiveCreature = getListItem(eligibleCreatures)
+  const eligibleCreatures = getContext()?.creatureName
+    ? config.creature.filter(
+        (creature) => creature.value === getContext().creatureName,
+      )
+    : config.creature.filter((creature) => creature.props.xp <= xpLimit)
+
+  let creatureName = defaultString
+  let creatureItem = null
+  const prospectiveCreature = await getListItem(eligibleCreatures)
   if (prospectiveCreature && typeof prospectiveCreature.value === 'string') {
     creatureItem = prospectiveCreature
     creatureName = await evaluateItem(creatureItem)

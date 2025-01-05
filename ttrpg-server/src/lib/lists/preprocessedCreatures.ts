@@ -33,7 +33,6 @@ import {
   getSizesLt,
   getSizesLte,
 } from 'types/creatures'
-import { creature } from './arrays/creature'
 
 // TODO: Add Magma Mephits and other fire elementals when you add fire regions
 // TODO: Add Intellect Devourer when you add Mind Flayers, if ever
@@ -205,15 +204,15 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
           })
         },
       ],
-    },
-    behavior: {
-      idle: 'The young kruthik skitters nervously around its territory, staying close to the adults for protection.',
-      eating:
-        'It gnaws on small creatures or scraps of meat left behind by larger kruthiks.',
-      hiding:
-        'It burrows into loose rock or hides under debris, relying on its small size to remain unseen.',
-      tactics:
-        'The young kruthik swarms with others of its kind, aiming to overwhelm enemies through numbers. It uses its sharp claws to strike quickly before retreating behind stronger allies.',
+      behavior: {
+        idle: 'The young kruthik skitters nervously around its territory, staying close to the adults for protection.',
+        eating:
+          'It gnaws on small creatures or scraps of meat left behind by larger kruthiks.',
+        hiding:
+          'It burrows into loose rock or hides under debris, relying on its small size to remain unseen.',
+        tactics:
+          'The young kruthik swarms with others of its kind, aiming to overwhelm enemies through numbers. It uses its sharp claws to strike quickly before retreating behind stronger allies.',
+      },
     },
   },
   {
@@ -242,7 +241,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       legalAlignments: ['neutral'],
       moralAlignments: ['evil'],
       enemies: [
-        () => {
+        async () => {
           return true
         },
       ],
@@ -1153,7 +1152,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       legalAlignments: ['chaotic'],
       moralAlignments: ['evil'],
       enemies: [
-        () => {
+        async () => {
           return true
         },
       ],
@@ -1581,7 +1580,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       },
       allies: [],
       enemies: [
-        (_creature: BaseRandomCreatureListItem) => {
+        async (_creature: BaseRandomCreatureListItem) => {
           return true
         },
       ],
@@ -6759,7 +6758,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
         },
       ],
       enemies: [
-        (_creature: BaseRandomCreatureListItem) => {
+        async (_creature: BaseRandomCreatureListItem) => {
           return true
         },
       ],
@@ -7956,16 +7955,16 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
         nearby: -50, // Highly aggressive and predatory in close quarters
       },
       allies: [
-        (creature) => {
+        async (creature) => {
           return (
             creature.value !== 'giant wolf spider' &&
-            getRelationshipFilter({
+            (await getRelationshipFilter({
               creature,
               operation: 'or',
               tags: ['humanoid', 'shapeshifter', 'beast'],
               moralAlignments: ['neutral', 'evil'],
               creatureNames: ['wolf'],
-            })
+            }))
           )
         },
       ],

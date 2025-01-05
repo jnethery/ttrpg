@@ -32,7 +32,7 @@ export const doing = [
     probability: 1 / 3,
   },
   {
-    value: 'fleeing',
+    value: 'fleeing from',
     probability: 0.5,
   },
   {
