@@ -4,21 +4,20 @@ import {
   getListItem,
   getEvaluatedListItemFromKey,
   evaluateItem,
-  normalizeProbabilities,
 } from 'lib/lists/evaluate'
 import { generateEncounter, getXPThresholdForParty } from 'lib/lists/encounters'
 import { getContext } from 'lib/lists/context'
 import { RandomCreatureListItem } from 'types/creatures'
 import { EncounterDifficulty } from 'types/lists'
 
-export const generateTracks = (): string => {
+export const generateTracks = async (): Promise<string> => {
   const defaultString = 'old, unidentifiable'
 
   let creatureName = defaultString
   let creatureItem = null
-  const encounterDifficulty = (getEvaluatedListItemFromKey(
+  const encounterDifficulty = ((await getEvaluatedListItemFromKey(
     'encounterDifficulty',
-  ) ?? 'hard') as EncounterDifficulty
+  )) ?? 'hard') as EncounterDifficulty
   const partyContext = getContext()?.party
   const { numPlayers, crMultiplier } = partyContext ?? {
     numPlayers: 4,
@@ -32,7 +31,7 @@ export const generateTracks = (): string => {
   const prospectiveCreature = getListItem(eligibleCreatures)
   if (prospectiveCreature && typeof prospectiveCreature.value === 'string') {
     creatureItem = prospectiveCreature
-    creatureName = evaluateItem(creatureItem)
+    creatureName = await evaluateItem(creatureItem)
   }
 
   let trackString = `
@@ -46,7 +45,7 @@ export const generateTracks = (): string => {
   `
   if (creatureItem) {
     trackString += `
-      If followed: ${generateEncounter(creatureItem as RandomCreatureListItem, xpLimit, encounterDifficulty)}
+      If followed: ${await generateEncounter(creatureItem as RandomCreatureListItem, xpLimit, encounterDifficulty)}
     `
   }
   return trackString

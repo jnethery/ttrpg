@@ -1,3 +1,5 @@
+import OpenAI from 'openai'
+
 import { config } from 'lib/lists'
 import {
   getListItem,
@@ -7,6 +9,10 @@ import {
 import { getContext } from 'lib/lists/context'
 import { RandomCreatureListItem, RandomCreatureList } from 'types/creatures'
 import { Region, EncounterDifficulty } from 'types/lists'
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+})
 
 const regionLevels: Partial<Record<Region, number>> = {
   'Dreadmire Swamp': 4,
@@ -546,7 +552,7 @@ const getEnemy = (
   if (enemyFilters.length > 0) {
     // Get a random enemy
     const enemyList = config.creature.filter((item) => {
-      return enemyFilters.some((filter) => filter(item))
+      return enemyFilters.some(async (filter) => await filter(item))
     })
     return getListItem(enemyList) as RandomCreatureListItem | null
   }
@@ -568,7 +574,7 @@ const getAlliesList = (
         return item.value !== creature.value
       })
       .filter((item) => {
-        return allyFilters.some((filter) => filter(item))
+        return allyFilters.some(async (filter) => await filter(item))
       }) as RandomCreatureListItem[]
   }
 
@@ -586,7 +592,11 @@ const getAlliesList = (
       !alliesList.filter((ally) => ally.value === prospectiveCreature.value) &&
       prospectiveCreature.props.allies.length > 0
     ) {
-      if (prospectiveCreature.props.allies.some((filter) => filter(creature))) {
+      if (
+        prospectiveCreature.props.allies.some(
+          async (filter) => await filter(creature),
+        )
+      ) {
         alliesList.push(prospectiveCreature)
       }
     }
@@ -609,17 +619,17 @@ const filterAlliesByXpRange = (
   })
 }
 
-const addCreatureToEncounter = (
+const addCreatureToEncounter = async (
   creatureList: RandomCreatureListItem[],
   combatEncounter: CombatEncounter,
   xpLimit: number,
-): boolean => {
+): Promise<boolean> => {
   const maxCreatures = 8
 
   if (creatureList.length > 0) {
     const creatureItem = getListItem(creatureList) as RandomCreatureListItem
     if (creatureItem && combatEncounter.xp + creatureItem.props.xp <= xpLimit) {
-      const name = evaluateItem(creatureItem)
+      const name = await evaluateItem(creatureItem)
       if (!combatEncounter.creatures[name]) {
         combatEncounter.creatures[name] = {
           creature: creatureItem,
@@ -713,12 +723,12 @@ export const xpToEncounterDifficulty = (xp: number): EncounterDifficulty => {
 // TODO: Make this return an object with the encounter details instead of a string
 // TODO: Add a check to see if an enemy is in combat already to suppress the `doing` calculation a second time.
 // TODO: See how close they are to the party and their disposition towards the party
-export const generateEncounter = (
+export const generateEncounter = async (
   creature: RandomCreatureListItem,
   xpLimit: number,
   encounterDifficulty: EncounterDifficulty,
   suppressAction: boolean = false,
-): string => {
+): Promise<string> => {
   const allies = getAllies(creature, xpLimit)
 
   const creaturesString = Object.keys(allies.creatures)
@@ -752,10 +762,15 @@ export const generateEncounter = (
     if (!enemy) {
       return generateEncounter(creature, xpLimit, encounterDifficulty)
     }
-    enemyString = generateEncounter(enemy, xpLimit, encounterDifficulty, true)
+    enemyString = await generateEncounter(
+      enemy,
+      xpLimit,
+      encounterDifficulty,
+      true,
+    )
   }
 
-  return `
+  const result = `
     <ul>
       <li>${creaturesString}</li>
       <li>They are ${xpToEncounterDifficulty(allies.xp)} (${allies.xp} XP total, ${Math.round(allies.xp / (getContext()?.party?.numPlayers ?? 4))} XP each)</li>
@@ -763,4 +778,18 @@ export const generateEncounter = (
     </ul>
     ${enemyString}
   `
+
+  return result
+
+  const completion = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [
+      {
+        role: 'user',
+        content: `Summarize this D&D 5E encounter, describing the creatures and what they are doing: ${result}`,
+      },
+    ],
+  })
+
+  return `${result}<br/>Summary: ${completion.choices[0].message}`
 }

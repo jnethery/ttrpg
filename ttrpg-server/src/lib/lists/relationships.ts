@@ -20,7 +20,7 @@ interface RelationshipsFilterProps {
   tags?: CreatureTag[]
 }
 
-export const getRelationshipFilter = ({
+export const getRelationshipFilter = async ({
   operation,
   creature,
   creatureNames,
@@ -28,11 +28,11 @@ export const getRelationshipFilter = ({
   moralAlignments,
   legalAlignments,
   tags,
-}: RelationshipsFilterProps): boolean => {
+}: RelationshipsFilterProps): Promise<boolean> => {
   const conditions = []
 
   if (creatureNames) {
-    const creatureName = evaluateItem(creature)
+    const creatureName = await evaluateItem(creature)
     const creatureCondition = creatureNames.some((name) =>
       creatureName.includes(name),
     )

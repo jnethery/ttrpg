@@ -7,10 +7,12 @@ export const creatureTags = [
   'aquatic',
   'arachnid',
   'beast',
+  'beholder',
   'bird',
   'celestial',
   'construct',
   'criminal',
+  'draconic',
   'druid',
   'dwarf',
   'elemental',
@@ -18,6 +20,7 @@ export const creatureTags = [
   'fey',
   'fiend',
   'fish',
+  'gnome',
   'goblinoid',
   'humanoid',
   'insect',
@@ -26,9 +29,11 @@ export const creatureTags = [
   'mercenary',
   'monstrosity',
   'ooze',
+  'orc',
   'plant',
   'ranger',
   'reptile',
+  'shapeshifter',
   'swarm',
   'undead',
 ] as const
@@ -108,6 +113,12 @@ export interface BaseCreatureProps extends AttributeSet {
   }
   enemies: RelationshipCriteria
   allies: RelationshipCriteria
+  behavior: {
+    idle: string
+    eating: string
+    hiding: string
+    tactics: string
+  }
 }
 
 export interface BaseRandomCreatureListItem extends RandomListItem {
@@ -122,5 +133,5 @@ export type BaseRandomCreatureList = BaseRandomCreatureListItem[]
 export type RandomCreatureList = RandomCreatureListItem[]
 
 export type RelationshipCriteria = Array<
-  (creature: BaseRandomCreatureListItem) => boolean
+  (creature: BaseRandomCreatureListItem) => Promise<boolean>
 >

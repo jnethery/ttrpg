@@ -2,7 +2,7 @@ import { getListItemFromKey, evaluateItem } from 'lib/lists/evaluate'
 import { setContext } from 'lib/lists/context'
 import { DEFAULT_KEY } from 'types/lists'
 
-export const generateOutput = (): string => {
+export const generateOutput = async (): Promise<string> => {
   setContext({
     areas: ['swamp'],
     regions: ['Dreadmire Swamp'],
@@ -14,7 +14,7 @@ export const generateOutput = (): string => {
     },
   })
   const item = getListItemFromKey(DEFAULT_KEY)
-  return item ? evaluateItem(item) : ''
+  return item ? await evaluateItem(item) : ''
 }
 
 // Need to convert all this garbage to TS somehow

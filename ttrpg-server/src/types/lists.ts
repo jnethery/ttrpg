@@ -1,7 +1,7 @@
 import { EnvironmentalCondition } from 'types/environmentalConditions'
 
 export const DEFAULT_KEY = 'main'
-export type ValueFunction = () => string
+export type ValueFunction = () => Promise<string>
 export type ProbabilityFunction = () => number
 export interface RandomListItem {
   value: string | ValueFunction
@@ -21,6 +21,7 @@ const areas = [
   'cursed',
   'desert',
   'dungeon',
+  'fire',
   'forest',
   'grassland',
   'hill',

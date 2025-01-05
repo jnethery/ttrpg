@@ -43,16 +43,18 @@ export const getListItemFromKey = (
  * @param key - The configuration key.
  * @returns The evaluated list item as a string or null if not found.
  */
-export const getEvaluatedListItemFromKey = (
+export const getEvaluatedListItemFromKey = async (
   key: ConfigKey = DEFAULT_KEY,
-): string | null => {
+): Promise<string | null> => {
   const listItem = getListItemFromKey(key)
-  return listItem ? evaluateItem(listItem) : null
+  return listItem ? await evaluateItem(listItem) : null
 }
 
-export const getEvaluatedListItem = (list: RandomList): string | null => {
+export const getEvaluatedListItem = async (
+  list: RandomList,
+): Promise<string | null> => {
   const listItem = getListItem(list)
-  return listItem ? evaluateItem(listItem) : null
+  return listItem ? await evaluateItem(listItem) : null
 }
 
 /**
@@ -94,8 +96,9 @@ export const getListItem = (list: RandomList): RandomListItem | null => {
  * @param context - Optional context for evaluation.
  * @returns The evaluated value as a string.
  */
-export const evaluateItem = (item: RandomListItem): string => {
-  const itemValue = typeof item.value === 'string' ? item.value : item.value()
+export const evaluateItem = async (item: RandomListItem): Promise<string> => {
+  const itemValue =
+    typeof item.value === 'string' ? item.value : await item.value()
   return evaluate(itemValue)
 }
 
@@ -104,7 +107,7 @@ export const evaluateItem = (item: RandomListItem): string => {
  * @param input - The input string to evaluate.
  * @returns The evaluated string.
  */
-const evaluate = (input: string): string => {
+const evaluate = async (input: string): Promise<string> => {
   let result = input
   const nestedKeys = extractNestedListKeys(input)
 
@@ -112,7 +115,7 @@ const evaluate = (input: string): string => {
     if (isConfigKey(key)) {
       const listItem = getListItemFromKey(key)
       if (listItem) {
-        const value = evaluateItem(listItem)
+        const value = await evaluateItem(listItem)
         result = result.replace(`[${key}]`, value)
       }
     }
