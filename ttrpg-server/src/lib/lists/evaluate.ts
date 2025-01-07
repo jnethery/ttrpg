@@ -1,5 +1,5 @@
 import { config, ConfigKey, isConfigKey } from 'lib/lists'
-import { DEFAULT_KEY, RandomList, RandomListItem } from 'types/lists'
+import { DEFAULT_KEY, RandomList, RandomListItem, Value } from 'types/lists'
 
 /**
  * Utility Functions
@@ -98,9 +98,22 @@ export const getListItem = async (
  * @param context - Optional context for evaluation.
  * @returns The evaluated value as a string.
  */
-export const evaluateItem = async (item: RandomListItem): Promise<string> => {
-  const itemValue =
-    typeof item.value === 'string' ? item.value : await item.value()
+export const evaluateItem = async ({
+  value,
+  props,
+}: {
+  value: Value
+  props?: any
+}): Promise<string> => {
+  const itemValue = await (async () => {
+    if (typeof value === 'string') {
+      return value
+    } else if (typeof value === 'function') {
+      const propsObject = typeof props === 'function' ? await props() : props
+      return await value(propsObject)
+    }
+    return ''
+  })()
   return evaluate(itemValue)
 }
 

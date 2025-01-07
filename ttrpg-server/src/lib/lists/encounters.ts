@@ -874,7 +874,6 @@ export const generateEncounter = async (
   const result = `
     <ul>
       <li>${creaturesString}</li>
-      <li>Setting: ${getContext()?.areas?.join(', ')}, environmental conditions: ${getContext()?.conditions?.join(', ')}</li>
       <li>They are ${xpToEncounterDifficulty(allies.xp)} (${allies.xp} XP total, ${Math.round(allies.xp / (getContext()?.party?.numPlayers ?? 4))} XP each)</li>
       <li>They are ${proximity}</li>
       <li>Their alignment is ${alignment}</li>
@@ -889,35 +888,36 @@ export const generateEncounter = async (
     return result
   }
 
-  const useAI = getContext()?.useAI ?? false
-  if (useAI) {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'user',
-          content: `
-            Summarize this D&D 5E encounter from the perspective of a party of adventurers, narrated like "You see a...", 
-            describing the scene: ${result}. 
-            ${isHidingAction ? 'do not reveal the presence of the creatures or hint at their existence, but instead describe the scary and tense ambience of the scene.' : ''}
-            ${
-              !isHidingAction
-                ? `
-              Prefer to describe the creatures rather than using their names. 
-              Their difficulty and alignment should be implicitly stated, but not explicit. 
-              For instance, if a group is 'chaotic evil', 
-              they or their actions should be described as a synonym for chaotic, 
-              like "frantic", and their morality should be represented by their viciousness.
-            `
-                : ''
-            }
-            It should be 3 sentences at max.
-          `,
-        },
-      ],
-    })
+  // TODO: Move AI summary to the event function
+  // const useAI = getContext()?.useAI ?? false
+  // if (useAI) {
+  //   const completion = await openai.chat.completions.create({
+  //     model: 'gpt-4o-mini',
+  //     messages: [
+  //       {
+  //         role: 'user',
+  //         content: `
+  //           Summarize this D&D 5E encounter from the perspective of a party of adventurers, narrated like "You see a...",
+  //           describing the scene: ${result}.
+  //           ${isHidingAction ? 'do not reveal the presence of the creatures or hint at their existence, but instead describe the scary and tense ambience of the scene.' : ''}
+  //           ${
+  //             !isHidingAction
+  //               ? `
+  //             Prefer to describe the creatures rather than using their names.
+  //             Their difficulty and alignment should be implicitly stated, but not explicit.
+  //             For instance, if a group is 'chaotic evil',
+  //             they or their actions should be described as a synonym for chaotic,
+  //             like "frantic", and their morality should be represented by their viciousness.
+  //           `
+  //               : ''
+  //           }
+  //           It should be 3 sentences at max.
+  //         `,
+  //       },
+  //     ],
+  //   })
 
-    return `${result}<br/>Summary: ${completion.choices[0].message.content}`
-  }
+  //   return `${result}<br/>Encounter Summary: ${completion.choices[0].message.content}`
+  // }
   return result
 }

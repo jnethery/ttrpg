@@ -26,9 +26,8 @@ import { RandomList } from 'types/lists'
  */
 
 export const event: RandomList = [
-  { value: '[mundane]', probability: 4 / 12 },
-  { value: '[location]', probability: 2 / 12 },
+  { value: '[mundane]', probability: 4 / 12, debug: true },
   { value: '[hardship]', probability: 2 / 12 },
-  { value: generateTracks, probability: 3 / 12, debug: true },
+  { value: generateTracks, probability: 3 / 12 },
   { value: '[encounter]', probability: 1 / 12 },
 ]
