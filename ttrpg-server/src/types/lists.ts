@@ -38,7 +38,7 @@ export const areas = [
 ] as const
 export type Area = (typeof areas)[number]
 
-const regions = [
+export const regions = [
   'Dreadmire Swamp', // The home of the ratfolk and bullywugs
   'Veilwood Hollow', // The home of the druids and the verdant sepulcher
   'Verdant Sepulcher', // The sacred burial ground of the druids
@@ -50,20 +50,22 @@ const regions = [
   'Grimmhold', // The ratfolk city
 ] as const
 export type Region = (typeof regions)[number]
+
+export interface Party {
+  avgLevel: number
+  numPlayers: number
+  // This is the multiplier for the party's CR.
+  // If encounters are too easy, the multiplier can be increased,
+  // and if they are too hard, it can be decreased.
+  crMultiplier: number
+}
 export interface ListContext {
   useAI?: boolean
   creatureName?: string
   areas?: Area[]
   regions?: Region[]
   conditions?: EnvironmentalCondition[]
-  party?: {
-    avgLevel: number
-    numPlayers: number
-    // This is the multiplier for the party's CR.
-    // If encounters are too easy, the multiplier can be increased,
-    // and if they are too hard, it can be decreased.
-    crMultiplier: number
-  }
+  party?: Party
 }
 
 export const ListContextRequestSchema = z.object({
@@ -72,6 +74,9 @@ export const ListContextRequestSchema = z.object({
   areas: z.string().optional(),
   regions: z.string().optional(),
   conditions: z.string().optional(),
+  heat: z.string().optional(),
+  precipitationAmount: z.string().optional(),
+  precipitationSize: z.string().optional(),
   party: z.string().optional(),
 })
 

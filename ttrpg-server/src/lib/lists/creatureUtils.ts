@@ -1,30 +1,31 @@
 import { getContext } from 'lib/lists/context'
 import { BaseCreatureProps, CreatureTag } from 'types/creatures'
 
+// TODO: This is not performant when verifying that a creature is valid for EVERY given area, region, etc.
 export const getProbabilityMod = (
   props: BaseCreatureProps,
   baseProbability: number = 1,
 ) => {
+  const { areas, regions, conditions } = getContext()
+
   const areaProbability =
-    'areas' in props
+    'areas' in props && areas && areas.length
       ? props.areas
-          ?.filter((area) => getContext()?.areas?.includes(area.area))
+          ?.filter((area) => areas.includes(area.area))
           .sort((a, b) => a.probability - b.probability)
           .pop()?.probability
       : 1
   const regionProbability =
-    'regions' in props
+    'regions' in props && regions && regions.length
       ? props.regions
-          ?.filter((region) => getContext()?.regions?.includes(region.region))
+          ?.filter((region) => regions.includes(region.region))
           .sort((a, b) => a.probability - b.probability)
           .pop()?.probability
       : 1
   const environmentalConditionProbability =
-    'conditions' in props
+    'conditions' in props && conditions && conditions.length
       ? props.conditions
-          ?.filter((condition) =>
-            getContext()?.conditions?.includes(condition.condition),
-          )
+          ?.filter((condition) => conditions.includes(condition.condition))
           .sort((a, b) => a.probability - b.probability)
           .pop()?.probability
       : 1

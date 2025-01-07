@@ -3,18 +3,20 @@ import { setContext } from 'lib/lists/context'
 import { DEFAULT_KEY, ListContext } from 'types/lists'
 
 export const generateOutput = async (context: ListContext): Promise<string> => {
-  setContext({
-    areas: context.areas ?? ['swamp'],
-    regions: context.regions ?? ['Dreadmire Swamp'],
-    conditions: context.conditions ?? ['bright', 'clear'],
+  const formattedContext: ListContext = {
+    areas: context.areas && context.areas.length ? context.areas : [],
+    regions: context.regions && context.regions.length ? context.regions : [],
+    conditions:
+      context.conditions && context.conditions.length ? context.conditions : [],
     party: context.party ?? {
       avgLevel: 4,
       numPlayers: 4,
       crMultiplier: 1,
     },
+    creatureName: context.creatureName,
     useAI: context.useAI ?? false,
-  })
-  console.log({ context })
+  }
+  setContext(formattedContext)
   const item = await getListItemFromKey(DEFAULT_KEY)
   return item ? await evaluateItem(item) : ''
 }

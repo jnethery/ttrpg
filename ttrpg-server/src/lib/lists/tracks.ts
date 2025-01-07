@@ -23,10 +23,13 @@ export const generateTracks = async (): Promise<string> => {
   }
   const xpLimit =
     getXPThresholdForParty()[encounterDifficulty] * numPlayers * crMultiplier
-  const eligibleCreatures = getContext()?.creatureName
-    ? config.creature.filter(
-        (creature) => creature.value === getContext().creatureName,
-      )
+  const contextCreatureName = getContext()?.creatureName
+  const eligibleCreatures = contextCreatureName
+    ? config.creature
+        .filter((creature) => creature.value === contextCreatureName)
+        .map((creature) => {
+          return { ...creature, probability: 1 }
+        })
     : config.creature.filter((creature) => creature.props.xp <= xpLimit)
 
   let creatureName = defaultString

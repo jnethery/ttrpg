@@ -1,6 +1,11 @@
 import { ZodIssue, ZodSchema } from 'zod'
 import { Character } from 'types/characters'
 import { ListContext } from 'types/lists'
+import {
+  HeatCondition,
+  PrecipitationAmount,
+  PrecipitationSize,
+} from 'types/environmentalConditions'
 
 type Validator<T> =
   | { success: true; data: T }
@@ -23,7 +28,14 @@ export const validateCharacter = (schema: ZodSchema, character: unknown) =>
 export const validateListRequestContext = (
   schema: ZodSchema,
   context: unknown,
-) => validate<Partial<Record<keyof ListContext, string>>>(schema, context)
+) =>
+  validate<
+    Partial<Record<keyof ListContext, string>> & {
+      heat: HeatCondition
+      precipitationAmount: PrecipitationAmount
+      precipitationSize: PrecipitationSize
+    }
+  >(schema, context)
 
 export const validateListContext = (schema: ZodSchema, context: unknown) =>
   validate<ListContext>(schema, context)

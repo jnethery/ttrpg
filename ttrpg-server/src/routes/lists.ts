@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express'
 
 import { generateOutput } from 'controllers/lists'
 import { ListContextSchema, ListContextRequestSchema } from 'types/lists'
+import { getPrecipitationString } from 'types/environmentalConditions'
 import { preprocessedCreatures } from 'lib/lists/preprocessedCreatures'
 import {
   validateListContext,
@@ -22,13 +23,34 @@ router.get('/', async (req: Request, res: Response) => {
       return
     }
 
-    const { creatureName, areas, regions, conditions, party } =
-      requestValidator.data
+    const {
+      precipitationSize,
+      precipitationAmount,
+      heat,
+      creatureName,
+      areas,
+      regions,
+      conditions,
+      party,
+      useAI,
+    } = requestValidator.data
+
+    const precipitationCondition = getPrecipitationString(
+      precipitationSize,
+      precipitationAmount,
+      heat,
+    )
+    const parsedConditions = conditions ? JSON.parse(conditions) : []
+    if (precipitationCondition) {
+      parsedConditions.push(precipitationCondition)
+    }
+
     const parsedContext = {
       creatureName,
+      useAI: useAI === 'true',
       areas: areas ? JSON.parse(areas) : undefined,
       regions: regions ? JSON.parse(regions) : undefined,
-      conditions: conditions ? JSON.parse(conditions) : undefined,
+      conditions: parsedConditions,
       party: party ? JSON.parse(party) : undefined,
     }
 

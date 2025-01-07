@@ -20,6 +20,10 @@ export const defaultDuergarProps: Omit<
     { area: 'dungeon', probability: 0.3 },
     { area: 'mountain', probability: 0.1 },
   ],
+  // TODO: Open this up once you know where to put them
+  regions: [
+    { region: 'Grimmhold', probability: 0 }, // The ratfolk city.
+  ],
   predisposition: {
     distant: -20, // Cautious and defensive from a distance
     nearby: -40, // Highly aggressive when engaged in close combat
@@ -232,7 +236,14 @@ export const defaultGnollProps: Omit<
 export const defaultRatfolkProps: Omit<BaseCreatureProps, 'xp' | 'behavior'> = {
   url: '', // TODO: Link to Notion or D&D Beyond
   tags: ['humanoid', 'mammal'],
-  areas: [{ area: 'swamp', probability: 1 }],
+  areas: [
+    { area: 'underdark', probability: 1 },
+    { area: 'swamp', probability: 1 },
+    { area: 'urban', probability: 0.5 },
+    { area: 'dungeon', probability: 0.3 },
+    { area: 'forest', probability: 0.2 },
+    { area: 'grassland', probability: 0.1 },
+  ],
   regions: [
     { region: 'Dreadmire Swamp', probability: 0.1 }, // They do not occupy much of the surface.
     { region: 'Grimmhold', probability: 1 }, // The ratfolk city. They are the dominant species here.
@@ -258,8 +269,8 @@ export const defaultRatfolkProps: Omit<BaseCreatureProps, 'xp' | 'behavior'> = {
     (creature: BaseRandomCreatureListItem) => {
       return getRelationshipFilter({
         creature,
-        operation: 'or',
-        creatureNames: ['ratfolk'],
+        operation: 'and',
+        creatureNames: ['rat'],
       })
     },
   ],
@@ -379,6 +390,10 @@ export const defaultKuoToaProps: Omit<
     { area: 'underwater', probability: 0.4 },
     { area: 'dungeon', probability: 0.3 },
     { area: 'coastal', probability: 0.1 },
+  ],
+  // TODO: Open up regions once you know where to put them
+  regions: [
+    { region: 'Grimmhold', probability: 0 }, // The ratfolk city.
   ],
   predisposition: {
     distant: -20, // Suspicious and avoids unnecessary conflict

@@ -3511,6 +3511,16 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       url: 'https://www.dndbeyond.com/monsters/16874-giant-badger',
       xp: 50,
       ...getDefaultPredatorProps('medium'),
+      areas: [
+        { area: 'forest', probability: 0.4 },
+        { area: 'grassland', probability: 0.3 },
+        { area: 'hill', probability: 0.2 },
+        { area: 'mountain', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: 0, // Neutral unless provoked
+        nearby: -20, // Defensive and aggressive if cornered or threatened
+      },
       behavior: {
         idle: 'The giant badger digs burrows or forages for food, occasionally pausing to sniff the air for danger.',
         eating:
@@ -3531,6 +3541,16 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       url: 'https://www.dndbeyond.com/monsters/16875-giant-bat',
       xp: 50,
       ...getDefaultPredatorProps('large'),
+      areas: [
+        { area: 'forest', probability: 0.3 },
+        { area: 'mountain', probability: 0.2 },
+        { area: 'swamp', probability: 0.15 },
+        { area: 'underdark', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: -10, // Wary and avoids conflict unless provoked
+        nearby: -30, // Defensive and aggressive when threatened or protecting its territory
+      },
       behavior: {
         idle: 'The giant bat roosts in dark caves or flits silently through the night, using echolocation to navigate.',
         eating:
@@ -3551,6 +3571,18 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       url: 'https://www.dndbeyond.com/monsters/16876-giant-boar',
       xp: 450,
       ...getDefaultPredatorProps('large'),
+      areas: [
+        { area: 'forest', probability: 0.3 },
+        { area: 'grassland', probability: 0.25 },
+        { area: 'hill', probability: 0.2 },
+        { area: 'swamp', probability: 0.1 },
+        { area: 'mountain', probability: 0.05 },
+        { area: 'coastal', probability: 0.05 },
+      ],
+      predisposition: {
+        distant: -20, // Defensive when intruders are detected at range
+        nearby: -40, // Extremely aggressive and territorial in close proximity
+      },
       behavior: {
         idle: 'The giant boar forages in forests or open plains, its tusks gouging the earth as it searches for food.',
         eating:
@@ -3665,6 +3697,17 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       url: 'https://www.dndbeyond.com/monsters/16857-elk',
       xp: 450,
       ...getDefaultPredatorProps('huge'),
+      areas: [
+        { area: 'grassland', probability: 0.5 },
+        { area: 'forest', probability: 0.3 },
+        { area: 'hill', probability: 0.1 },
+        { area: 'mountain', probability: 0.05 },
+        { area: 'coastal', probability: 0.05 },
+      ],
+      predisposition: {
+        distant: 10, // Wary of intruders but generally avoids confrontation
+        nearby: -20, // Becomes defensive if cornered or threatened
+      },
       behavior: {
         idle: 'The giant elk roams vast forests and plains, moving gracefully and with a regal presence.',
         eating:
@@ -3870,6 +3913,17 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       url: 'https://www.dndbeyond.com/monsters/16889-giant-owl',
       xp: 50,
       ...getDefaultPredatorProps('large'),
+      areas: [
+        { area: 'forest', probability: 0.5 },
+        { area: 'grassland', probability: 0.3 },
+        { area: 'hill', probability: 0.1 },
+        { area: 'coastal', probability: 0.05 },
+        { area: 'mountain', probability: 0.05 },
+      ],
+      predisposition: {
+        distant: 10, // Observant and cautious at range
+        nearby: -10, // Defensive if cornered or threatened
+      },
       tags: ['beast', 'bird'],
       behavior: {
         idle: 'The giant owl perches silently in high branches, observing its territory with piercing eyes.',
@@ -4117,6 +4171,16 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       url: 'https://www.dndbeyond.com/monsters/16899-giant-weasel',
       xp: 25,
       ...getDefaultPredatorProps('medium'),
+      areas: [
+        { area: 'forest', probability: 0.4 },
+        { area: 'grassland', probability: 0.3 },
+        { area: 'hill', probability: 0.2 },
+        { area: 'swamp', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: -10, // Wary of threats, prefers to observe or retreat at range
+        nearby: -30, // Aggressive and defensive when threatened or cornered
+      },
       behavior: {
         idle: 'The giant weasel prowls through its environment, sniffing the air and investigating anything unusual.',
         eating:
@@ -5795,6 +5859,17 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       url: 'https://www.dndbeyond.com/monsters/16974-owl',
       xp: 10,
       ...getDefaultPredatorProps('tiny'),
+      areas: [
+        { area: 'forest', probability: 0.5 },
+        { area: 'grassland', probability: 0.3 },
+        { area: 'hill', probability: 0.1 },
+        { area: 'coastal', probability: 0.05 },
+        { area: 'mountain', probability: 0.05 },
+      ],
+      predisposition: {
+        distant: 10, // Observant and cautious at range
+        nearby: -10, // Defensive if cornered or threatened
+      },
       tags: ['beast', 'bird'],
       behavior: {
         idle: 'The owl perches silently, observing its surroundings with keen eyes and occasionally swiveling its head.',
@@ -6268,6 +6343,17 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       url: 'https://www.dndbeyond.com/monsters/16991-rat',
       xp: 10,
       ...getDefaultPredatorProps('tiny'),
+      areas: [
+        { area: 'urban', probability: 0.6 },
+        { area: 'dungeon', probability: 0.3 },
+        { area: 'forest', probability: 0.05 },
+        { area: 'swamp', probability: 0.03 },
+        { area: 'grassland', probability: 0.02 },
+      ],
+      predisposition: {
+        distant: 0, // Generally curious but wary
+        nearby: -10, // Defensive when cornered or threatened
+      },
       behavior: {
         idle: 'The rat scurries through its environment, sniffing for food and occasionally squeaking to communicate.',
         eating:
@@ -6288,6 +6374,17 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
       url: 'https://www.dndbeyond.com/monsters/16992-raven',
       xp: 10,
       ...getDefaultPredatorProps('tiny'),
+      areas: [
+        { area: 'forest', probability: 0.5 },
+        { area: 'grassland', probability: 0.3 },
+        { area: 'hill', probability: 0.1 },
+        { area: 'mountain', probability: 0.05 },
+        { area: 'urban', probability: 0.05 },
+      ],
+      predisposition: {
+        distant: 10, // Observant and cautious from afar
+        nearby: -10, // Defensive when threatened or approached too closely
+      },
       tags: ['beast', 'bird'],
       behavior: {
         idle: 'The raven perches on a branch or rock, cawing intermittently and observing its surroundings with curiosity.',

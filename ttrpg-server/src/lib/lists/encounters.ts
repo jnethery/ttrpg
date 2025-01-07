@@ -14,10 +14,13 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
 
-const regionLevels: Partial<Record<Region, number>> = {
+const regionLevels: Record<Region, number> = {
   'Dreadmire Swamp': 4,
+  Grimmhold: 4,
   'Shadewood Weald': 4,
+  'Khazgarad Ruins': 5,
   'Veilwood Hollow': 5,
+  'Verdant Sepulcher': 5,
   'Whispering Glade': 6,
   'Drakknarbuk Mine': 6,
   'Blighted Heart': 7,
@@ -474,7 +477,8 @@ const getRegionLevel = (): number => {
   const regionLevelsArray = regions
     .map((region) => regionLevels[region])
     .filter((region) => typeof region !== 'undefined') as number[]
-  return Math.max(...regionLevelsArray)
+  const maxLevel = Math.max(...regionLevelsArray)
+  return maxLevel > 0 ? maxLevel : 1
 }
 
 const getCreatureCategoryToXPForLevel = (): Record<
@@ -551,9 +555,16 @@ const getEnemy = async (
   const enemyFilters = creature.props.enemies
   if (enemyFilters.length > 0) {
     // Get a random enemy
-    const enemyList = config.creature.filter((item) => {
-      return enemyFilters.some(async (filter) => await filter(item))
-    })
+    const enemyList = (await Promise.all(
+      config.creature.map(async (item) => {
+        const passesFilter = await Promise.all(
+          enemyFilters.map((filter) => filter(item)),
+        )
+        return passesFilter.some((result) => result) ? item : null
+      }),
+    ).then((results) =>
+      results.filter((item) => item !== null),
+    )) as RandomCreatureListItem[]
     return (await getListItem(enemyList)) as RandomCreatureListItem | null
   }
   return null
@@ -569,13 +580,18 @@ const getAlliesList = async (
   // These are the creatures they consider allies
   if (allyFilters.length > 0) {
     // Get all allies
-    alliesList = config.creature
-      .filter((item) => {
-        return item.value !== creature.value
-      })
-      .filter((item) => {
-        return allyFilters.some(async (filter) => await filter(item))
-      }) as RandomCreatureListItem[]
+    alliesList = (await Promise.all(
+      config.creature
+        .filter((item) => item.value !== creature.value)
+        .map(async (item) => {
+          const passesFilter = await Promise.all(
+            allyFilters.map((filter) => filter(item)),
+          )
+          return passesFilter.some((result) => result) ? item : null
+        }),
+    ).then((results) =>
+      results.filter((item) => item !== null),
+    )) as RandomCreatureListItem[]
   }
 
   // We want to have at least 3 creature types in a given battle.
@@ -592,11 +608,12 @@ const getAlliesList = async (
       !alliesList.filter((ally) => ally.value === prospectiveCreature.value) &&
       prospectiveCreature.props.allies.length > 0
     ) {
-      if (
-        prospectiveCreature.props.allies.some(
+      const passesAnyFilter = await Promise.all(
+        prospectiveCreature.props.allies.map(
           async (filter) => await filter(creature),
-        )
-      ) {
+        ),
+      ).then((results) => results.some((result) => result))
+      if (passesAnyFilter) {
         alliesList.push(prospectiveCreature)
       }
     }
@@ -784,7 +801,14 @@ export const generateEncounter = async (
     return { doing, evaluatedAction }
   })()
 
+  const { wants, evaluatedWant } = await (async () => {
+    const wants = await getListItemFromKey('wants')
+    const evaluatedWant = wants ? await evaluateItem(wants) : ''
+    return { wants, evaluatedWant }
+  })()
+
   const doingString = doing ? `<li>they are ${evaluatedAction}</li>` : ''
+  const wantsStrings = wants ? `<li>they want ${evaluatedWant}</li>` : ''
   const combatActions = ['hunting', 'fighting', 'fleeing from'] as const
   const idleActions = [
     'in their lair',
@@ -850,11 +874,12 @@ export const generateEncounter = async (
   const result = `
     <ul>
       <li>${creaturesString}</li>
-      <li>Setting: ${getContext()?.areas?.join(', ')}</li>
+      <li>Setting: ${getContext()?.areas?.join(', ')}, environmental conditions: ${getContext()?.conditions?.join(', ')}</li>
       <li>They are ${xpToEncounterDifficulty(allies.xp)} (${allies.xp} XP total, ${Math.round(allies.xp / (getContext()?.party?.numPlayers ?? 4))} XP each)</li>
       <li>They are ${proximity}</li>
       <li>Their alignment is ${alignment}</li>
       <li>Typical behavior: ${behaviors}</li>
+      ${wantsStrings}
       ${doingString}
     </ul>
     ${enemyString}
@@ -887,8 +912,6 @@ export const generateEncounter = async (
                 : ''
             }
             It should be 3 sentences at max.
-            ${['hard', 'deadly'].includes(encounterDifficulty) ? 'add a list of treasures they would logically possess, as well as who logically possesses what (using their name), scaled to reward 4 players of level 4, formatted as an HTML unordered list preceded by a <p>Treasures</p>.' : ''}
-            ${isLairAction ? 'add a description of their lair, including any traps or defenses with corresponding Skill and DC to get past it, as well as any treasures (hidden or obvious) with corresponding Skill and DC to find them, formatted as an HTML unordered list preceded by a <p>Lair</p>. After it, write a short summary of the lair.' : ''}
           `,
         },
       ],

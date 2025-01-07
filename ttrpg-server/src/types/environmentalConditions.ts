@@ -62,17 +62,17 @@ export const heat = [
   'sweltering',
 ] as const
 
-type LightCondition = (typeof light)[number]
-type VisibilityCondition = (typeof visibility)[number]
-type LightPrecipitationCondition = (typeof lightPrecipitation)[number]
-type HeavyPrecipitationCondition = (typeof heavyPrecipitation)[number]
-type PrecipitationSize = (typeof precipitationSize)[number]
-type PrecipitationAmount = (typeof precipitationAmount)[number]
-type LightFreezingPrecipitationCondition =
+export type LightCondition = (typeof light)[number]
+export type VisibilityCondition = (typeof visibility)[number]
+export type LightPrecipitationCondition = (typeof lightPrecipitation)[number]
+export type HeavyPrecipitationCondition = (typeof heavyPrecipitation)[number]
+export type PrecipitationSize = (typeof precipitationSize)[number]
+export type PrecipitationAmount = (typeof precipitationAmount)[number]
+export type LightFreezingPrecipitationCondition =
   (typeof lightFreezingPrecipitation)[number]
-type HeavyFreezingPrecipitationCondition =
+export type HeavyFreezingPrecipitationCondition =
   (typeof heavyFreezingPrecipitation)[number]
-type HeatCondition = (typeof heat)[number]
+export type HeatCondition = (typeof heat)[number]
 
 export const conditions = [
   ...light,

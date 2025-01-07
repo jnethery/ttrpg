@@ -57,18 +57,6 @@ export const doing = [
   },
 ]
 
-// wants
-//   to {rest|shelter|have leisure}
-//   to find [object_wants]
-//     rob=true
-//   to {find territory|assert dominance|prove themselves}
-//     rob=true
-//   to go somewhere else
-//   to avoid contact
-//   to {destroy|kill|take something|take someone}
-//   to help allies [wants]
-//   to find {item|place|person|knowledge}
-
 // object_wants
 //   {food|valuables} ^[f != 'ratfolk']
 //   {tasties|shinies} ^[f == 'ratfolk']
