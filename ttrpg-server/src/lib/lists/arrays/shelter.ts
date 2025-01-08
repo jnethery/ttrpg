@@ -1,4 +1,5 @@
 import { RandomList, RandomListItem, ValueFunction } from 'types/lists'
+import { getDistributedDC } from 'lib/lists/dc'
 
 const small_shelter: RandomList = [
   { value: 'It is meager, accommodating two people snugly.', probability: 1 },
@@ -164,13 +165,13 @@ interface RandomExposureListItem extends RandomListItem {
 const highExposureValueFunction = async (props: { description: string }) => {
   return `
     <li>${props.description}</li>
-    <li>CON DC ${15 + Math.round(Math.random() * 10)} to avoid losing sleep</li>
+    <li>CON DC ${getDistributedDC({ mean: 15 })} to avoid losing sleep</li>
   `
 }
 const mediumExposureValueFunction = async (props: { description: string }) => {
   return `
     <li>${props.description}</li>
-    <li>CON DC ${8 + Math.round(Math.random() * 5)} to avoid losing sleep</li>
+    <li>CON DC ${getDistributedDC({ mean: 8 })} to avoid losing sleep</li>
   `
 }
 const noneExposureValueFunction = async (props: { description: string }) => {

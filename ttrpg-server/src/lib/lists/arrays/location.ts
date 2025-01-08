@@ -28,30 +28,6 @@
 //
 
 // location
-//   clearing
-//   a mummified [unit.predator] hand
-//   bubbling gas ^[area == "swamp"]
-//     color
-//       black
-//       green
-//       yellow
-//       teal
-//     desc=bubbling swamp slime, colored [this.color]
-//     smell=[smells.rotting]
-//     sound=[sounds.bubbling]
-//     find_dc=none
-//     id_skill={nature,survival|arcana}
-//     id_dc=[distributed_dc]
-//     effects
-//       {poison|healing} {1-2}d{4|6|8}
-//       DC [distributed_dc] CON or acquire {bog lung|rot lung} disease for {1-7} days ^[this.getParent.id_skill == "nature,survival"]
-//       DC [distributed_dc] DEX for half {1-2}d{4|6|8} explosion damage ^[this.getParent.id_skill == "nature,survival"]
-//       restores {1-3} spell slots of up to level {1-3} ^[this.getParent.id_skill == "arcana"]
-//     effect=[this.effects.selectOne]
-//     id_desc
-//       source of magical power ^[this.getParent.effect.includes("spell slots")]
-//       seems medicinal ^[this.getParent.effect.includes("healing")]
-//       seems dangerous ^[this.getParent.effect.includes("poison") || this.getParent.effect.includes("disease") || this.getParent.effect.includes("explosion")]
 //   tree ^[area == "swamp"]
 //     desc=a rotting {oak|cypress|willow|mangrove|maple|gum|ash} {tree|stump|log}
 //     smell=[smells.rotting]
@@ -114,10 +90,17 @@ import {
   getEvaluatedListItemFromKey,
 } from 'lib/lists/evaluate'
 import { RandomOccupantListItem } from 'lib/lists/arrays/shelter'
-import { generateEncounter, getXPLimit } from 'lib/lists/encounters'
+import {
+  generateEncounter,
+  getRandomItem,
+  getXPLimit,
+} from 'lib/lists/encounters'
+import { getConditionDifficulty } from 'lib/lists/environmentalConditions'
 import { getContext } from 'lib/lists/context'
 import { RandomListItem, EncounterDifficulty } from 'types/lists'
 import { RandomCreatureListItem } from 'types/creatures'
+import { getDistributedDC, getRandomDiceString } from 'lib/lists/dc'
+import { get } from 'http'
 
 interface ShelterProps {
   probability: number
@@ -133,21 +116,47 @@ export interface LocationProps {
   sound: string
   discovery?: {
     skill: string
+    dc: number
     description: string
   }
   identification?: {
     skill: string
+    dc: number
     description: string
   }
-  effects?: string[]
+  effect?: string
   shelterLists: ShelterProps
 }
 
 export interface RandomLocationListItem extends RandomListItem {
-  props: () => LocationProps
+  props: () => Promise<LocationProps>
 }
 
 export type RandomLocationList = RandomLocationListItem[]
+
+const generateDiscovery = async (props: LocationProps) => {
+  if (!props.discovery) return ''
+  const { skill, description, dc } = props.discovery
+  return `
+    <li id="location_discovery">Discovery: ${description} (${skill} DC ${dc})</li>
+  `
+}
+
+const generateIdentification = async (props: LocationProps) => {
+  if (!props.identification) return ''
+  const { skill, description, dc } = props.identification
+  return `
+    <li id="location_id">Identification: ${description} (${skill} DC ${dc})</li>
+  `
+}
+
+const generateEffect = async (props: LocationProps) => {
+  if (!props.effect) return ''
+  const { effect } = props
+  return `
+    <li id="location_effect">Effect: ${effect}</li>
+  `
+}
 
 export const locationValueFunction = async (
   props: LocationProps,
@@ -158,6 +167,9 @@ export const locationValueFunction = async (
       <li>Setting: ${getContext()?.areas?.join(', ')}, environmental conditions: ${getContext()?.conditions?.join(', ')}</li>
       <li>Smells like ${props.smell}</li>
       <li>Sounds like ${props.sound}</li>
+      ${await generateDiscovery(props)}
+      ${await generateIdentification(props)}
+      ${await generateEffect(props)}
       ${await generateShelter(props)}
     </ul>
   `
@@ -225,11 +237,98 @@ const generateShelter = async (props: LocationProps) => {
   `
 }
 
+const swampLocations: RandomLocationList = [
+  {
+    value: locationValueFunction,
+    probability: () => {
+      const { areas } = getContext()
+      return areas && areas.includes('swamp') ? 1 : 0
+    },
+    props: async () => {
+      const { conditions } = getContext()
+      const isFreezing = conditions?.includes('freezing')
+      const color = getRandomItem(['black', 'green', 'yellow', 'teal'])!
+      const idSkill = getRandomItem(['nature, survival', 'arcana'])!
+
+      const effects = [
+        {
+          value: `${getRandomItem(['poison', 'healing'])} ${getRandomDiceString(1, 2, 4, 8)}`,
+          probability: 1,
+        },
+        {
+          value: `DC ${getDistributedDC({ mean: 15 })} CON or acquire ${getRandomItem(['bog lung', 'rot lung'])} disease for ${Math.round(1 + Math.random() * 6)} days`,
+          probability: idSkill === 'nature, survival' ? 1 : 0,
+        },
+        {
+          value: `DC ${getDistributedDC({ mean: 15 })} DEX for half ${getRandomDiceString(1, 2, 4, 8)} explosion damage`,
+          probability: idSkill === 'nature, survival' ? 1 : 0,
+        },
+        {
+          value: `restores ${Math.round(1 + Math.random() * 2)} spell slots of up to level ${Math.round(1 + Math.random() * 2)}`,
+          probability: idSkill === 'arcana' ? 1 : 0,
+        },
+      ]
+      const effect = (await getEvaluatedListItem(effects))!
+
+      const idDescriptions = [
+        {
+          value: 'a source of magical power',
+          probability: effect.includes('restores') ? 1 : 0,
+        },
+        {
+          value: 'seems medicinal',
+          probability: effect.includes('healing') ? 1 : 0,
+        },
+        {
+          value: 'seems dangerous',
+          probability:
+            !effect.includes('restores') && !effect.includes('healing') ? 1 : 0,
+        },
+      ]
+      const idDescription = (await getEvaluatedListItem(idDescriptions))!
+
+      const props: LocationProps = {
+        description: `${isFreezing ? 'frozen' : 'bubbling'} swamp slime, colored ${color}`,
+        smell: '[rotting_smells]',
+        sound: '[bubbling_sounds]',
+        identification: {
+          skill: idSkill,
+          dc: getDistributedDC({ mean: 10 + getConditionDifficulty() }),
+          description: idDescription,
+        },
+        effect,
+        shelterLists: {
+          probability: 0.01,
+          sizeList: config.small_shelter,
+          exposureList: [
+            ...config.shelter_exposure_high,
+            ...config.shelter_exposure_medium,
+          ],
+          visibilityList: [
+            ...config.shelter_visibility_high,
+            ...config.shelter_visibility_medium,
+          ],
+          occupancyList: config.shelter_occupancy,
+        },
+      }
+
+      if (isFreezing) {
+        props.smell = 'none'
+        props.sound = 'none'
+        delete props.identification
+      }
+
+      return props
+    },
+  },
+]
+
 export const location: RandomLocationList = [
+  ...swampLocations,
   {
     value: locationValueFunction,
     probability: 1,
-    props: () => {
+    props: async () => {
       const { areas } = getContext()
       const primaryArea = areas && areas.length ? areas[0] : 'grassland'
       const smellsList =

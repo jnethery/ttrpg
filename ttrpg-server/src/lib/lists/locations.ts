@@ -13,7 +13,7 @@ export const generateLocation = async (): Promise<RandomLocationListItem> => {
     return {
       value: locationValueFunction,
       probability: 1,
-      props: () => {
+      props: async () => {
         return {
           description: 'a nondescript location',
           smell: 'nothing in particular',

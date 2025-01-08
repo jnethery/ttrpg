@@ -1,5 +1,5 @@
 import { config } from 'lib/lists'
-import { getDC } from 'lib/lists/dc'
+import { getDistributedDC } from 'lib/lists/dc'
 import {
   getListItem,
   getEvaluatedListItemFromKey,
@@ -10,6 +10,7 @@ import {
   getEncounterValue,
   getXPLimit,
 } from 'lib/lists/encounters'
+import { getConditionDifficulty } from 'lib/lists/environmentalConditions'
 import { getContext } from 'lib/lists/context'
 import { RandomCreatureListItem } from 'types/creatures'
 import { EncounterDifficulty } from 'types/lists'
@@ -42,10 +43,10 @@ export const generateTracks = async (): Promise<string> => {
   let trackString = `
     <ul>
       <li>
-        Perception DC ${getDC()} to see ${creatureName} tracks
+        Perception DC ${getDistributedDC({ mean: 10 + getConditionDifficulty() })} to see ${creatureName} tracks
       </li>
       </li>
-      <li> Survival DC ${getDC()} to see moving [direction]</li>
+      <li> Survival DC ${getDistributedDC({ mean: 10 + getConditionDifficulty() })} to see moving [direction]</li>
     </ul>
   `
   if (creatureItem) {

@@ -83,6 +83,7 @@ export const conditions = [
   ...heavyFreezingPrecipitation,
   ...heat,
 ] as const
+
 export type EnvironmentalCondition =
   | LightCondition
   | VisibilityCondition

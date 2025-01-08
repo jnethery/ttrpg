@@ -46,15 +46,6 @@ getXPMultiplier(numCreatures) =>
   }
   return 4 // Fallback
 
-// Helper Functions
-// Function to calculate weights based on a normal distribution
-weight(target, current, skew) =>
-  // Adjust these parameters to fine-tune the curve
-  const variance = (50 - -50) / 8
-  const mean = target // Center the distribution around the target
-  // Adjust current with skew
-  return Math.exp(-Math.pow(current + skew - mean, 2) / (2 * Math.pow(variance, 2)))
-
 // Linear interpolation function
 lerp(x, x0, x1, y0, y1) =>
   const m = (y1 - y0) / (x1 - x0)
@@ -67,108 +58,7 @@ reset(region) =>
   manualEncounterOutput = ''
   update()
 
-getCreaturesToChooseFrom(factionId) =>
-  let chosenCreatures = 0
-  let creatures = {}
-  let creaturesToChooseFrom = []
-  const maxCreatures = 1 + Math.floor(Math.random() * 3)
 
-  let encounterXP = 0
-  // TODO: Average encounter difficulty should be LOWER depending on the strength of the faction.
-  const targetXP = getXPThreshholdForParty(encounterDifficulty.selectOne)
-  
-  let tries = 0
-  const maxTries = 100
-  
-  // Loop through the units until you get a sufficient amount
-  let monsterUnitsPicked = false
-  while (!monsterUnitsPicked && tries < maxTries) {
-    if (creaturesToChooseFrom.length > maxCreatures) {
-      monsterUnitsPicked = true
-      continue
-    }
-    const prospectiveUnitName = unit[factionId].evaluateItem
-    const prospectiveUnit = {
-      name: prospectiveUnitName,
-      xp: unit[factionId][prospectiveUnitName].xp
-    }
-    // If the creature is individually past the XP threshhold or already picked, exclude
-    if (!creaturesToChooseFrom.find(c => c.name == prospectiveUnitName) && prospectiveUnit.xp <= targetXP) {
-      creaturesToChooseFrom.push(prospectiveUnit)
-    }
-    tries++
-  }
-
-  let numCreatures = 0
-  
-  // Iterate throught the list, unit by unit, until either the list is empty of the xp threshhold has been met
-  while (encounterXP < targetXP && creaturesToChooseFrom.length > 0) {
-    // Randomly sort the list before each loop
-    randomizeArray(creaturesToChooseFrom)
-    for (const { name, xp } of [...creaturesToChooseFrom]) {
-      if (encounterXP > targetXP) {
-        continue
-      }
-      if (!creatures[name]) {
-        creatures[name] = { count: 0, base_xp: 0}
-      }
-      if (!unit[factionId][name].max || !!unit[factionId][name].max && creatures[name].count <= unit[factionId][name].max) {
-        creatures[name].count++
-        creatures[name].base_xp += xp
-        const baseEncounterXP = Object.keys(creatures).reduce((acc, cur) => {
-          acc.count += creatures[cur].count
-          acc.base_xp += creatures[cur].base_xp
-          return acc
-        }, { count: 0, base_xp: 0 })
-        numCreatures = baseEncounterXP.count
-        encounterXP = getXPMultiplier(baseEncounterXP.count) * baseEncounterXP.base_xp
-      } else {
-        // Remove it from the list
-        creaturesToChooseFrom = creaturesToChooseFrom.filter(c => c.name !== name)
-      }
-    }
-  }
-  return {
-    creatures,
-    encounterXP,
-    numCreatures
-  }
-  
-generateEncounter(factionId, secondary, creaturesOverride) =>
-  reputation = faction[factionId].rep['party']
-  skew = faction[factionId].pred
-
-  let { encounterXP, creatures, numCreatures } = creaturesOverride ?? getCreaturesToChooseFrom(factionId)
-
-  if (encounterXP == 0) {
-    manualEncounterOutput = [mundane].selectOne
-    return manualEncounterOutput
-  }
-
-  creatures = Object.keys(creatures).reduce((acc, cur) => {
-    acc[cur] = creatures[cur].count
-    return acc
-  }, {})
-
-  const sentiment = attitude.selectOne
-  f = factionId
-  const want = wants.selectOne
-  const action = secondary ? 'fighting' : doing.selectOne.evaluateItem
-  const locationString = `Location: ${area == "none" ? "open field" : area}`
-  const flavorString = `Flavor suggestions: ${[adjective]} - ${[adverb]} - ${[noun]}`
-  const xpString = `XP: ${encounterXP}`
-  
-  const encounterString = `
-    <li>${locationString}</li>
-    <li>${flavorString}</li>
-    <li>a group of ${numCreatures} ${factionId.replace('_', ' ').pluralForm}</li>
-    <li>${xpString}</li>
-    <li>${action}</li>
-  `
-  const unitsString = `<li>${getUnitsString(factionId, creatures)}</li>`
-  const attitudeString = `<li>${sentiment}</li><li>${sentiment.dc <= 0 ? 'willing' : 'unwilling'} to trade</li>`
-  const plansToRob = `${sentiment.dc >= 15 && !!want.rob ? ' and will take it from you' : ''}`
-  const wantsString = `<li>want ${want}${plansToRob}</li><li>If the party can fulfill their wish, negotiation DC -5 and reputation +1</li>`
 
   const negotiationTable = `
     <p>Negotiations: </p>
@@ -209,94 +99,6 @@ generateEncounter(factionId, secondary, creaturesOverride) =>
   manualEncounterOutput = `<ul>${[encounterString, unitsString, attitudeString, wantsString].join('')}</ul></p>${negotiationTable}<br/>${combatantEncounterString}`  
   return manualEncounterOutput
 
-getOtherFaction(factionId) =>
-  let otherFaction = factionId
-  while (otherFaction == factionId) {
-    otherFaction = faction.evaluateItem
-  }
-  return otherFaction
-  
-getCreatureName(factionId, creature) =>
-  return (unit?.[factionId]?.[creature]?.name ?? creature).replaceAll('_', ' ')
-  
-getUnitsString(factionId, creatures) =>
-  const formatCreature = (creature, last) => {
-    const numCreatures = creatures[creature]
-    const name = getCreatureName(factionId, creature)
-    return numCreatures + " " + (last && numCreatures == 1 ? name : name + "(s)")
-  }
-  const creatureList = Object.keys(creatures)  
-
-  if (creatureList.length > 1) {
-    // Insert "and" before the last item
-    
-    const lastCreature = creatureList.pop()
-    return "There are " 
-      + creatureList.map(creature => formatCreature(creature)).join(', ') 
-      + " and " 
-      + formatCreature(lastCreature, true)
-  } else {
-    // Only one item in the list
-    const lastCreature = creatureList.pop()
-    return "There " + be() + " " + formatCreature(lastCreature, true)
-  }
-
-getNumCreatures(factionId) => 
-  const min = faction[factionId].min
-  const max = faction[factionId].max
-  const str = faction[factionId].str
-  const avg = lerp(str, 0, 10, min, max)
-  const stdDev = (max - min) / 6
-  const numCreatures = Math.ceil((avg - stdDev) + (Math.random() * 2 * stdDev))
-  const clampedMax = numCreatures > max ? max : numCreatures
-  return clampedMax < min ? min : clampedMax
-
-generateLocation() =>
-  const locationName = location.evaluateItem
-  const l = createInstance(location[locationName])
-  if (!!l.desc) {
-    const findBlock = l.find_dc != "none" ?
-      `
-        <li>to find: DC ${l.find_dc} ${l.find_skill}</li>
-        <li>find: ${l.find_desc}</li>
-      ` : ''
-
-    const idBlock = l.id_dc != "none" ?
-      `
-        <li>to id: DC ${l.id_dc} ${l.id_skill}</li>
-        <li>id: ${l.id_desc}</li>
-      ` : ''
-    
-    return `
-      You discover:
-      <ul>
-        <li>${locationName}</li>
-        <li>${l.desc}</li>
-        <li>smell: ${l.smell}</li>
-        <li>sound: ${l.sound}</li>
-        <li>effect: ${l.effect}</li>
-        ${findBlock}
-        ${idBlock}
-      </ul>
-    ` 
-  }
-  return `You discover a ${l}`
-
-  
-manualEncounterOutput = ''
-output
-  [event] ^[manualEncounterOutput.length == 0]
-  [manualEncounterOutput] ^[manualEncounterOutput.length > 0]
-
-distributed_dc
-  {1-10} ^2
-  {10-15} ^5
-  {15-20} ^3
-  {20-30}
-
-encounter
-  [generateEncounter(faction.evaluateItem)]
-
 attitude
   hateful ^[weight(-50, reputation, skew)]
     dc=25
@@ -320,10 +122,6 @@ attitude
     dc=-20
   adoring ^[weight(50, reputation, skew)]
     dc=-25
-  
- 
-hardship
-  something bad happens
 
 individual_treasure_5_10
   [roll('4d6') * 100] cp & [roll('1d6') * 10] ep ^[r >= 1 && r <= 30]
@@ -354,27 +152,6 @@ sounds
     hollow echoes  
     low creaking of wood  
     soft hum of wind through reeds
-  bubbling
-    gurgling  
-    popping
-    hissing
-    slurping
-    squishing
-    plopping
-    crackling 
-    snapping
-    fizzing
-    sizzling 
-    churning
-    dripping
-    spluttering  
-    gulping
-    spurting
-    bubbling
-    oozing
-    splattering  
-    squelching
-    burbling
   crystal
     humming  
     resonating  
@@ -439,28 +216,7 @@ smells
     fresh rainwater  
     gardenia  
     chamomile  
-    white tea
-  rotting
-    sweet
-    putrid
-    sour
-    musty
-    rancid
-    earthy
-    fermented
-    moldy
-    metallic
-    pungent
-    cloying
-    fishy
-    acrid
-    stale
-    fetid
-    smoky
-    chemical
-    sulfuric
-    gamey
-    vinegary  
+    white tea 
 
 trinket
   a mummified hand  
@@ -563,11 +319,5 @@ trinket
   a glass jar containing lard with a label that reads, 'Griffon Grease'  
   a wooden box with a ceramic bottom that holds a living worm with a head on each end of its body  
   a metal urn containing the ashes of a hero
-
-encounterDifficulty
-  easy ^4
-  medium ^3
-  hard ^2
-  deadly
 
 */

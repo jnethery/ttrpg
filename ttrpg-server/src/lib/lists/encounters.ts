@@ -790,6 +790,7 @@ export const xpToEncounterDifficulty = (xp: number): EncounterDifficulty => {
   return 'deadly'
 }
 
+// TODO: Move this to a better util file
 export const getRandomItem = (array: string[]): string | null => {
   if (!array.length) {
     return null

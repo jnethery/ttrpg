@@ -26,6 +26,13 @@ const getHappeningStringForPrompt = async (
 export const generateEvent = async () => {
   const location = await generateLocation()
   const locationString = await evaluateItem(location)
+  let locationStringForPrompt = locationString
+
+  for (const key of ['discovery', 'id', 'effect']) {
+    const regex = new RegExp(`<li id="location_${key}">[\\s\\S]*?<\\/li>`, 'g')
+    locationStringForPrompt = locationStringForPrompt.replace(regex, '')
+  }
+
   const happening = (await getListItemFromKey(
     'event',
   )) as HappeningListItem | null
@@ -34,7 +41,7 @@ export const generateEvent = async () => {
     : '<li>Nothing happens</li>'
 
   // Need to parse this to see what values to pass into the AI
-  const eventStringForPrompt = `${locationString}${getHappeningStringForPrompt(happening)}`
+  const eventStringForPrompt = `${locationStringForPrompt}${getHappeningStringForPrompt(happening)}`
   const eventString = `${locationString}${happeningString}`
 
   const useAI = getContext()?.useAI ?? false
