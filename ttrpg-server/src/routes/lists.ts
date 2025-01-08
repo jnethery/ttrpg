@@ -74,8 +74,9 @@ router.get('/creatureList', async (req: Request, res: Response) => {
   const list = preprocessedCreatures
     .filter((creature) => {
       if (tags) {
-        const parsedTags: string[] = JSON.parse(tags as string)
-        return parsedTags.every(
+        const decodedTags = decodeURIComponent(tags as string)
+        const parsedTags: string[] = JSON.parse(decodedTags)
+        return parsedTags.some(
           (tag) =>
             creature.props.tags &&
             creature.props.tags.includes(tag as CreatureTag),

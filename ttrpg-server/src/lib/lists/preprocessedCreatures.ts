@@ -2720,7 +2720,9 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
   {
     value: 'derro',
     probability: function () {
-      return getProbabilityMod(this.props)
+      // TODO: Revisit this if you want to introduce Derros
+      return 0
+      // return getProbabilityMod(this.props)
     },
     props: {
       url: 'https://www.dndbeyond.com/monsters/2560773-derro',
@@ -2777,7 +2779,9 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
   {
     value: 'derro savant',
     probability: function () {
-      return getProbabilityMod(this.props)
+      // TODO: Revisit this if you want to introduce Derros
+      return 0
+      // return getProbabilityMod(this.props)
     },
     props: {
       url: 'https://www.dndbeyond.com/monsters/2560772-derro-savant',
@@ -5788,7 +5792,9 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
   {
     value: 'jackalwere',
     probability: function () {
-      return getProbabilityMod(this.props)
+      // TODO: Revisit this if you want to introduce werejackals
+      return 0
+      // return getProbabilityMod(this.props)
     },
     props: {
       url: 'https://www.dndbeyond.com/monsters/17164-jackalwere',
@@ -5968,7 +5974,9 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
   {
     value: 'kuo-toa',
     probability: function () {
-      return getProbabilityMod(this.props)
+      // TODO: Revisit this if you want to introduce Kuo-toa
+      return 0
+      // return getProbabilityMod(this.props)
     },
     props: {
       url: 'https://5e.tools/bestiary.html#kuo-toa_mm',
@@ -5988,7 +5996,9 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
   {
     value: 'kuo-toa monitor',
     probability: function () {
-      return getProbabilityMod(this.props)
+      // TODO: Revisit this if you want to introduce Kuo-toa
+      return 0
+      // return getProbabilityMod(this.props)
     },
     props: {
       url: 'https://5e.tools/bestiary.html#kuo-toa%20monitor_mm',
@@ -6008,7 +6018,9 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
   {
     value: 'kuo-toa whip',
     probability: function () {
-      return getProbabilityMod(this.props)
+      // TODO: Revisit this if you want to introduce Kuo-toa
+      return 0
+      // return getProbabilityMod(this.props)
     },
     props: {
       url: 'https://5e.tools/bestiary.html#kuo-toa%20whip_mm',
@@ -9109,7 +9121,9 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
   {
     value: 'wererat',
     probability: function () {
-      return getProbabilityMod(this.props)
+      // TODO: Revisit this if you want to introduce Wererats
+      return 0
+      // return getProbabilityMod(this.props)
     },
     props: {
       url: 'https://www.dndbeyond.com/monsters/wererat',
@@ -9165,7 +9179,9 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
   {
     value: 'werewolf',
     probability: function () {
-      return getProbabilityMod(this.props)
+      // TODO: Revisit this if you want to introduce Werewolves
+      return 0
+      // return getProbabilityMod(this.props)
     },
     props: {
       url: 'https://www.dndbeyond.com/monsters/17057-werewolf',
@@ -9496,7 +9512,9 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
   {
     value: 'xvart',
     probability: function () {
-      return getProbabilityMod(this.props)
+      // TODO: Revisit this if you want to introduce Xvarts
+      return 0
+      // return getProbabilityMod(this.props)
     },
     props: {
       url: 'https://www.dndbeyond.com/monsters/2560965-xvart',
@@ -9516,7 +9534,9 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
   {
     value: 'xvart warlock of raxivort',
     probability: function () {
-      return getProbabilityMod(this.props)
+      // TODO: Revisit this if you want to introduce Derros
+      return 0
+      // return getProbabilityMod(this.props)
     },
     props: {
       url: 'https://www.dndbeyond.com/monsters/2560964-xvart-warlock-of-raxivort',
