@@ -471,6 +471,17 @@ const creatureCategoryToXP: Record<
   },
 }
 
+export const getXPLimit = (encounterDifficulty: EncounterDifficulty) => {
+  const partyContext = getContext()?.party
+  const { numPlayers, crMultiplier } = partyContext ?? {
+    numPlayers: 4,
+    crMultiplier: 1,
+  }
+  return (
+    getXPThresholdForParty()[encounterDifficulty] * numPlayers * crMultiplier
+  )
+}
+
 const getRegionLevel = (): number => {
   const regions = getContext()?.regions ?? ['Dreadmire Swamp']
   // Get the highest level region
@@ -640,8 +651,9 @@ const addCreatureToEncounter = async (
   creatureList: RandomCreatureListItem[],
   combatEncounter: CombatEncounter,
   xpLimit: number,
+  numCreatures?: number,
 ): Promise<boolean> => {
-  const maxCreatures = 8
+  const maxCreatures = numCreatures ?? 8
 
   if (creatureList.length > 0) {
     const creatureItem = (await getListItem(
@@ -677,7 +689,11 @@ interface CombatEncounter {
   xp: number
   count: number
 }
-const getAllies = async (creature: RandomCreatureListItem, xpLimit: number) => {
+const getAllies = async (
+  creature: RandomCreatureListItem,
+  xpLimit: number,
+  numCreatures?: number,
+) => {
   const alliesList = await getAlliesList(creature)
   const xpRanges = getCreatureCategoryToXPForLevel()
   // There should be 0-8 minions, 0-4 standard, and 0-2 elite.
@@ -699,21 +715,41 @@ const getAllies = async (creature: RandomCreatureListItem, xpLimit: number) => {
     xp: 0,
     count: 0,
   }
-  await addCreatureToEncounter([creature], combatEncounter, xpLimit)
+  await addCreatureToEncounter(
+    [creature],
+    combatEncounter,
+    xpLimit,
+    numCreatures,
+  )
 
   let attemptsLeft = 100
   while (
     attemptsLeft > 0 &&
     getMultipliedXP(combatEncounter.xp, combatEncounter.count) < xpLimit &&
-    Object.keys(combatEncounter.creatures).length < 4 // We don't want to have more than 4 types of creatures in a given battle
+    Object.keys(combatEncounter.creatures).length < (numCreatures ?? 4) // We don't want to have more than 4 types of creatures in a given battle
   ) {
     const listIndex = Math.floor(Math.random() * 3)
     if (listIndex === 0) {
-      await addCreatureToEncounter(minions, combatEncounter, xpLimit)
+      await addCreatureToEncounter(
+        minions,
+        combatEncounter,
+        xpLimit,
+        numCreatures,
+      )
     } else if (listIndex === 1) {
-      await addCreatureToEncounter(standards, combatEncounter, xpLimit)
+      await addCreatureToEncounter(
+        standards,
+        combatEncounter,
+        xpLimit,
+        numCreatures,
+      )
     } else {
-      await addCreatureToEncounter(elites, combatEncounter, xpLimit)
+      await addCreatureToEncounter(
+        elites,
+        combatEncounter,
+        xpLimit,
+        numCreatures,
+      )
     }
     attemptsLeft--
   }
@@ -761,17 +797,71 @@ export const getRandomItem = (array: string[]): string | null => {
   return array[Math.floor(Math.random() * array.length)]
 }
 
+interface EncounterProps {
+  allies: CombatEncounter
+  enemyEncounter?: EncounterProps
+  doing: string
+  wants: string
+  proximity: string
+  alignment: string
+  behaviors: string
+}
+
+export const getEncounterValue = ({
+  allies,
+  enemyEncounter,
+  doing,
+  wants,
+  proximity,
+  alignment,
+  behaviors,
+}: EncounterProps): string => {
+  const creaturesString = Object.keys(allies.creatures)
+    .map((creature) => {
+      const { count } = allies.creatures[creature]
+      return `${count} ${creature}(s)`
+    })
+    .join(', ')
+
+  const result = `
+    <ul>
+      <li>${creaturesString}</li>
+      <li>They are ${xpToEncounterDifficulty(allies.xp)} (${allies.xp} XP total, ${Math.round(allies.xp / (getContext()?.party?.numPlayers ?? 4))} XP each)</li>
+      <li>They are ${proximity}</li>
+      <li>Their alignment is ${alignment}</li>
+      <li>Typical behavior: ${behaviors}</li>
+      <li>They want ${wants}</li>
+      <li>They are ${doing}</li>
+    </ul>
+  `
+
+  if (enemyEncounter) {
+    return `${result}<br/>${getEncounterValue(enemyEncounter)}`
+  }
+
+  return result
+}
+
 // TODO: Fill out the generateEncounter function from the old code.
 // TODO: Make this return an object with the encounter details instead of a string
-// TODO: Add a check to see if an enemy is in combat already to suppress the `doing` calculation a second time.
 // TODO: See how close they are to the party and their disposition towards the party
-export const generateEncounter = async (
-  creature: RandomCreatureListItem,
-  xpLimit: number,
-  encounterDifficulty: EncounterDifficulty,
-  suppressAction: boolean = false,
-): Promise<string> => {
-  const allies = await getAllies(creature, xpLimit)
+export const generateEncounter = async ({
+  creature,
+  xpLimit,
+  encounterDifficulty,
+  suppressAction = false,
+  overrides,
+}: {
+  creature: RandomCreatureListItem
+  xpLimit: number
+  encounterDifficulty: EncounterDifficulty
+  suppressAction?: boolean
+  overrides?: {
+    doing?: string
+    numCreatures?: number
+  }
+}): Promise<EncounterProps> => {
+  const allies = await getAllies(creature, xpLimit, overrides?.numCreatures)
 
   // Get the strongest creature and determine the alignment from them
   const strongestAlly = Object.values(allies.creatures).reduce(
@@ -784,31 +874,25 @@ export const generateEncounter = async (
     alignment = 'neutral'
   }
 
-  const creaturesString = Object.keys(allies.creatures)
-    .map((creature) => {
-      const { count } = allies.creatures[creature]
-      return `${count} ${creature}(s)`
-    })
-    .join(', ')
-
   // TODO: Convert to a function?
-  const { doing, evaluatedAction } = await (async () => {
+  const { evaluatedAction } = await (async () => {
+    if (overrides?.doing) {
+      return { evaluatedAction: overrides.doing }
+    }
     if (suppressAction) {
-      return { doing: null, evaluatedAction: '' }
+      return { evaluatedAction: '' }
     }
     const doing = await getListItemFromKey('doing')
     const evaluatedAction = doing ? await evaluateItem(doing) : ''
-    return { doing, evaluatedAction }
+    return { evaluatedAction }
   })()
 
-  const { wants, evaluatedWant } = await (async () => {
+  const { evaluatedWant } = await (async () => {
     const wants = await getListItemFromKey('wants')
     const evaluatedWant = wants ? await evaluateItem(wants) : ''
-    return { wants, evaluatedWant }
+    return { evaluatedWant }
   })()
 
-  const doingString = doing ? `<li>they are ${evaluatedAction}</li>` : ''
-  const wantsStrings = wants ? `<li>they want ${evaluatedWant}</li>` : ''
   const combatActions = ['hunting', 'fighting', 'fleeing from'] as const
   const idleActions = [
     'in their lair',
@@ -855,37 +939,31 @@ export const generateEncounter = async (
     })
     .join(', ')
 
-  const proximity = getRandomItem(['nearby', 'distant'])
+  const proximity = getRandomItem(['nearby', 'distant']) ?? 'nearby'
 
-  let enemyString = ''
+  let enemyEncounter = undefined
   if (!suppressAction && isCombatAction) {
     // Get one of the creature's enemies
     const enemy = await getEnemy(creature)
-    // What a pacifist. He has no enemies. Let's generate another encounter for him.
-    // TODO: Run through the possible list of creatures and find one whose enemy criteria fits.
     if (!enemy) {
-      return generateEncounter(creature, xpLimit, encounterDifficulty)
+      return generateEncounter({ creature, xpLimit, encounterDifficulty })
     }
-    enemyString =
-      `the following creatures: ` +
-      (await generateEncounter(enemy, xpLimit, encounterDifficulty, true))
+    enemyEncounter = await generateEncounter({
+      creature: enemy,
+      xpLimit,
+      encounterDifficulty,
+      suppressAction: true,
+    })
   }
 
-  const result = `
-    <ul>
-      <li>${creaturesString}</li>
-      <li>They are ${xpToEncounterDifficulty(allies.xp)} (${allies.xp} XP total, ${Math.round(allies.xp / (getContext()?.party?.numPlayers ?? 4))} XP each)</li>
-      <li>They are ${proximity}</li>
-      <li>Their alignment is ${alignment}</li>
-      <li>Typical behavior: ${behaviors}</li>
-      ${wantsStrings}
-      ${doingString}
-    </ul>
-    ${enemyString}
-  `
-
-  if (suppressAction) {
-    return result
+  return {
+    allies,
+    enemyEncounter,
+    doing: evaluatedAction,
+    wants: evaluatedWant,
+    proximity,
+    alignment,
+    behaviors,
   }
 
   // TODO: Move AI summary to the event function
@@ -919,5 +997,4 @@ export const generateEncounter = async (
 
   //   return `${result}<br/>Encounter Summary: ${completion.choices[0].message.content}`
   // }
-  return result
 }

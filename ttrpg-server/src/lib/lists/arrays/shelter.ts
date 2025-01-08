@@ -411,23 +411,50 @@ const shelter_exposure_none: RandomExposureListItem[] = [
   },
 ]
 
-const shelter_occupancy: RandomList = [
+export interface RandomOccupantListItem extends RandomListItem {
+  value: string
+  probability: number
+  props: () => {
+    numOccupants: number
+  }
+}
+const shelter_occupancy: RandomOccupantListItem[] = [
   {
     value: 'It is currently unoccupied, awaiting new inhabitants.',
     probability: 1,
+    props: () => {
+      return {
+        numOccupants: 0,
+      }
+    },
   },
   {
     value: 'The shelter is already occupied by a group of travelers.',
     probability: 1,
+    props: () => {
+      return {
+        numOccupants: Math.round(1 + Math.random() * 5),
+      }
+    },
   },
   {
     value: 'A lone figure is huddled inside, seeking refuge from the elements.',
     probability: 1,
+    props: () => {
+      return {
+        numOccupants: 1,
+      }
+    },
   },
   {
     value:
       'The shelter is home to a family of settlers, who have made it their temporary residence.',
     probability: 1,
+    props: () => {
+      return {
+        numOccupants: Math.round(2 + Math.random() * 10),
+      }
+    },
   },
 ]
 

@@ -107,16 +107,24 @@
 //       looks harmless ^[this.getParent.effect.includes("pass")]
 
 import { config } from 'lib/lists'
-import { getEvaluatedListItem } from 'lib/lists/evaluate'
+import {
+  getListItem,
+  getEvaluatedListItem,
+  evaluateItem,
+  getEvaluatedListItemFromKey,
+} from 'lib/lists/evaluate'
+import { RandomOccupantListItem } from 'lib/lists/arrays/shelter'
+import { generateEncounter, getXPLimit } from 'lib/lists/encounters'
 import { getContext } from 'lib/lists/context'
-import { RandomListItem } from 'types/lists'
+import { RandomListItem, EncounterDifficulty } from 'types/lists'
+import { RandomCreatureListItem } from 'types/creatures'
 
 interface ShelterProps {
   probability: number
-  sizeList: RandomListItem[]
-  exposureList: RandomListItem[]
-  visibilityList: RandomListItem[]
-  occupancyList: RandomListItem[]
+  sizeList?: RandomListItem[]
+  exposureList?: RandomListItem[]
+  visibilityList?: RandomListItem[]
+  occupancyList?: RandomListItem[]
 }
 
 export interface LocationProps {
@@ -161,12 +169,49 @@ const generateShelter = async (props: LocationProps) => {
     props.shelterLists
   if (
     random > probability ||
-    !sizeList.length ||
-    !exposureList.length ||
-    !visibilityList.length ||
-    !occupancyList.length
+    !sizeList ||
+    !exposureList ||
+    !visibilityList ||
+    !occupancyList
   )
     return `<li>There is no shelter</li>`
+
+  const occupants = (await getListItem(
+    occupancyList,
+  )) as RandomOccupantListItem | null
+  let occupantsString = `<li>There are no occupants</li>`
+  if (occupants) {
+    const occupantsValue = await evaluateItem(occupants)
+    const numCreatures = occupants.props().numOccupants
+    occupantsString = `<li>${occupantsValue}</li>`
+    if (numCreatures > 0) {
+      // Get a random creature
+      const creature = (await getListItem(
+        config.creature,
+      )) as RandomCreatureListItem | null
+      if (creature) {
+        const encounterDifficulty = ((await getEvaluatedListItemFromKey(
+          'encounterDifficulty',
+        )) ?? 'hard') as EncounterDifficulty
+
+        const xpLimit = getXPLimit(encounterDifficulty)
+
+        occupantsString += generateEncounter({
+          creature,
+          xpLimit,
+          encounterDifficulty,
+          overrides: {
+            doing: 'at their camp',
+            numCreatures,
+          },
+        })
+      } else if (numCreatures === 1) {
+        occupantsString += `<li>It is a commoner.</li>`
+      } else {
+        occupantsString += `<li>They are commoners.</li>`
+      }
+    }
+  }
   return `
   <li>There is a shelter:</li>
   <li>
@@ -174,7 +219,7 @@ const generateShelter = async (props: LocationProps) => {
       <li>${await getEvaluatedListItem(sizeList)}</li>
       <li>${await getEvaluatedListItem(exposureList)}</li>
       <li>${await getEvaluatedListItem(visibilityList)}</li>
-      <li>${await getEvaluatedListItem(occupancyList)}</li>
+      ${occupantsString}
     </ul>
   </li>
   `

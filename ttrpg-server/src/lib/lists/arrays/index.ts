@@ -6,6 +6,7 @@ import { event } from './event'
 import { location } from './location'
 import { mundane } from './mundane'
 import { wants } from './wants'
+import { hardship } from './hardship'
 import smells from './smells'
 import sounds from './sounds'
 import shelters from './shelter'
@@ -19,6 +20,7 @@ export default {
   location,
   mundane,
   wants,
+  hardship,
   ...smells,
   ...sounds,
   ...shelters,

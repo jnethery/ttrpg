@@ -19,10 +19,7 @@ export const generateLocation = async (): Promise<RandomLocationListItem> => {
           smell: 'nothing in particular',
           sound: 'silence',
           shelterLists: {
-            sizeList: [],
-            exposureList: [],
-            visibilityList: [],
-            occupancyList: [],
+            probability: 0,
           },
         }
       },

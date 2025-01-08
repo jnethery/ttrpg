@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import { creature } from 'lib/lists/arrays/creature'
 import {
   EnvironmentalCondition,
   conditions,
