@@ -15,6 +15,7 @@ const openai = new OpenAI({
 })
 
 const regionLevels: Record<Region, number> = {
+  Lanswundell: 2,
   'Dreadmire Swamp': 4,
   Grimmhold: 4,
   'Shadewood Weald': 4,

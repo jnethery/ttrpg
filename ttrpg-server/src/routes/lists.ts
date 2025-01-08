@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express'
 
 import { generateOutput } from 'controllers/lists'
 import { ListContextSchema, ListContextRequestSchema } from 'types/lists'
+import { CreatureTag } from 'types/creatures'
 import { getPrecipitationString } from 'types/environmentalConditions'
 import { preprocessedCreatures } from 'lib/lists/preprocessedCreatures'
 import {
@@ -67,8 +68,21 @@ router.get('/', async (req: Request, res: Response) => {
   }
 })
 
-router.get('/creatureList', async (_req: Request, res: Response) => {
-  const list = preprocessedCreatures.map((creature) => creature.value)
+router.get('/creatureList', async (req: Request, res: Response) => {
+  // TODO: Protect this route with schema, but frankly who cares atm
+  const { tags } = req.query
+  const list = preprocessedCreatures
+    .filter((creature) => {
+      if (tags) {
+        const parsedTags: string[] = JSON.parse(tags as string)
+        return parsedTags.every(
+          (tag) =>
+            creature.props.tags &&
+            creature.props.tags.includes(tag as CreatureTag),
+        )
+      }
+    })
+    .map((creature) => creature.value)
   res.json(list)
 })
 

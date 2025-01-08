@@ -39,6 +39,7 @@ export const areas = [
 export type Area = (typeof areas)[number]
 
 export const regions = [
+  'Lanswundell', // The plain outside of Lansport
   'Dreadmire Swamp', // The home of the ratfolk and bullywugs
   'Veilwood Hollow', // The home of the druids and the verdant sepulcher
   'Verdant Sepulcher', // The sacred burial ground of the druids

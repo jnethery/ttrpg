@@ -5,10 +5,11 @@ import {
 } from 'types/environmentalConditions'
 
 export const DEFAULT_KEY = 'main'
-export type ValueFunction = () => Promise<string>
+export type Value = string | ValueFunction
+export type ValueFunction = (props?: any) => Promise<string>
 export type ProbabilityFunction = () => number
 export interface RandomListItem {
-  value: string | ValueFunction
+  value: Value
   probability: number | ProbabilityFunction
   // TODO: Can we tighten down the types here?
   props?: any
@@ -38,6 +39,7 @@ export const areas = [
 export type Area = (typeof areas)[number]
 
 export const regions = [
+  'Lanswundell', // The plain outside of Lansport
   'Dreadmire Swamp', // The home of the ratfolk and bullywugs
   'Veilwood Hollow', // The home of the druids and the verdant sepulcher
   'Verdant Sepulcher', // The sacred burial ground of the druids

@@ -92,6 +92,7 @@ import {
 import { RandomOccupantListItem } from 'lib/lists/arrays/shelter'
 import {
   generateEncounter,
+  getEncounterValue,
   getRandomItem,
   getXPLimit,
 } from 'lib/lists/encounters'
@@ -208,15 +209,17 @@ const generateShelter = async (props: LocationProps) => {
 
         const xpLimit = getXPLimit(encounterDifficulty)
 
-        occupantsString += generateEncounter({
-          creature,
-          xpLimit,
-          encounterDifficulty,
-          overrides: {
-            doing: 'at their camp',
-            numCreatures,
-          },
-        })
+        occupantsString += getEncounterValue(
+          await generateEncounter({
+            creature,
+            xpLimit,
+            encounterDifficulty,
+            overrides: {
+              doing: 'at their camp',
+              numCreatures,
+            },
+          }),
+        )
       } else if (numCreatures === 1) {
         occupantsString += `<li>It is a commoner.</li>`
       } else {

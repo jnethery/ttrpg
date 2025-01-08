@@ -106,6 +106,54 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
   },
   // D&D 5E
   {
+    value: 'acolyte',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16763-acolyte',
+      xp: 50,
+      tags: ['humanoid'],
+      sizes: ['medium'],
+      legalAlignments: ['lawful', 'neutral'],
+      moralAlignments: ['good', 'neutral'],
+      areas: [{ area: 'urban', probability: 0.5 }],
+      predisposition: {
+        distant: 10, // Generally peaceful and observant
+        nearby: -10, // Defensive and protective of their faith
+      },
+      allies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['humanoid', 'celestial'],
+            moralAlignments: ['good', 'neutral'],
+          })
+        },
+      ],
+      enemies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['fiend', 'undead'],
+            moralAlignments: ['evil'],
+          })
+        },
+      ],
+      behavior: {
+        idle: 'The acolyte performs simple rituals, prays, or tends to the needs of the community, often seen reading holy texts.',
+        eating:
+          'It eats modest meals, often shared with others as a sign of faith and community.',
+        hiding:
+          'When threatened, the acolyte seeks refuge in sacred grounds or among trusted allies.',
+        tactics:
+          'In conflict, the acolyte uses healing magic and protective spells to safeguard allies and repel foes, avoiding direct combat where possible.',
+      },
+    },
+  },
+  {
     value: 'adult kruthik',
     probability: function () {
       return getProbabilityMod(this.props)
@@ -414,6 +462,61 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
     },
   },
   {
+    value: 'aurochs',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/2560728-aurochs',
+      xp: 450,
+      tags: ['beast', 'mammal'],
+      sizes: ['large'],
+      legalAlignments: ['neutral'],
+      moralAlignments: ['neutral'],
+      areas: [
+        { area: 'grassland', probability: 0.5 },
+        { area: 'hill', probability: 0.3 },
+        { area: 'forest', probability: 0.1 },
+        { area: 'mountain', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: 10, // Wary but generally avoids conflict
+        nearby: -20, // Defensive and aggressive if threatened
+      },
+      allies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['beast'],
+            moralAlignments: ['neutral'],
+          })
+        },
+      ],
+      enemies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'and',
+            diet: {
+              dietTags: ['plant'],
+              dietSizes: getSizesLte('large'),
+            },
+          })
+        },
+      ],
+      behavior: {
+        idle: 'The aurochs grazes on grasses or lounges in the sun, occasionally bellowing to communicate with its herd.',
+        eating:
+          'It consumes grasses, leaves, and other vegetation, often foraging in groups for safety.',
+        hiding:
+          'The aurochs relies on its size and strength to deter predators, charging or bellowing to intimidate threats.',
+        tactics:
+          'In combat, the aurochs charges at foes with its horns, aiming to trample or gore enemies that pose a threat to its herd.',
+      },
+    },
+  },
+  {
     value: 'awakened shrub',
     probability: function () {
       return getProbabilityMod(this.props)
@@ -452,6 +555,61 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
           'Its large size makes it difficult to hide actively, but its natural appearance allows it to blend into forested areas.',
         tactics:
           'The tree uses its massive limbs to batter foes, focusing on enemies that pose a threat to its environment. It uses its size and strength to block paths or create barriers.',
+      },
+    },
+  },
+  {
+    value: 'axe beak',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16793-axe-beak',
+      xp: 50,
+      tags: ['beast', 'bird'],
+      sizes: ['large'],
+      legalAlignments: ['neutral'],
+      moralAlignments: ['neutral'],
+      areas: [
+        { area: 'grassland', probability: 0.5 },
+        { area: 'hill', probability: 0.3 },
+        { area: 'forest', probability: 0.1 },
+        { area: 'swamp', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: 5, // Wary but not immediately aggressive
+        nearby: -30, // Aggressive when its space is invaded or threatened
+      },
+      allies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['beast'],
+            moralAlignments: ['neutral'],
+          })
+        },
+      ],
+      enemies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'and',
+            diet: {
+              dietTags: ['plant'],
+              dietSizes: getSizesLt('large'),
+            },
+          })
+        },
+      ],
+      behavior: {
+        idle: 'The axe beak wanders its habitat, pecking at the ground and searching for food, its head constantly on the move to watch for predators.',
+        eating:
+          'It consumes berries, nuts, and small plants, using its powerful beak to crush tougher shells and stems.',
+        hiding:
+          'The axe beak relies on its speed to flee from predators, darting into dense vegetation or away across open plains.',
+        tactics:
+          'In combat, the axe beak uses its beak to deliver strong, swift strikes. If cornered, it fights aggressively, leveraging its sharp beak and rapid movements to intimidate foes.',
       },
     },
   },
@@ -1718,7 +1876,7 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
     props: {
       url: 'https://www.dndbeyond.com/monsters/2560755-choldrith',
       xp: 700,
-      tags: ['aberration', 'humanoid', 'arachnid'],
+      tags: ['aberration', 'arachnid'],
       sizes: ['medium'],
       legalAlignments: ['neutral', 'chaotic'],
       moralAlignments: ['evil'],
@@ -1869,6 +2027,101 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
     },
   },
   {
+    value: 'cockatrice',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16828-cockatrice',
+      xp: 100,
+      tags: ['monstrosity'],
+      sizes: ['small'],
+      legalAlignments: ['neutral'],
+      moralAlignments: ['neutral'],
+      areas: [
+        { area: 'forest', probability: 0.4 },
+        { area: 'swamp', probability: 0.3 },
+        { area: 'grassland', probability: 0.2 },
+        { area: 'hill', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: -10, // Cautious and unpredictable
+        nearby: -40, // Aggressive if threatened or disturbed
+      },
+      allies: [],
+      enemies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['beast', 'humanoid'],
+            diet: {
+              dietTags: ['insect', 'beast'],
+              dietSizes: getSizesLte('small'),
+            },
+          })
+        },
+      ],
+      behavior: {
+        idle: 'The cockatrice flits between perches, pecking at the ground for small insects or preening its feathers.',
+        eating:
+          'It hunts small creatures and insects, striking with its beak and devouring its prey whole.',
+        hiding:
+          'When threatened, the cockatrice seeks dense cover or high perches, blending with its surroundings.',
+        tactics:
+          'In combat, the cockatrice flutters around its target, using its petrifying bite to disable foes before retreating or finishing the attack.',
+      },
+    },
+  },
+  {
+    value: 'commoner',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16829-commoner',
+      xp: 10,
+      tags: ['humanoid'],
+      sizes: ['medium'],
+      legalAlignments: ['neutral', 'lawful', 'chaotic'],
+      moralAlignments: ['good', 'neutral', 'evil'],
+      areas: [{ area: 'urban', probability: 0.4 }],
+      predisposition: {
+        distant: 0, // Neutral and wary of strangers
+        nearby: -10, // Defensive if directly threatened
+      },
+      allies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['humanoid'],
+            moralAlignments: ['good', 'neutral'],
+          })
+        },
+      ],
+      enemies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['beast', 'humanoid', 'monstrosity'],
+            moralAlignments: ['evil'],
+          })
+        },
+      ],
+      behavior: {
+        idle: 'The commoner tends to daily tasks such as farming, crafting, or selling goods, often chatting with neighbors or family.',
+        eating:
+          'They gather for meals, typically simple dishes shared with family or companions.',
+        hiding:
+          'When danger arises, the commoner seeks shelter in homes or secure buildings, often barricading themselves.',
+        tactics:
+          'In desperate situations, a commoner might defend themselves with improvised weapons, though they prefer to flee or seek protection.',
+      },
+    },
+  },
+  {
     value: 'constrictor snake',
     probability: function () {
       return getProbabilityMod(this.props)
@@ -1965,6 +2218,51 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
           'The flower relies on its corpse-like appearance and scent to blend into battlefields or graveyards.',
         tactics:
           'The corpse flower animates corpses to protect itself, attacking with its tendrils to drag enemies closer. It targets weaker foes first, using its stench to drive others away.',
+      },
+    },
+  },
+  {
+    value: 'crab',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16833-crab',
+      xp: 10,
+      tags: ['beast', 'aquatic'],
+      sizes: ['tiny'],
+      legalAlignments: ['neutral'],
+      moralAlignments: ['neutral'],
+      areas: [
+        { area: 'coastal', probability: 0.6 },
+        { area: 'underwater', probability: 0.4 },
+        { area: 'swamp', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: 0, // Neutral unless approached
+        nearby: -10, // Defensive if disturbed
+      },
+      allies: [],
+      enemies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            diet: {
+              dietTags: ['fish', 'plant', 'insect'],
+              dietSizes: getSizesLte('tiny'),
+            },
+          })
+        },
+      ],
+      behavior: {
+        idle: 'The crab scuttles along the shoreline or underwater, foraging for small bits of food or hiding under rocks.',
+        eating:
+          'It pinches and consumes small morsels of algae, detritus, or tiny creatures it can catch.',
+        hiding:
+          'When sensing danger, the crab burrows into the sand or wedges itself into tight spaces, using its hard shell for protection.',
+        tactics:
+          'If threatened, the crab uses its pincers to defend itself, aiming to pinch at foes before retreating to safety.',
       },
     },
   },
@@ -2202,6 +2500,58 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
           'The darkmantle uses its natural camouflage to blend into rocky environments, waiting patiently for prey.',
         tactics:
           'In combat, it uses its Darkness Aura to blind enemies, targeting lone or vulnerable creatures. The darkmantle retreats to high ceilings if outmatched.',
+      },
+    },
+  },
+  {
+    value: 'deep scion',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/2560769-deep-scion',
+      xp: 700,
+      tags: ['humanoid', 'shapeshifter'],
+      sizes: ['medium'],
+      legalAlignments: ['chaotic'],
+      moralAlignments: ['evil'],
+      areas: [
+        { area: 'coastal', probability: 0.5 },
+        { area: 'underwater', probability: 0.4 },
+        { area: 'urban', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: -20, // Suspicious and observant at a distance
+        nearby: -50, // Aggressive and deceptive in close quarters
+      },
+      allies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'and',
+            tags: ['aberration', 'humanoid', 'aquatic'],
+            moralAlignments: ['evil'],
+          })
+        },
+      ],
+      enemies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'and',
+            tags: ['humanoid', 'celestial'],
+            moralAlignments: ['good'],
+          })
+        },
+      ],
+      behavior: {
+        idle: 'The deep scion surveys its surroundings, blending in seamlessly with humanoid society or patrolling underwater in its true form.',
+        eating:
+          'It consumes both typical humanoid fare and raw marine life, depending on its environment and whether it needs to maintain a disguise.',
+        hiding:
+          'The deep scion uses its shapeshifting ability to adopt a humanoid guise, hiding its true nature unless threatened or commanded otherwise.',
+        tactics:
+          'In combat, it switches between its humanoid and aquatic forms, employing stealth and mind-altering abilities to disorient and eliminate its foes.',
       },
     },
   },
@@ -2961,6 +3311,37 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
     },
   },
   {
+    value: 'eagle',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16852-eagle',
+      xp: 10,
+      ...getDefaultPredatorProps('small'),
+
+      areas: [
+        { area: 'mountain', probability: 0.5 },
+        { area: 'forest', probability: 0.3 },
+        { area: 'grassland', probability: 0.15 },
+        { area: 'coastal', probability: 0.05 },
+      ],
+      predisposition: {
+        distant: 10, // Generally avoids human interaction unless curious or hungry
+        nearby: -20, // Aggressive if its nest or territory is threatened
+      },
+      behavior: {
+        idle: 'The eagle perches high on cliffs or tall trees, scanning the surroundings for prey or threats.',
+        eating:
+          'It tears apart its prey with sharp beak and talons, consuming small mammals, birds, or fish.',
+        hiding:
+          'The eagle retreats to inaccessible ledges or dense foliage, using its flight to avoid confrontation.',
+        tactics:
+          'The eagle dives swiftly from above to catch prey off-guard, utilizing its keen eyesight and powerful talons.',
+      },
+    },
+  },
+  {
     value: 'elk',
     probability: function () {
       return getProbabilityMod(this.props)
@@ -3108,6 +3489,59 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
           'The male steeder hides in crevices or clings to walls, relying on its natural agility to stay out of sight.',
         tactics:
           'In combat, it leaps at foes to surprise them, using its venomous bite to weaken targets. It retreats if its initial attack fails or if heavily injured.',
+      },
+    },
+  },
+  {
+    value: 'manticore',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16951-manticore',
+      xp: 700,
+      tags: ['monstrosity'],
+      sizes: ['large'],
+      legalAlignments: ['lawful'],
+      moralAlignments: ['evil'],
+      areas: [
+        { area: 'mountain', probability: 0.4 },
+        { area: 'hill', probability: 0.3 },
+        { area: 'forest', probability: 0.2 },
+        { area: 'grassland', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: -20, // Aggressive and territorial from a distance, using ranged attacks to weaken prey
+        nearby: -50, // Highly dangerous in close combat, utilizing its claws and bite
+      },
+      allies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['monstrosity'],
+            moralAlignments: ['evil'],
+          })
+        },
+      ],
+      enemies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['humanoid', 'beast'],
+            moralAlignments: ['good'],
+          })
+        },
+      ],
+      behavior: {
+        idle: 'The manticore patrols its territory, flying low to scan for intruders or prey, occasionally perching on high rocks to observe.',
+        eating:
+          'The manticore devours its kill, using its sharp teeth and claws to tear apart flesh while growling to warn off scavengers.',
+        hiding:
+          'The manticore retreats to a concealed cave or dense forest to rest, blending into its surroundings to avoid detection.',
+        tactics:
+          'The manticore uses its spiked tail to launch projectiles at enemies from a distance, softening them before closing in for a ferocious melee attack.',
       },
     },
   },
@@ -3641,6 +4075,51 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
     },
   },
   {
+    value: 'giant crab',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16879-giant-crab',
+      xp: 25,
+      tags: ['beast', 'aquatic'],
+      sizes: ['medium'],
+      legalAlignments: ['neutral'],
+      moralAlignments: ['neutral'],
+      areas: [
+        { area: 'coastal', probability: 0.6 },
+        { area: 'underwater', probability: 0.4 },
+        { area: 'swamp', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: 0, // Neutral unless approached
+        nearby: -10, // Defensive if disturbed
+      },
+      allies: [],
+      enemies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            diet: {
+              dietTags: ['fish', 'plant', 'insect'],
+              dietSizes: getSizesLte('medium'),
+            },
+          })
+        },
+      ],
+      behavior: {
+        idle: 'The crab scuttles along the shoreline or underwater, foraging for small bits of food or hiding under rocks.',
+        eating:
+          'It pinches and consumes small morsels of algae, detritus, or medium creatures it can catch.',
+        hiding:
+          'When sensing danger, the crab burrows into the sand or wedges itself into tight spaces, using its hard shell for protection.',
+        tactics:
+          'If threatened, the crab uses its pincers to defend itself, aiming to pinch at foes before retreating to safety.',
+      },
+    },
+  },
+  {
     value: 'giant constrictor snake',
     probability: function () {
       return getProbabilityMod(this.props)
@@ -3685,6 +4164,37 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
           'The snake relies on its patterned scales to blend into dense foliage or swampy environments, remaining perfectly still to avoid detection.',
         tactics:
           'In combat, it wraps around its foes to grapple and crush them, focusing on a single target until they are incapacitated. It retreats into water or dense cover if outmatched.',
+      },
+    },
+  },
+  {
+    value: 'giant eagle',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16881-giant-eagle',
+      xp: 200,
+      ...getDefaultPredatorProps('large'),
+
+      areas: [
+        { area: 'mountain', probability: 0.5 },
+        { area: 'forest', probability: 0.3 },
+        { area: 'grassland', probability: 0.15 },
+        { area: 'coastal', probability: 0.05 },
+      ],
+      predisposition: {
+        distant: 10, // Generally avoids human interaction unless curious or hungry
+        nearby: -20, // Aggressive if its nest or territory is threatened
+      },
+      behavior: {
+        idle: 'The eagle perches high on cliffs or tall trees, scanning the surroundings for prey or threats.',
+        eating:
+          'It tears apart its prey with sharp beak and talons, consuming mammals, birds, or fish.',
+        hiding:
+          'The eagle retreats to inaccessible ledges or dense foliage, using its flight to avoid confrontation.',
+        tactics:
+          'The eagle dives swiftly from above to catch prey off-guard, utilizing its keen eyesight and powerful talons.',
       },
     },
   },
@@ -3808,6 +4318,35 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
           'The frog submerges itself in water or mud, leaving only its eyes visible to observe its surroundings.',
         tactics:
           'It uses its tongue to pull enemies into its mouth, focusing on smaller targets. If threatened, it leaps away into water or dense vegetation.',
+      },
+    },
+  },
+  {
+    value: 'giant goat',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16885-giant-goat',
+      xp: 100,
+      ...getDefaultPredatorProps('large'),
+      areas: [
+        { area: 'mountain', probability: 0.6 },
+        { area: 'hill', probability: 0.3 },
+        { area: 'grassland', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: 0, // Generally neutral unless provoked
+        nearby: -20, // Defensive if its territory or herd is threatened
+      },
+      behavior: {
+        idle: 'The giant goat grazes on shrubs and grasses, occasionally climbing steep terrain with ease.',
+        eating:
+          'It consumes grasses, leaves, and small shrubs, often chewing slowly and moving to fresh patches.',
+        hiding:
+          'The goat seeks high ground or rocky outcroppings to evade predators, using its agility to stay out of reach.',
+        tactics:
+          'In combat, the giant goat charges at its enemies with its horns, using its size and strength to knock foes away.',
       },
     },
   },
@@ -4374,6 +4913,35 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
     },
   },
   {
+    value: 'goat',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16906-goat',
+      xp: 10,
+      ...getDefaultPredatorProps('medium'),
+      areas: [
+        { area: 'mountain', probability: 0.6 },
+        { area: 'hill', probability: 0.3 },
+        { area: 'grassland', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: 0, // Generally neutral unless provoked
+        nearby: -20, // Defensive if its territory or herd is threatened
+      },
+      behavior: {
+        idle: 'The goat grazes on shrubs and grasses, occasionally climbing steep terrain with ease.',
+        eating:
+          'It consumes grasses, leaves, and small shrubs, often chewing slowly and moving to fresh patches.',
+        hiding:
+          'The goat seeks high ground or rocky outcroppings to evade predators, using its agility to stay out of reach.',
+        tactics:
+          'In combat, the goat charges at its enemies with its horns, using its size and strength to knock foes away.',
+      },
+    },
+  },
+  {
     value: 'goblin',
     probability: function () {
       return getProbabilityMod(this.props)
@@ -4431,6 +4999,63 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
           'The ooze remains motionless, appearing as a harmless patch of moisture until prey approaches.',
         tactics:
           'In combat, it engulfs enemies, corroding their equipment and flesh. It relies on its resilience and surprise to gain the upper hand.',
+      },
+    },
+  },
+  {
+    value: 'peryton',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/17190-peryton',
+      xp: 450,
+      tags: ['monstrosity'],
+      sizes: ['medium'],
+      legalAlignments: ['chaotic'],
+      moralAlignments: ['evil'],
+      areas: [
+        { area: 'mountain', probability: 0.5 },
+        { area: 'forest', probability: 0.3 },
+        { area: 'cursed', probability: 0.1 },
+        { area: 'grassland', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: -30, // Stalks prey from a distance with patience and aggression
+        nearby: -50, // Highly aggressive and focused on tearing out the hearts of its prey
+      },
+      allies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['monstrosity'],
+            moralAlignments: ['evil'],
+          })
+        },
+      ],
+      enemies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['humanoid', 'beast'],
+            moralAlignments: ['good'],
+            diet: {
+              dietTags: ['beast', 'humanoid'],
+              dietSizes: getSizesLte('medium'),
+            },
+          })
+        },
+      ],
+      behavior: {
+        idle: 'The peryton soars above its territory, letting out eerie, mournful cries as it searches for prey or intruders.',
+        eating:
+          'It consumes the hearts of its prey first, often leaving the rest of the body untouched.',
+        hiding:
+          'The peryton retreats to secluded cliffs or dense forests to evade larger predators or enemies.',
+        tactics:
+          'It attacks with precision, using its antlers and claws to gore and tear at its target, aiming for the chest to reach the heart.',
       },
     },
   },
@@ -4614,6 +5239,62 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
           'The grick camouflages itself against rocky surfaces, remaining motionless until prey comes within reach.',
         tactics:
           'In combat, it lashes out with its tentacles, targeting soft or unarmored foes. If faced with multiple enemies, it retreats to narrow tunnels or crevices to regroup.',
+      },
+    },
+  },
+  {
+    value: 'griffon',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16913-griffon',
+      xp: 450,
+      tags: ['monstrosity'],
+      sizes: ['large'],
+      legalAlignments: ['neutral'],
+      moralAlignments: ['neutral'],
+      areas: [
+        { area: 'mountain', probability: 0.5 },
+        { area: 'hill', probability: 0.3 },
+        { area: 'forest', probability: 0.1 },
+        { area: 'grassland', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: -20, // Observes intruders with suspicion from afar
+        nearby: -40, // Aggressive if its nest or hunting grounds are disturbed
+      },
+      allies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['monstrosity', 'beast'],
+            moralAlignments: ['neutral'],
+          })
+        },
+      ],
+      enemies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['humanoid', 'beast'],
+            diet: {
+              dietTags: ['beast', 'humanoid'],
+              dietSizes: getSizesLte('large'),
+            },
+          })
+        },
+      ],
+      behavior: {
+        idle: 'The griffon perches on a rocky outcrop or soars high above, scanning its territory for intruders or prey.',
+        eating:
+          'It devours large chunks of meat from its prey, often carrying remains back to its nest.',
+        hiding:
+          'The griffon retreats to its lair, typically a well-hidden cliffside or cave, when it senses overwhelming danger.',
+        tactics:
+          'In combat, the griffon dives from above, using its powerful talons and beak to attack, and retreats to the skies if heavily injured.',
       },
     },
   },
@@ -4839,6 +5520,62 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
     },
   },
   {
+    value: 'hippogriff',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16924-hippogriff',
+      xp: 200,
+      tags: ['monstrosity'],
+      sizes: ['large'],
+      legalAlignments: ['neutral'],
+      moralAlignments: ['neutral'],
+      areas: [
+        { area: 'grassland', probability: 0.4 },
+        { area: 'hill', probability: 0.3 },
+        { area: 'forest', probability: 0.2 },
+        { area: 'mountain', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: -10, // Wary of strangers but avoids unnecessary conflict
+        nearby: -30, // Aggressive if its nest is threatened or provoked
+      },
+      allies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['monstrosity', 'beast'],
+            moralAlignments: ['neutral'],
+          })
+        },
+      ],
+      enemies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['humanoid', 'beast'],
+            diet: {
+              dietTags: ['beast'],
+              dietSizes: getSizesLte('large'),
+            },
+          })
+        },
+      ],
+      behavior: {
+        idle: 'The hippogriff grazes on shrubs or rests on an elevated perch, keeping watch over its surroundings.',
+        eating:
+          'It feeds on grasses or small game, tearing meat with its sharp beak.',
+        hiding:
+          'The hippogriff retreats to dense forests or secluded cliffs when it senses a larger predator.',
+        tactics:
+          'In combat, it charges with its talons and beak, often taking flight to gain an advantage over grounded foes.',
+      },
+    },
+  },
+  {
     value: 'hobgoblin',
     probability: function () {
       return getProbabilityMod(this.props)
@@ -5015,6 +5752,89 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
           'The hyena relies on tall grass or rocky terrain to stay hidden, stalking its prey with patience.',
         tactics:
           'In combat, it targets weaker foes, using its speed and bite to harass enemies. It retreats to regroup with its pack if injured.',
+      },
+    },
+  },
+  {
+    value: 'jackal',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16936-jackal',
+      xp: 10,
+      ...getDefaultPredatorProps('small'),
+      areas: [
+        { area: 'desert', probability: 0.4 },
+        { area: 'grassland', probability: 0.3 },
+        { area: 'hill', probability: 0.2 },
+        { area: 'coastal', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: -10, // Generally avoids interaction with larger creatures, but observes cautiously
+        nearby: -20, // Defensive if directly threatened or cornered, but prefers to flee
+      },
+      behavior: {
+        idle: 'The jackal roams its territory in search of food or rests in shaded areas to escape the heat.',
+        eating:
+          'It scavenges for carrion or hunts small prey, quickly consuming its meal to avoid competition.',
+        hiding:
+          'The jackal seeks cover in dense bushes, burrows, or rocky terrain when it senses danger.',
+        tactics:
+          'In combat, the jackal avoids direct confrontation, instead attempting to outmaneuver and harass opponents with quick bites and retreating tactics.',
+      },
+    },
+  },
+  {
+    value: 'jackalwere',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/17164-jackalwere',
+      xp: 200,
+      tags: ['monstrosity', 'shapeshifter'],
+      sizes: ['medium'],
+      legalAlignments: ['chaotic'],
+      moralAlignments: ['evil'],
+      areas: [
+        { area: 'desert', probability: 0.4 },
+        { area: 'grassland', probability: 0.3 },
+        { area: 'hill', probability: 0.2 },
+        { area: 'urban', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: -20, // Cautious and calculating at a distance, observing prey before acting
+        nearby: -40, // Aggressive and deceptive, using its charm or attacks to overcome threats
+      },
+      allies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['monstrosity', 'shapeshifter'],
+            moralAlignments: ['evil'],
+          })
+        },
+      ],
+      enemies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['humanoid', 'beast'],
+            moralAlignments: ['good'],
+          })
+        },
+      ],
+      behavior: {
+        idle: 'The jackalwere prowls quietly, staying in the shadows or blending in with jackals to avoid detection.',
+        eating:
+          'It devours small prey or scavenged carrion, often in the company of regular jackals or other jackalweres.',
+        hiding:
+          'The jackalwere assumes its jackal form to remain inconspicuous, hiding among natural jackals or using terrain to stay unseen.',
+        tactics:
+          'The jackalwere uses deception, often feigning weakness or innocence before ambushing its prey. It relies on its Sleep Gaze to subdue opponents and avoids prolonged combat.',
       },
     },
   },
@@ -5202,6 +6022,92 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
           'The whip hides among its followers, using them as shields while retreating to safer areas when threatened.',
         tactics:
           'In combat, it uses spells and divine abilities to bolster its allies, focusing on maintaining morale and cohesion. It avoids direct confrontation, relying on its minions to protect it.',
+      },
+    },
+  },
+  {
+    value: 'leucrotta',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/2560860-leucrotta',
+      xp: 700,
+      tags: ['monstrosity'],
+      sizes: ['large'],
+      legalAlignments: ['chaotic'],
+      moralAlignments: ['evil'],
+      areas: [
+        { area: 'grassland', probability: 0.3 },
+        { area: 'forest', probability: 0.25 },
+        { area: 'hill', probability: 0.2 },
+        { area: 'mountain', probability: 0.15 },
+        { area: 'cursed', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: -30, // Territorial and predatory, observing prey before ambushing
+        nearby: -50, // Fiercely aggressive and relentless in close combat
+      },
+      allies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['monstrosity', 'fiend'],
+            moralAlignments: ['evil'],
+          })
+        },
+      ],
+      enemies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['humanoid', 'beast'],
+            moralAlignments: ['good'],
+            diet: {
+              dietTags: ['beast', 'humanoid'],
+              dietSizes: getSizesLte('large'),
+            },
+          })
+        },
+      ],
+      behavior: {
+        idle: 'The leucrotta lounges in its territory, occasionally sniffing the air or marking its domain.',
+        eating:
+          'It tears into the carcass of a recent kill, using its strong teeth to crunch bones for marrow.',
+        hiding:
+          'The leucrotta crouches low in the tall grass or dense underbrush, remaining eerily silent to avoid detection.',
+        tactics:
+          'The leucrotta uses deception, mimicking human or animal sounds to lure prey into ambush. It attacks swiftly, aiming to incapacitate and kill its target before retreating with its meal.',
+      },
+    },
+  },
+  {
+    value: 'lion',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16944-lion',
+      xp: 200,
+      ...getDefaultPredatorProps('large'),
+      areas: [
+        { area: 'grassland', probability: 0.5 },
+        { area: 'hill', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: -10, // Observant and cautious, assessing potential threats or prey
+        nearby: -30, // Aggressive when defending territory or hunting prey
+      },
+      behavior: {
+        idle: 'The lion rests in the shade, conserving energy for its next hunt, occasionally grooming or watching its surroundings.',
+        eating:
+          'The lion tears into its prey, often sharing the meal with its pride while growling softly to maintain order.',
+        hiding:
+          'The lion crouches low in tall grass or behind rocks, using its natural camouflage to remain undetected.',
+        tactics:
+          'The lion relies on stealth and teamwork, coordinating with its pride to surround and ambush prey. It targets the weakest or slowest member of a herd for a swift kill.',
       },
     },
   },
@@ -5398,6 +6304,58 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
     },
   },
   {
+    value: 'merrow',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16956-merrow',
+      xp: 450,
+      tags: ['monstrosity', 'aquatic'],
+      sizes: ['large'],
+      legalAlignments: ['chaotic'],
+      moralAlignments: ['evil'],
+      areas: [
+        { area: 'coastal', probability: 0.4 },
+        { area: 'underwater', probability: 0.4 },
+        { area: 'swamp', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: -30, // Aggressive and territorial, attacking boats or swimmers in their domain
+        nearby: -50, // Ferociously fights in melee, seeking to drag prey underwater
+      },
+      allies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['monstrosity', 'aquatic'],
+            moralAlignments: ['evil'],
+          })
+        },
+      ],
+      enemies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['humanoid', 'beast'],
+            moralAlignments: ['good'],
+          })
+        },
+      ],
+      behavior: {
+        idle: 'The merrow swims through its underwater domain, scanning for intruders or prey while keeping to the shadows of coral reefs or rocky outcrops.',
+        eating:
+          'The merrow feasts on fresh kills, tearing apart fish or unlucky humanoids with its sharp teeth and claws.',
+        hiding:
+          'The merrow hides in underwater caves or among dense vegetation, using its surroundings to ambush potential prey or avoid detection.',
+        tactics:
+          'The merrow uses its strength to grapple opponents, dragging them underwater where it can overwhelm them with its ferocity.',
+      },
+    },
+  },
+  {
     value: 'mimic',
     probability: function () {
       return getProbabilityMod(this.props)
@@ -5546,6 +6504,36 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
           'The mephit uses mud and swampy terrain to camouflage itself, blending into its surroundings.',
         tactics:
           'It uses its mud breath to blind enemies and summon allies from the muck. The mephit avoids direct combat, relying on distractions and its ability to retreat into mud.',
+      },
+    },
+  },
+  {
+    value: 'mule',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16960-mule',
+      xp: 25,
+      ...getDefaultPredatorProps('medium'),
+      areas: [
+        { area: 'grassland', probability: 0.4 },
+        { area: 'hill', probability: 0.3 },
+        { area: 'forest', probability: 0.2 },
+        { area: 'urban', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: 10, // Generally docile and avoids confrontation
+        nearby: -10, // Defensive if threatened or overburdened
+      },
+      behavior: {
+        idle: 'The mule stands quietly, grazing or resting, often near its owner or herd.',
+        eating:
+          'The mule feeds on grass, hay, or other vegetation, chewing steadily with a calm demeanor.',
+        hiding:
+          'When startled or sensing danger, the mule stays near its handler or moves to higher ground for safety.',
+        tactics:
+          'In defense, the mule uses powerful kicks to deter predators or aggressors but typically avoids combat when possible.',
       },
     },
   },
@@ -5939,6 +6927,36 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
     },
   },
   {
+    value: 'ox',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/2560899-ox',
+      xp: 50,
+      ...getDefaultPredatorProps('large'),
+      areas: [
+        { area: 'grassland', probability: 0.5 },
+        { area: 'hill', probability: 0.3 },
+        { area: 'forest', probability: 0.1 },
+        { area: 'mountain', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: 10, // Generally docile and avoids conflict
+        nearby: -20, // Becomes defensive if threatened or if its herd is in danger
+      },
+      behavior: {
+        idle: 'The ox grazes in open fields or lounges in the shade, chewing cud and staying close to its herd.',
+        eating:
+          'The ox consumes grass, hay, or grains steadily, maintaining its strength for work or travel.',
+        hiding:
+          'If startled, the ox gathers with its herd for protection, relying on its size and numbers to intimidate threats.',
+        tactics:
+          'In defense, the ox charges or uses its horns to fend off predators, aiming to protect itself and its herd.',
+      },
+    },
+  },
+  {
     value: 'panther',
     probability: function () {
       return getProbabilityMod(this.props)
@@ -6140,6 +7158,36 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
           'The snake uses its natural camouflage to blend into its surroundings, remaining still to avoid notice.',
         tactics:
           'In combat, it bites with precision, relying on its venom to weaken enemies. It focuses on vulnerable targets and retreats into cover if threatened.',
+      },
+    },
+  },
+  {
+    value: 'giant vulture',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16897-giant-vulture',
+      xp: 200,
+      ...getDefaultPredatorProps('large'),
+      areas: [
+        { area: 'desert', probability: 0.4 },
+        { area: 'grassland', probability: 0.3 },
+        { area: 'mountain', probability: 0.2 },
+        { area: 'coastal', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: -10, // Cautious but opportunistic from afar
+        nearby: -30, // Aggressive if its food or territory is disturbed
+      },
+      behavior: {
+        idle: 'The giant vulture soars lazily in the sky, scanning the ground for signs of carrion or weak prey.',
+        eating:
+          'It tears into carcasses with its powerful beak, feeding aggressively and defending its food from other scavengers.',
+        hiding:
+          'The vulture roosts on high cliffs or rocky outcroppings, using its keen eyesight to detect approaching threats.',
+        tactics:
+          'In combat, the giant vulture circles its prey, diving to strike with its talons and attempting to drive off its foes.',
       },
     },
   },
@@ -6500,6 +7548,61 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
           'Reflections remain in shadowy areas or mirror surfaces, blending in with their surroundings.',
         tactics:
           'In combat, they mimic the attacks and abilities of their foes, using this mimicry to disorient and outmatch enemies. They focus on causing as much confusion as possible before retreating.',
+      },
+    },
+  },
+  {
+    value: 'riding horse',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/16997-riding-horse',
+      xp: 50,
+      tags: ['beast', 'mammal'],
+      sizes: ['large'],
+      legalAlignments: ['neutral'],
+      moralAlignments: ['neutral'],
+      areas: [
+        { area: 'grassland', probability: 0.6 },
+        { area: 'hill', probability: 0.3 },
+        { area: 'forest', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: 10, // Wary but cooperative, generally peaceful unless spooked
+        nearby: -10, // Can become defensive or skittish if cornered or frightened
+      },
+      allies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'and',
+            tags: ['humanoid', 'beast'],
+            moralAlignments: ['neutral', 'good'],
+          })
+        },
+      ],
+      enemies: [
+        (creature) => {
+          return getRelationshipFilter({
+            creature,
+            operation: 'or',
+            tags: ['beast', 'monstrosity'],
+            diet: {
+              dietTags: ['mammal'],
+              dietSizes: getSizesLt('large'),
+            },
+          })
+        },
+      ],
+      behavior: {
+        idle: 'The riding horse grazes in open fields or rests in stables, occasionally stamping its hooves and flicking its tail to ward off insects.',
+        eating:
+          'It consumes grasses, hay, or grains, often staying near water sources.',
+        hiding:
+          'When startled, it runs to safety, relying on its speed to escape threats.',
+        tactics:
+          'The riding horse will kick and rear to defend itself but primarily relies on flight to evade predators.',
       },
     },
   },
@@ -7545,6 +8648,36 @@ export const preprocessedCreatures: BaseRandomCreatureList = [
           'The chief uses its plant-like appearance and dense vegetation to remain hidden, often standing motionless to avoid detection.',
         tactics:
           'In combat, it leads its tribe with strategic precision, targeting the most immediate threats. It prioritizes defending its grove and retreating only if necessary to preserve the tribe.',
+      },
+    },
+  },
+  {
+    value: 'vulture',
+    probability: function () {
+      return getProbabilityMod(this.props)
+    },
+    props: {
+      url: 'https://www.dndbeyond.com/monsters/17048-vulture',
+      xp: 10,
+      ...getDefaultPredatorProps('medium'),
+      areas: [
+        { area: 'desert', probability: 0.4 },
+        { area: 'grassland', probability: 0.3 },
+        { area: 'mountain', probability: 0.2 },
+        { area: 'coastal', probability: 0.1 },
+      ],
+      predisposition: {
+        distant: -10, // Cautious but opportunistic from afar
+        nearby: -30, // Aggressive if its food or territory is disturbed
+      },
+      behavior: {
+        idle: 'The vulture soars lazily in the sky, scanning the ground for signs of carrion or weak prey.',
+        eating:
+          'It tears into carcasses with its powerful beak, feeding aggressively and defending its food from other scavengers.',
+        hiding:
+          'The vulture roosts on high cliffs or rocky outcroppings, using its keen eyesight to detect approaching threats.',
+        tactics:
+          'In combat, the vulture circles its prey, diving to strike with its talons and attempting to drive off its foes.',
       },
     },
   },

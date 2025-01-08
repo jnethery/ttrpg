@@ -122,10 +122,101 @@ const underdark_smells = [
   { value: 'brimstone', probability: 0.6 },
 ]
 
+const hill_smells = [
+  { value: 'Freshly cut grass', probability: 1 },
+  { value: 'Wildflowers blooming among the hills', probability: 0.9 },
+  { value: 'Damp earth after a light rain', probability: 1 },
+  { value: 'The faint scent of pine from a distant grove', probability: 0.8 },
+  { value: 'The warm, dry smell of sunbaked rocks', probability: 0.7 },
+  { value: 'The earthy scent of grazing animals', probability: 0.6 },
+  { value: 'The tangy aroma of wild herbs growing nearby', probability: 0.9 },
+  { value: 'The faint musk of nearby sheep', probability: 0.7 },
+  {
+    value: 'The sweet smell of clover scattered across the hill',
+    probability: 0.8,
+  },
+  { value: 'The clean, crisp scent of mountain air', probability: 0.9 },
+  { value: 'The subtle fragrance of flowering shrubs', probability: 0.6 },
+  { value: 'The rich smell of freshly turned soil', probability: 0.7 },
+  { value: 'The sharp scent of crushed thyme underfoot', probability: 0.8 },
+  { value: 'The faint whiff of smoke from a distant fire', probability: 0.6 },
+  { value: 'The subtle musk of damp moss on rocks', probability: 0.7 },
+  {
+    value: 'The spicy aroma of wild sage growing in patches',
+    probability: 0.8,
+  },
+  { value: 'The tang of cool morning dew on the grass', probability: 0.9 },
+  {
+    value: 'The faint, floral perfume of lavender in bloom',
+    probability: 0.7,
+  },
+  { value: 'The heavy scent of rain-soaked grass', probability: 0.8 },
+  { value: 'The mineral tang of a nearby spring', probability: 0.6 },
+  { value: 'The faint smell of hay carried on the wind', probability: 0.7 },
+  { value: 'The resinous scent of juniper trees', probability: 0.6 },
+  {
+    value: 'The faint odor of cattle grazing in the distance',
+    probability: 0.7,
+  },
+  { value: 'The slightly metallic scent of wet rocks', probability: 0.8 },
+  { value: 'The refreshing smell of wind-whipped grass', probability: 0.9 },
+]
+
+const coastal_smells = [
+  { value: 'The salty tang of sea air', probability: 1 },
+  { value: 'The faintly metallic scent of wet rocks', probability: 0.9 },
+  { value: 'The briny aroma of seaweed washed ashore', probability: 0.8 },
+  { value: 'The rich, damp smell of sand', probability: 1 },
+  {
+    value: 'The subtle sweetness of marine flowers in bloom',
+    probability: 0.7,
+  },
+  { value: 'The faint scent of sun-warmed driftwood', probability: 0.8 },
+  {
+    value: 'The sharp, clean smell of ozone before a storm',
+    probability: 0.7,
+  },
+  { value: 'The fishy odor of a tide pool', probability: 0.9 },
+  { value: 'The pungent smell of decaying seaweed', probability: 0.6 },
+  {
+    value: 'The faint whiff of salt-crusted wood from a dock',
+    probability: 0.8,
+  },
+  { value: 'The earthy smell of wet sand at low tide', probability: 0.9 },
+  { value: 'The rich, smoky scent of a nearby bonfire', probability: 0.6 },
+  { value: 'The faint aroma of fresh-caught fish', probability: 0.7 },
+  { value: 'The tang of algae blooming in a tide pool', probability: 0.8 },
+  { value: 'The warm, slightly burnt smell of tarred rope', probability: 0.6 },
+  {
+    value: 'The light perfume of distant wildflowers on cliffs',
+    probability: 0.7,
+  },
+  { value: 'The sharp smell of drying shells on the beach', probability: 0.8 },
+  {
+    value: 'The faint odor of sea spray carried by the wind',
+    probability: 0.9,
+  },
+  { value: 'The warm, earthy scent of sunbaked rocks', probability: 0.8 },
+  { value: 'The pungent musk of rotting driftwood', probability: 0.6 },
+  {
+    value: 'The subtle aroma of distant rain over the water',
+    probability: 0.7,
+  },
+  { value: 'The spicy, herbal smell of sea grasses', probability: 0.8 },
+  { value: 'The clean scent of freshly turned sand', probability: 0.9 },
+  {
+    value: 'The faint hint of citrus from distant lemon groves',
+    probability: 0.5,
+  },
+  { value: 'The slightly metallic tang of sea salt', probability: 1 },
+]
+
 export default {
   grassland_smells,
   swamp_smells,
   forest_smells,
+  hill_smells,
+  coastal_smells,
   underdark_smells,
   rotting_smells,
 }
