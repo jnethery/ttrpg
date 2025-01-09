@@ -8,6 +8,7 @@ import {
 import { RandomCreatureListItem } from 'types/creatures'
 import { getEvaluatedListItemFromKey, getListItem } from 'lib/lists/evaluate'
 import { RandomList, EncounterDifficulty } from 'types/lists'
+import { getContext } from 'lib/lists/context'
 
 export const event: RandomList = [
   { value: '[mundane]', props: { type: 'mundane' }, probability: 4 / 12 },
@@ -38,5 +39,16 @@ export const event: RandomList = [
       type: 'encounter',
     },
     probability: 1 / 12,
+    debug: async () => {
+      const { overrides } = getContext()
+      if (
+        overrides &&
+        overrides.eventType &&
+        overrides.eventType === 'encounter'
+      ) {
+        return true
+      }
+      return false
+    },
   },
 ]

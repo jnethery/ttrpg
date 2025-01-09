@@ -69,7 +69,18 @@ export const getListItem = async (
   const randNum = Math.random()
   let cumulativeProbability = 0
   const normalizedList = await normalizeProbabilities(list)
-  const debugItems = normalizedList.filter((item) => item.debug)
+  const debugItems = await Promise.all(
+    normalizedList.map(async (item) => {
+      if ('debug' in item) {
+        if (typeof item.debug === 'function') {
+          return (await item.debug()) ? item : null
+        } else {
+          return item.debug ? item : null
+        }
+      }
+      return null
+    }),
+  ).then((results) => results.filter((item) => item !== null))
 
   if (debugItems.length && normalizedList.length !== debugItems.length) {
     return getListItem(debugItems)

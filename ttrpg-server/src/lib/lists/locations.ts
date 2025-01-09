@@ -1,8 +1,6 @@
 import { getListItemFromKey } from 'lib/lists/evaluate'
-import {
-  RandomLocationListItem,
-  locationValueFunction,
-} from 'lib/lists/arrays/location'
+import { RandomLocationListItem } from 'lib/lists/arrays/location'
+import { locationValueFunction } from 'lib/lists/arrays/locations'
 
 export const generateLocation = async (): Promise<RandomLocationListItem> => {
   const location = (await getListItemFromKey(

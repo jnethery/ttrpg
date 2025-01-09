@@ -211,12 +211,48 @@ const coastal_smells = [
   { value: 'The slightly metallic tang of sea salt', probability: 1 },
 ]
 
+const sweet_smells = [
+  { value: 'vanilla', probability: 1 },
+  { value: 'lavender', probability: 1 },
+  { value: 'citrus', probability: 1 },
+  { value: 'jasmine', probability: 1 },
+  { value: 'rose', probability: 1 },
+  { value: 'mint', probability: 1 },
+  { value: 'honeysuckle', probability: 1 },
+  { value: 'fresh linen', probability: 1 },
+  { value: 'eucalyptus', probability: 1 },
+  { value: 'pine', probability: 1 },
+  { value: 'almond', probability: 1 },
+  { value: 'orchid', probability: 1 },
+  { value: 'coconut', probability: 1 },
+  { value: 'apple blossom', probability: 1 },
+  { value: 'lemon balm', probability: 1 },
+  { value: 'lilac', probability: 1 },
+  { value: 'fresh rainwater', probability: 1 },
+  { value: 'gardenia', probability: 1 },
+  { value: 'chamomile', probability: 1 },
+  { value: 'white tea', probability: 1 },
+]
+
+const stone_smells = [
+  { value: 'damp', probability: 1 },
+  { value: 'earthy', probability: 1 },
+  { value: 'mineral', probability: 1 },
+  { value: 'metallic', probability: 1 },
+  { value: 'musty', probability: 1 },
+]
+
 export default {
+  // Regional Smells
   grassland_smells,
   swamp_smells,
   forest_smells,
   hill_smells,
   coastal_smells,
   underdark_smells,
+
+  // Ambient Smells
   rotting_smells,
+  sweet_smells,
+  stone_smells,
 }

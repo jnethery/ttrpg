@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { config } from 'config'
 
-import { Area, Region, Party } from 'types/lists'
+import { Area, Region, Party, ContextOverrides } from 'types/lists'
 import {
   EnvironmentalCondition,
   HeatCondition,
@@ -25,6 +25,7 @@ export const useList = () => {
   const [areas, setAreas] = useState<Area[]>([])
   const [regions, setRegions] = useState<Region[]>([])
   const [party, setParty] = useState<Party | null>(null)
+  const [overrides, setOverrides] = useState<ContextOverrides>({})
 
   const [useAI, setUseAI] = useState(false)
 
@@ -63,6 +64,7 @@ export const useList = () => {
     if (party) {
       paramObject.party = JSON.stringify(party)
     }
+    paramObject.overrides = JSON.stringify(overrides)
     if (heat) {
       paramObject.heat = heat
     }
@@ -99,6 +101,7 @@ export const useList = () => {
     precipitationSize,
     regions,
     useAI,
+    overrides,
   ])
 
   useEffect(() => {
@@ -119,6 +122,7 @@ export const useList = () => {
     precipitationSize,
     refetch: fetchData,
     regions,
+    overrides,
     setAreas,
     setConditions,
     setCreatureName,
@@ -128,6 +132,7 @@ export const useList = () => {
     setPrecipitationSize,
     setRegions,
     setUseAI,
+    setOverrides,
     useAI,
   }
 }

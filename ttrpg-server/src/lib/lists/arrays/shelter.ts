@@ -459,109 +459,188 @@ const shelter_occupancy: RandomOccupantListItem[] = [
   },
 ]
 
+const highVisibilityValueFunction = async (props: { description: string }) => {
+  return `
+    <li>${props.description}</li>
+    <li>1d20 above 15 to avoid a combat encounter when sleeping.</li>
+  `
+}
+const mediumVisibilityValueFunction = async (props: {
+  description: string
+}) => {
+  return `
+    <li>${props.description}</li>
+    <li>1d20 above 8 to avoid a combat encounter when sleeping</li>
+  `
+}
+const noneVisibilityValueFunction = async (props: { description: string }) => {
+  return `
+    <li>${props.description}</li>
+  `
+}
+
 const shelter_visibility_high: RandomList = [
   {
-    value:
-      'The shelter is brightly lit, making it highly visible from a distance even at night.',
+    value: highVisibilityValueFunction,
     probability: 1,
+    props: {
+      description:
+        'The shelter is brightly lit, making it highly visible from a distance even at night.',
+    },
   },
   {
-    value:
-      'The structure’s reflective surfaces catch sunlight, drawing attention from miles away.',
-    probability: 0.9,
+    value: highVisibilityValueFunction,
+    probability: 1,
+    props: {
+      description:
+        'Its reflective surfaces catch sunlight, drawing attention from miles away.',
+    },
   },
   {
-    value:
-      'The shelter is positioned in an open area with no natural cover, making it easy to spot.',
-    probability: 0.8,
+    value: highVisibilityValueFunction,
+    probability: 1,
+    props: {
+      description:
+        'The shelter is positioned in an open area with no natural cover, making it easy to spot.',
+    },
   },
   {
-    value:
-      'Its brightly colored materials stand out starkly against the surrounding landscape.',
-    probability: 0.8,
+    value: highVisibilityValueFunction,
+    probability: 1,
+    props: {
+      description:
+        'Its brightly colored materials stand out starkly against the surrounding landscape.',
+    },
   },
   {
-    value:
-      'Smoke from the shelter’s fire rises high into the air, serving as a beacon to observers.',
-    probability: 0.7,
+    value: highVisibilityValueFunction,
+    probability: 1,
+    props: {
+      description:
+        'Smoke from the shelter’s fire rises high into the air, serving as a beacon to observers.',
+    },
   },
   {
-    value:
-      'The shelter is located on elevated terrain, making it visible from multiple directions.',
-    probability: 0.7,
+    value: highVisibilityValueFunction,
+    probability: 1,
+    props: {
+      description:
+        'The shelter is located on elevated terrain, making it visible from multiple directions.',
+    },
   },
   {
-    value:
-      'A lack of surrounding vegetation makes the shelter’s silhouette prominent from afar.',
-    probability: 0.8,
+    value: highVisibilityValueFunction,
+    probability: 1,
+    props: {
+      description:
+        'A lack of surrounding vegetation makes the shelter’s silhouette prominent from afar.',
+    },
   },
   {
-    value:
-      'Bright lights or lanterns illuminate the shelter, making it impossible to miss after sunset.',
-    probability: 0.9,
+    value: highVisibilityValueFunction,
+    probability: 1,
+    props: {
+      description:
+        'Bright lights or lanterns illuminate the shelter, making it impossible to miss after sunset.',
+    },
   },
   {
-    value:
-      'Its vibrant decorations or banners make the shelter noticeable to any passing observers.',
-    probability: 0.6,
+    value: highVisibilityValueFunction,
+    probability: 1,
+    props: {
+      description:
+        'Its vibrant decorations or banners make the shelter noticeable to any passing observers.',
+    },
   },
   {
-    value:
-      'The shelter’s position at a crossroads ensures that it is seen by anyone traveling nearby.',
-    probability: 0.8,
+    value: highVisibilityValueFunction,
+    probability: 1,
+    props: {
+      description:
+        'The shelter’s position at a crossroads ensures that it is seen by anyone traveling nearby.',
+    },
   },
 ]
 
 const shelter_visibility_medium: RandomList = [
   {
-    value:
-      'The shelter blends moderately with its surroundings, visible only upon closer inspection.',
+    value: mediumVisibilityValueFunction,
     probability: 0.8,
+    props: {
+      description:
+        'The shelter blends moderately with its surroundings, visible only upon closer inspection.',
+    },
   },
   {
-    value:
-      'Partially obscured by vegetation, the shelter is noticeable but not immediately apparent.',
-    probability: 0.7,
-  },
-  {
-    value:
-      'The structure’s neutral colors help it avoid standing out, though it’s visible in open terrain.',
+    value: mediumVisibilityValueFunction,
     probability: 0.8,
+    props: {
+      description:
+        'Partially obscured by vegetation, the shelter is noticeable but not immediately apparent.',
+    },
   },
+
   {
-    value:
-      'Positioned near a slope, the shelter is partially hidden from one direction but exposed from others.',
+    value: mediumVisibilityValueFunction,
     probability: 0.7,
+    props: {
+      description:
+        'The structure’s neutral colors help it avoid standing out, though it’s visible in open terrain.',
+    },
   },
+
   {
-    value:
-      'Its small size makes it harder to spot, but movement around it can attract attention.',
+    value: mediumVisibilityValueFunction,
+    probability: 0.8,
+    props: {
+      description:
+        'Positioned near a slope, the shelter is partially hidden from one direction but exposed from others.',
+    },
+  },
+
+  {
+    value: mediumVisibilityValueFunction,
     probability: 0.6,
+    props: {
+      description:
+        'Its small size makes it harder to spot, but movement around it can attract attention.',
+    },
   },
+
   {
-    value:
-      'The shelter is camouflaged somewhat by shadows, visible mainly during the day.',
+    value: mediumVisibilityValueFunction,
     probability: 0.7,
+    props: {
+      description:
+        'The shelter is camouflaged somewhat by shadows, visible mainly during the day.',
+    },
   },
+
   {
-    value:
-      'A scattering of nearby rocks and trees provides some cover, though the shelter can still be seen.',
+    value: mediumVisibilityValueFunction,
     probability: 0.8,
+    props: {
+      description:
+        'A scattering of nearby rocks and trees provides some cover, though the shelter can still be seen.',
+    },
   },
+
   {
-    value:
-      'Its location at the edge of a clearing makes it noticeable to those actively scanning the area.',
+    value: mediumVisibilityValueFunction,
     probability: 0.7,
+    props: {
+      description:
+        'Its location at the edge of a clearing makes it noticeable to those actively scanning the area.',
+    },
   },
+
   {
-    value:
-      'The shelter is obscured from certain angles but stands out when approached from others.',
+    value: mediumVisibilityValueFunction,
     probability: 0.6,
-  },
-  {
-    value:
-      'A single light or smoke from the shelter makes it moderately visible, especially at night.',
-    probability: 0.7,
+    props: {
+      description:
+        'The shelter is obscured from certain angles but stands out when approached from others.',
+    },
   },
 ]
 

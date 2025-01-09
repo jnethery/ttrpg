@@ -356,12 +356,39 @@ const coastal_sounds = [
   { value: 'The gentle lap of water against smooth rocks', probability: 0.8 },
 ]
 
+const crystal_sounds = [
+  { value: 'humming', probability: 1 },
+  { value: 'resonating', probability: 0.9 },
+  { value: 'tinkling', probability: 0.8 },
+  { value: 'chiming', probability: 0.7 },
+  { value: 'shimmering', probability: 0.8 },
+  { value: 'clinking', probability: 0.6 },
+  { value: 'ringing', probability: 0.7 },
+  { value: 'crackling', probability: 0.5 },
+  { value: 'glittering', probability: 0.4 },
+  { value: 'crystalline', probability: 0.6 },
+  { value: 'echoing', probability: 0.7 },
+  { value: 'pinging', probability: 1 },
+  { value: 'whistling', probability: 0.9 },
+  { value: 'thrumming', probability: 0.6 },
+  { value: 'vibrating', probability: 0.5 },
+  { value: 'glacial creak', probability: 0.7 },
+  { value: 'soft crack', probability: 0.8 },
+  { value: 'bell-like', probability: 0.7 },
+  { value: 'twinkling', probability: 0.6 },
+  { value: 'melodic hum', probability: 0.8 },
+]
+
 export default {
+  // Regional Sounds
   grassland_sounds,
   swamp_sounds,
   forest_sounds,
   hill_sounds,
   coastal_sounds,
   underdark_sounds,
+
+  // Environmental Sounds
   bubbling_sounds,
+  crystal_sounds,
 }

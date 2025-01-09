@@ -11,16 +11,34 @@ const openai = new OpenAI({
 
 type HappeningListItem = RandomListItem & { props: { type: string } }
 
+// const getCombatEncounterPrompt = () => {
+//   ;`
+//     Summarize this D&D 5E encounter from the perspective of a party of adventurers, narrated like "You see a...",
+//     describing the scene: ${result}.
+//     ${isHidingAction ? 'do not reveal the presence of the creatures or hint at their existence, but instead describe the scary and tense ambience of the scene.' : ''}
+//     ${
+//       !isHidingAction
+//         ? `
+//       Prefer to describe the creatures rather than using their names.
+//       Their difficulty and alignment should be implicitly stated, but not explicit.
+//       For instance, if a group is 'chaotic evil',
+//       they or their actions should be described as a synonym for chaotic,
+//       like "frantic", and their morality should be represented by their viciousness.
+//     `
+//         : ''
+//     }
+//     It should be 3 sentences at max.
+//   `
+// }
+
 const getHappeningStringForPrompt = async (
   happening: null | HappeningListItem,
 ) => {
+  // TODO: Parse out the values from the happening to pass into the AI
   if (happening) {
-    if (happening.props.type === 'tracks') {
-      return ''
-    }
+    return await evaluateItem(happening)
   }
-
-  return '<li>Nothing happens</li>'
+  return `<li>Nothing happens</li>`
 }
 
 export const generateEvent = async () => {
@@ -41,7 +59,7 @@ export const generateEvent = async () => {
     : '<li>Nothing happens</li>'
 
   // Need to parse this to see what values to pass into the AI
-  const eventStringForPrompt = `${locationStringForPrompt}${getHappeningStringForPrompt(happening)}`
+  const eventStringForPrompt = `${locationStringForPrompt}${await getHappeningStringForPrompt(happening)}`
   const eventString = `${locationString}${happeningString}`
 
   const useAI = getContext()?.useAI ?? false

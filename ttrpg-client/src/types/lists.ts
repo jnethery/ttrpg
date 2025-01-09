@@ -7,13 +7,14 @@ import {
 export const DEFAULT_KEY = 'main'
 export type Value = string | ValueFunction
 export type ValueFunction = (props?: any) => Promise<string>
+export type DebugFunction = (props?: any) => string
 export type ProbabilityFunction = () => number
 export interface RandomListItem {
   value: Value
   probability: number | ProbabilityFunction
   // TODO: Can we tighten down the types here?
   props?: any
-  debug?: boolean
+  debug?: boolean | DebugFunction
 }
 export type RandomList = RandomListItem[]
 
@@ -60,6 +61,13 @@ export interface Party {
   // and if they are too hard, it can be decreased.
   crMultiplier: number
 }
+
+export const eventTypes = ['encounter'] as const
+export type EventType = (typeof eventTypes)[number]
+export interface ContextOverrides {
+  eventType?: EventType
+}
+
 export interface ListContext {
   useAI?: boolean
   creatureName?: string
@@ -67,6 +75,7 @@ export interface ListContext {
   regions?: Region[]
   conditions?: EnvironmentalCondition[]
   party?: Party
+  overrides?: ContextOverrides
 }
 
 export const ListContextRequestSchema = z.object({
@@ -79,6 +88,7 @@ export const ListContextRequestSchema = z.object({
   precipitationAmount: z.string().optional(),
   precipitationSize: z.string().optional(),
   party: z.string().optional(),
+  overrides: z.string().optional(),
 })
 
 export const ListContextSchema = z.object({
@@ -87,6 +97,11 @@ export const ListContextSchema = z.object({
   areas: z.array(z.enum(areas)).optional(),
   regions: z.array(z.enum(regions)).optional(),
   conditions: z.array(z.enum(conditions)).optional(),
+  overrides: z
+    .object({
+      eventType: z.enum(eventTypes),
+    })
+    .optional(),
   party: z
     .object({
       avgLevel: z.number(),

@@ -15,6 +15,7 @@ export const generateOutput = async (context: ListContext): Promise<string> => {
     },
     creatureName: context.creatureName,
     useAI: context.useAI ?? false,
+    overrides: context.overrides ?? {},
   }
   setContext(formattedContext)
   const item = await getListItemFromKey(DEFAULT_KEY)
@@ -152,27 +153,6 @@ sounds
     hollow echoes  
     low creaking of wood  
     soft hum of wind through reeds
-  crystal
-    humming  
-    resonating  
-    tinkling  
-    chiming  
-    shimmering  
-    clinking  
-    ringing  
-    crackling  
-    glittering  
-    crystalline  
-    echoing  
-    pinging  
-    whistling  
-    thrumming  
-    vibrating  
-    glacial creak  
-    soft crack  
-    bell-like  
-    twinkling  
-    melodic hum
 
 smells
   swampy
@@ -196,27 +176,6 @@ smells
     mossy  
     oceanic  
     silt-like
-  sweet
-    vanilla  
-    lavender  
-    citrus  
-    jasmine  
-    rose  
-    mint  
-    honeysuckle  
-    fresh linen  
-    eucalyptus
-    pine  
-    almond  
-    orchid  
-    coconut  
-    apple blossom  
-    lemon balm  
-    lilac  
-    fresh rainwater  
-    gardenia  
-    chamomile  
-    white tea 
 
 trinket
   a mummified hand  
